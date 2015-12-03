@@ -35,9 +35,9 @@
         root.lists.scenesTemp = [];
 
         // Отлавлевает движения мыши по canvas, и пишет изминения в root.mouse
-        root.canvas.addEventListener('mousemove', function(event){
+        /*root.canvas.addEventListener('mousemove', function(event){
             root.mouse = Util.getMouseCanvas(root.canvas, event);
-        });
+        });*/
 
         // Отлавлевает клики мыши по canvas, и пишет изминения в root.mouseClick
         root.canvas.addEventListener('click', function(event)
@@ -83,6 +83,12 @@
                 root.context.stroke();
             }
         }
+        root.context.shadow = function (x,y,blur,color){
+            root.context.shadowOffsetX = x;
+            root.context.shadowOffsetY = y;
+            root.context.shadowBlur = blur;
+            root.context.shadowColor = color;
+        };
 
         // Добавляет callback на событие keydown для keyCode
         this.addEventKeydown = function(keyCode, callback)
@@ -220,7 +226,7 @@
                 }
             });
         };
-
+/*
         window.addEventListener('keydown', function(event){
             root.keydownCode = event.keyCode;
             if(root.lists.events.keydown != null && typeof root.lists.events.keydown[event.keyCode] === 'object'){
@@ -236,7 +242,7 @@
                 e.callback.call(root, event);
             }
         });
-
+*/
     };
 
 
