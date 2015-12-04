@@ -24,12 +24,16 @@ and some event-control model for "click", "mousemove",
         keyupCode:  null
     };
 
-    var An = function(options)
+    var An = function(options,p1,p2,p3)
     {
         if(!(this instanceof An))
-            return new An(options);
+            return new An(options,p1,p2,p3);
 
-        if(!options || !options.selector || typeof options !== 'object') return;
+        if(arguments.length > 2 && arguments[1] > 0)
+            options = {selector:arguments[0],width:arguments[1],height:arguments[2],fps:arguments[3]};
+        
+        if(!options || !options.selector || typeof options !== 'object') 
+            return;
 
         var defaultOption = {
             selector:null,
