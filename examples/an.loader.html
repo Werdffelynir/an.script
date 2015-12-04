@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="an.script_1.0.0.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 600, 300, 30);
+
+
+an.imageLoader(
+        {
+            'cartman':'images/cartman.png',
+            'bgMain':'images/bg8.jpg'
+        },
+        function(images, ctx){
+            an.render();
+        }
+);
+
+
+an.graphic.bg = function(ctx, img){
+    //ctx.fillStyle = an.context.createPattern(an.image[img], "repeat");
+    //ctx.fillRect(0,0,an.width,an.height);
+    ctx.drawImage(an.image[img],0,0,an.width,an.height)
+};
+
+
+
+
+
+an.scene({
+    index: 10,
+    moveX: 100,
+    speed: 5,
+    runner: function(ctx){
+
+        an.removeEventClick([this.moveX,220,64,64]);
+
+        an.graphic.bg(ctx,'bgMain');
+        ctx.drawImage(an.image['cartman'],this.moveX,220);
+
+        this.moveX += this.speed;
+        if(this.moveX < 0) this.speed *= -1;
+        if(this.moveX > an.width-64) this.speed *= -1;
+
+        var self = this;
+        an.addEventClick([this.moveX,220,64,64],function(e,rectangle){
+            self.speed *= -1;
+            an.context.fillStyle = 'rgba(0,0,0,0.4)';
+            an.context.fillRect(self.moveX,220,64,64);
+            an.removeEventClick(rectangle);
+        });
+    }
+});
+
+/*
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+
+    }
+});
+*/
+
+
+
+
+</script>
+
+</body>
+</html>

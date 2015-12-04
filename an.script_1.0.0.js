@@ -15,13 +15,19 @@ and some event-control model for "click", "mousemove",
         canvas:     null,
         context:    null,
         frame:      0,
+        image:      {},
         graphic:    {},
         glob:       {},
         options:    {},
         mouse:      { x:0, y:0 },
         mouseClick: { x:0, y:0 },
         keydownCode:null,
-        keyupCode:  null
+        keyupCode:  null,
+        extensions: []
+    };
+
+    var Extension = function(func){
+        root.extensions.push(func);
     };
 
     var An = function(options,p1,p2,p3)
@@ -48,7 +54,7 @@ and some event-control model for "click", "mousemove",
         };
 
         // root.options
-        root.options = Util.objMerge(options, defaultOption);
+        root.options = Util.objMerge(defaultOption, options);
         options = defaultOption = null;
 
         root.selector = root.options.selector;
@@ -85,7 +91,7 @@ and some event-control model for "click", "mousemove",
                             eventsClicks[key].rectangle[0]+eventsClicks[key].rectangle[2] > root.mouseClick.x &&
                             eventsClicks[key].rectangle[1]+eventsClicks[key].rectangle[3] > root.mouseClick.y
                         ){
-                            eventsClicks[key].callback.call(root, event);
+                            eventsClicks[key].callback.call(root, event, eventsClicks[key].rectangle);
                         }
                     }
                 }
@@ -164,6 +170,11 @@ and some event-control model for "click", "mousemove",
             if(name !== undefined && typeof name === 'string')
                 this.applyStage(name);
 
+            if(root.extensions.length > 0){
+                for(var ei = 0; ei < root.extensions.length; ei ++)
+                    if(typeof root.extensions[ei] === 'function') root.extensions[ei].call(root, root);
+            }
+
             if(root.fps > 0) {
                 drawFrame();
                 if(root.options.autoStart)
@@ -237,6 +248,26 @@ and some event-control model for "click", "mousemove",
             root.canvas.height = root.height = window.innerHeight;
         };
 
+        this.imageLoader = function(imgs, callback) {
+            if(!imgs && typeof imgs !== 'object') return;
+            var length = an.u.objLength(imgs);
+            var images = {};
+            var iterator = 0;
+            for(var name in imgs){
+                var eImg = document.createElement('img');
+                eImg.src = imgs[name];
+                eImg.name = name;
+                eImg.onload = function(e){
+                        images[this.name] = this;
+                        iterator ++;
+                        if(iterator == length) {
+                            root.image = Util.objMerge(root.image,images);
+                            callback.call(root, root.image, root.context);
+                        }
+                    };
+            }
+        };
+
 
         // - - - - - - - - - - - - - - - - - - - - - - - - -
         // graphics methods
@@ -302,7 +333,10 @@ and some event-control model for "click", "mousemove",
                 });
                 delete root.lists.scenesTemp;
             }
-            root.clear();
+
+            if(root.options.autoClear === true)
+                root.clear();
+
             root.lists.scenes.forEach(function(item){
                 try{
                     root.context.save();
@@ -334,13 +368,6 @@ and some event-control model for "click", "mousemove",
         }
     };
 
-
-
-
-
-
-
-
     var Util = {};
 
     // Вернет клон объекта
@@ -353,11 +380,23 @@ and some event-control model for "click", "mousemove",
     };
 
     // Обеденит два объекта, на базе второго (obj2 будет изменен)
-    Util.objMerge = function(obj1, obj2){
-        //for(var key in obj1) if(obj2[key] === undefined) obj2[key] = obj1[key];
-        for(var key in obj2)
-            if(obj1[key] !== undefined) obj2[key] = obj1[key];
-        return obj2;
+    Util.objMerge = function(objectBase,object){
+        for(var key in object){
+            objectBase[key] = object[key];
+        }
+        return objectBase;
+    };
+    Util.objMergeNotExists = function(objectBase,object){
+        for(var key in object) 
+            if(objectBase[key] === undefined) 
+                objectBase[key] = object[key];
+        return objectBase;
+    };
+    Util.objMergeOnlyExists = function(objectBase,object){
+        for(var key in object) 
+            if(objectBase[key] !== undefined) 
+                objectBase[key] = object[key];
+        return objectBase;
     };
 
     // Вернет случайное целое число между min, max, если не указано от 0 до 100
@@ -415,6 +454,7 @@ and some event-control model for "click", "mousemove",
     An.prototype = root;
     An.prototype.u = Util;
     window.An = An;
-    window.AnUtil = Util;
+    window.An.Util = Util;
+    window.An.Extension = Extension;
 
 })(window);

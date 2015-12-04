@@ -1,6 +1,13 @@
+/**
+The script implements a control HTML5 element canvas
+Simplified realization of animation or static graphs, 
+and some event-control model for "click", "mousemove",
+"keydown" and "keypress"
+*/
 (function(window){
 
     var root = {
+        version:    '1.0.0',
         selector:   null,
         width:      0,
         height:     0,
@@ -9,24 +16,43 @@
         context:    null,
         frame:      0,
         graphic:    {},
-        opt:        {},
+        glob:       {},
+        options:    {},
         mouse:      { x:0, y:0 },
         mouseClick: { x:0, y:0 },
         keydownCode:null,
         keyupCode:  null
     };
 
-    var An = function(selector,width,height,fps)
+    var An = function(options)
     {
         if(!(this instanceof An))
-            return new An(selector,width,height,fps);
+            return new An(options);
 
-        root.selector = selector;
-        root.canvas = document.querySelector(selector);
-        root.canvas.width = root.width = width || 600;
-        root.canvas.height = root.height = height || 400;
+        if(!options || !options.selector || typeof options !== 'object') return;
+
+        var defaultOption = {
+            selector:null,
+            width:600,
+            height:400,
+            fps:(parseInt(options.fps) > 0) ? parseInt(options.fps) : 0,
+            autoStart:true,
+            autoClear:true,
+            enableEventClick:true,
+            enableEventMouseMovie:false,
+            enableEventKeys:false,
+        };
+
+        // root.options
+        root.options = Util.objMerge(options, defaultOption);
+        options = defaultOption = null;
+
+        root.selector = root.options.selector;
+        root.canvas = document.querySelector(root.selector);
+        root.canvas.width = root.width = root.options.width || 600;
+        root.canvas.height = root.height = root.options.height || 400;
         root.context = this.canvas.getContext('2d');
-        root.fps = (parseInt(fps) > 0) ? parseInt(fps) : 0;
+        root.fps = root.options.fps;
 
         root.lists = {};
         root.lists.stages = {};
@@ -35,28 +61,32 @@
         root.lists.scenesTemp = [];
 
         // Отлавлевает движения мыши по canvas, и пишет изминения в root.mouse
-        /*root.canvas.addEventListener('mousemove', function(event){
-            root.mouse = Util.getMouseCanvas(root.canvas, event);
-        });*/
+        if(root.options.enableEventMouseMovie){
+            root.canvas.addEventListener('mousemove', function(event){
+                root.mouse = Util.getMouseCanvas(root.canvas, event);
+            });
+        }
 
         // Отлавлевает клики мыши по canvas, и пишет изминения в root.mouseClick
-        root.canvas.addEventListener('click', function(event)
-        {
-            root.mouseClick = Util.getMouseCanvas(root.canvas, event);
-            if(root.lists.events.click && typeof root.lists.events.click === 'object') {
-                var eventsClicks = root.lists.events.click;
-                for(var key in eventsClicks ){
-                    if(
-                        eventsClicks[key].rectangle[0] < root.mouseClick.x &&
-                        eventsClicks[key].rectangle[1] < root.mouseClick.y &&
-                        eventsClicks[key].rectangle[0]+eventsClicks[key].rectangle[2] > root.mouseClick.x &&
-                        eventsClicks[key].rectangle[1]+eventsClicks[key].rectangle[3] > root.mouseClick.y
-                    ){
-                        eventsClicks[key].callback.call(root, event);
+        if(root.options.enableEventClick){
+            root.canvas.addEventListener('click', function(event)
+            {
+                root.mouseClick = Util.getMouseCanvas(root.canvas, event);
+                if(root.lists.events.click && typeof root.lists.events.click === 'object') {
+                    var eventsClicks = root.lists.events.click;
+                    for(var key in eventsClicks ){
+                        if(
+                            eventsClicks[key].rectangle[0] < root.mouseClick.x &&
+                            eventsClicks[key].rectangle[1] < root.mouseClick.y &&
+                            eventsClicks[key].rectangle[0]+eventsClicks[key].rectangle[2] > root.mouseClick.x &&
+                            eventsClicks[key].rectangle[1]+eventsClicks[key].rectangle[3] > root.mouseClick.y
+                        ){
+                            eventsClicks[key].callback.call(root, event);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         root.context.rectRound = function(x, y, width, height, radius){
             root.context.beginPath();
@@ -132,7 +162,8 @@
 
             if(root.fps > 0) {
                 drawFrame();
-                root.interval = setInterval(drawFrame, 1000 / this.fps);
+                if(root.options.autoStart)
+                    root.interval = setInterval(drawFrame, 1000 / root.fps);
             } else
                 drawFrame();
         };
@@ -209,10 +240,10 @@
 
         root.graphic.developerPanel = function(option){
 
-            option = (option instanceof Object) ? option : {};
+            option = (option) ? option : {};
 
-            if(root.opt.devPanel === undefined){
-                root.opt.devPanel = {
+            if(root.options.devPanel === undefined){
+                root.options.devPanel = {
                     bgColor:option.bgColor||'#DDDDDD',
                     textColor:option.textColor||'#000000',
                     iterator:0,
@@ -224,7 +255,7 @@
                     padding:{x:3,y:3}
                 };
             }
-            var opt = root.opt.devPanel;
+            var opt = root.options.devPanel;
 
             root.context.fillStyle = opt.bgColor;
             root.context.fillRect(opt.margin.x,opt.margin.y,root.width,30);
@@ -279,23 +310,24 @@
                 }
             });
         };
-/*
-        window.addEventListener('keydown', function(event){
-            root.keydownCode = event.keyCode;
-            if(root.lists.events.keydown != null && typeof root.lists.events.keydown[event.keyCode] === 'object'){
-                var e = root.lists.events.keydown[event.keyCode];
-                e.callback.call(root, event);
-            }
-        });
 
-        window.addEventListener('keyup', function(event){
-            root.keyupCode = event.keyCode;
-            if(root.lists.events.keyup != null && typeof root.lists.events.keyup[event.keyCode] === 'object'){
-                var e = root.lists.events.keyup[event.keyCode];
-                e.callback.call(root, event);
-            }
-        });
-*/
+
+        if(root.options.enableEventKeys){
+            window.addEventListener('keydown', function(event){
+                root.keydownCode = event.keyCode;
+                if(root.lists.events.keydown != null && typeof root.lists.events.keydown[event.keyCode] === 'object'){
+                    var e = root.lists.events.keydown[event.keyCode];
+                    e.callback.call(root, event);
+                }
+            });
+            window.addEventListener('keyup', function(event){
+                root.keyupCode = event.keyCode;
+                if(root.lists.events.keyup != null && typeof root.lists.events.keyup[event.keyCode] === 'object'){
+                    var e = root.lists.events.keyup[event.keyCode];
+                    e.callback.call(root, event);
+                }
+            });
+        }
     };
 
 
@@ -314,6 +346,14 @@
         for (var key in obj)
             temp[key] = Util.objClone(obj[key]);
         return temp;
+    };
+
+    // Обеденит два объекта, на базе второго (obj2 будет изменен)
+    Util.objMerge = function(obj1, obj2){
+        //for(var key in obj1) if(obj2[key] === undefined) obj2[key] = obj1[key];
+        for(var key in obj2)
+            if(obj1[key] !== undefined) obj2[key] = obj1[key];
+        return obj2;
     };
 
     // Вернет случайное целое число между min, max, если не указано от 0 до 100
@@ -371,6 +411,7 @@
     An.prototype = root;
     An.prototype.u = Util;
     window.An = An;
+    window.AnUtil = Util;
 
 })(window);
 

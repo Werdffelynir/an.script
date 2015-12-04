@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="can.script.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 800, 800, 60);
+an.resizeCanvas();
+/*
+an.scene({
+    index:1000,
+    name:'display',
+    iterator: 0,
+    timeLast:0,
+    timeStart: new Date().getTime(),
+    percent: null,
+    bgColor: '#062465',
+    textColor: '#EDEA2A',
+    runner:function(ctx){
+
+        ctx.fillStyle = this.bgColor;
+        ctx.fillRect(0,0,an.width,30);
+        ctx.font = '12px/12px Arial';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = this.textColor;
+        ctx.fillText('frames: ' + this.iterator, 5, 5);
+        ctx.fillText('seconds: ' + parseInt((new Date().getTime() - this.timeStart) / 1000), 5, 17);
+
+        var timeNow = (new Date).getTime();
+        var ftp = (timeNow - this.timeLast)/1000;
+
+        if(this.iterator % 120 == 0)
+            this.percent = ' '+ (parseInt(parseInt(1/ftp) *  100 / an.fps)) + '%';
+
+        ctx.fillStyle = '#F5E4FF';
+        ctx.font = "14px/14px Arial";
+        ctx.fillText("FPS: " + parseInt(1/ftp) + '/' + an.fps  + this.percent, 100, 10);
+        ctx.fillText("Elements: " + an.lists.scenes.length , 250, 10);
+
+        this.timeLast = timeNow;
+        this.iterator ++;
+
+    }
+});*/
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.fillStyle = '#0A001B';
+        ctx.fillRect(0,0,an.width,an.height);
+
+        an.graphic.developerPanel('#DDD','#000');
+    }
+});
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.shadow(0,0,10,'#BEE725');
+        ctx.fillStyle = '#BE8E25';
+        ctx.arc(an.width/2,an.height/2,30,0,2 * Math.PI);
+        ctx.fill();
+    }
+});
+
+an.graphic.planet = function(radius,size,speed,color,colorShadow,degrees){
+    return {
+        index: 10,
+        speed: speed||3,
+        radius: radius||50,
+        size: size||10,
+        degrees: degrees||0,
+        color: color||'#DCE7FF',
+        colorShadow: colorShadow||'#F9C4F4',
+        runner: function(ctx){
+
+            /*ctx.beginPath();
+            ctx.shadow(0,0,2,'#351B68');
+            ctx.strokeStyle = '#351B68';
+            ctx.arc(an.width/2,an.height/2,this.radius,0,2*Math.PI);
+            ctx.stroke();*/
+
+            ctx.beginPath();
+            ctx.save();
+            ctx.shadow(0,0,10,this.colorShadow);
+            ctx.fillStyle = this.color;
+            ctx.translate(an.width/2,an.height/2);
+            ctx.rotate(an.u.degreesToRadians(this.degrees));
+            ctx.arc(0,this.radius,this.size,0,2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+
+            this.degrees += this.speed;
+            if(this.degrees >= 360) this.degrees = 0;
+        }
+    }
+};/**/
+
+an.scene(an.graphic.planet(50,4,1.9));
+an.scene(an.graphic.planet(100,15,1.1,'#8892BF','#FF844B',0));
+an.scene(an.graphic.planet(180,6,0.75,'#FF001B','#970010',0));
+an.scene(an.graphic.planet(200,8,0.65,'#304C3C','#395847',0));
+an.scene(an.graphic.planet(280,20,0.55,'#8892BF','#FF844B',0));
+
+for(var ip=0; ip<50; ip++){
+    var s = an.u.rand(1,20) / 200;
+    var p = an.u.rand(1,320);
+    var r = an.u.rand(1,4);
+    //var c = an.u.randColor();
+    //console.log(s,r);
+    an.scene(an.graphic.planet(320,r,s,'#39644C','#67B389',p));
+}
+
+
+//an.scene(an.graphic.planet(450,25,0.15,'#6E3B28','#8ABC00',0));
+
+
+an.render();
+
+</script>
+
+</body>
+</html>

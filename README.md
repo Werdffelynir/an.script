@@ -51,6 +51,7 @@ canvas:     null,
 context:    null,
 frame:      0,
 graphic:    {},
+image:      {},
 glob:       {},
 options:    {},
 mouse:      { x:0, y:0 },
@@ -88,6 +89,8 @@ lists:  	{stages:{},events:[],scenes:[],scenesTemp:[]},
 #### addEventKeyup(keyCode, callback)
 #### addEventClick(rectangle, callback)
 #### removeEventClick(rectangle)
+#### imageLoader(object)
+
 
 ### Graphics methods
 

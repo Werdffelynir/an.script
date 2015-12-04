@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="an.script_1.0.0.js"></script>
+    <script src="extensions/an.extension.shapes.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 600, 300, 0);
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        an.shape();
+        ctx.shape();
+    }
+});
+
+an.render();
+
+/*
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+
+    }
+});
+*/
+
+
+
+
+</script>
+
+</body>
+</html>
