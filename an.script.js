@@ -1,9 +1,9 @@
 /**
-The script implements a control HTML5 element canvas
-Simplified realization of animation or static graphs, 
-and some event-control model for "click", "mousemove",
-"keydown" and "keypress"
-*/
+ The script implements a control HTML5 element canvas
+ Simplified realization of animation or static graphs,
+ and some event-control model for "click", "mousemove",
+ "keydown" and "keypress"
+ */
 (function(window){
 
     var root = {
@@ -37,8 +37,8 @@ and some event-control model for "click", "mousemove",
 
         if(arguments.length > 2 && arguments[1] > 0)
             options = {selector:arguments[0],width:arguments[1],height:arguments[2],fps:arguments[3]};
-        
-        if(!options || !options.selector || typeof options !== 'object') 
+
+        if(!options || !options.selector || typeof options !== 'object')
             return;
 
         var defaultOption = {
@@ -98,14 +98,6 @@ and some event-control model for "click", "mousemove",
             });
         }
 
-        /**
-         *
-         * @param x
-         * @param y
-         * @param width
-         * @param height
-         * @param radius
-         */
         root.context.rectRound = function(x, y, width, height, radius){
             root.context.beginPath();
             root.context.moveTo(x + radius, y);
@@ -266,13 +258,13 @@ and some event-control model for "click", "mousemove",
                 eImg.src = imgs[name];
                 eImg.name = name;
                 eImg.onload = function(e){
-                        images[this.name] = this;
-                        iterator ++;
-                        if(iterator == length) {
-                            root.image = Util.objMerge(root.image,images);
-                            callback.call(root, root.image, root.context);
-                        }
-                    };
+                    images[this.name] = this;
+                    iterator ++;
+                    if(iterator == length) {
+                        root.image = Util.objMerge(root.image,images);
+                        callback.call(root, root.image, root.context);
+                    }
+                };
             }
         };
 
@@ -406,14 +398,14 @@ and some event-control model for "click", "mousemove",
         return objectBase;
     };
     Util.objMergeNotExists = function(objectBase,object){
-        for(var key in object) 
-            if(objectBase[key] === undefined) 
+        for(var key in object)
+            if(objectBase[key] === undefined)
                 objectBase[key] = object[key];
         return objectBase;
     };
     Util.objMergeOnlyExists = function(objectBase,object){
-        for(var key in object) 
-            if(objectBase[key] !== undefined) 
+        for(var key in object)
+            if(objectBase[key] !== undefined)
                 objectBase[key] = object[key];
         return objectBase;
     };
