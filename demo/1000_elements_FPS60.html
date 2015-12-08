@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="../can.script.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 800, 800, 60);
+
+an.scene({
+    index: 10,
+    runner: function(ctx){
+        an.graphic.developerPanel();
+    }
+});
+
+for(var i = 0; i<1000; i++){
+
+    var x = an.u.rand(0, 600);
+    var y = an.u.rand(0, 400);
+    var vx = an.u.rand(-10, 10);
+    var vy = an.u.rand(-10, 10);
+    var color = an.u.randColor();
+    var radius = an.u.rand(2, 20);
+
+
+    an.scene({
+        index:5,
+        name:'display',
+        deep: 40,
+        x: x,
+        y: y,
+        vx: vx,
+        vy: vy,
+        color: color,
+        radius: radius,
+        runner:function(ctx){
+
+            ctx.beginPath();
+
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.closePath();
+
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if(this.x > an.width && this.x ) this.vx = -this.vx;
+            else if(this.x < 0) this.vx = this.vx * -1;
+
+            if(this.y > an.height ) this.vy = -this.vy;
+            else if(this.y < 0) this.vy = this.vy * -1;
+        }
+    });
+}
+
+an.render();
+
+</script>
+
+</body>
+</html>

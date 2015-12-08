@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="../an.script.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 800, 400, 0);
+
+an.imageLoader(
+        {
+            'bg_sun_green':'images/bg_sun_green.png',
+            'boxman':'images/boxman.png',
+            'cartman':'images/cartman.png',
+            'creeper':'images/creeper.png',
+            'skellington':'images/skellington.png',
+            'table':'images/table.png'
+        },
+        function(images, ctx){
+
+            ctx.drawImage(images['bg_sun_green'], 0, 0, an.width, an.height);
+
+            ctx.drawImage(images['boxman'], 50, 50, 64, 64);
+
+            ctx.drawImage(images['cartman'], 200, 50, 64, 64);
+
+            ctx.drawImage(images['creeper'], 350, 50, 64, 64);
+
+            ctx.drawImage(images['bg_sun_green'], 200, 0, 200, 200, 500, 50, 64, 64);
+
+            ctx.drawImage(images['skellington'], 125, 200, 64, 64);
+
+            ctx.drawImage(images['table'], 275, 200, 64, 64);
+
+            ctx.beginPath();
+            var pattern = ctx.createPattern(images['table'],'repeat');
+            ctx.fillStyle = pattern;
+            ctx.fillRect(50, 300, 350, 80);
+
+        }
+);
+
+</script>
+
+</body>
+</html>

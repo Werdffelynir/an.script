@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <!--<script src="../an.script.js"></script>-->
+    <script src="../an.script_1.0.0.js"></script>
+    <style>
+        *{margin: 0;padding: 0;}
+    </style>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 800, 800, 60);
+
+an.resizeCanvas();
+
+// dev panel
+an.scene({
+    index: 10,
+    runner: function(ctx){
+        an.graphic.developerPanel('#DDD','#000');
+    }
+});
+
+// bg
+an.scene({
+    index: 1,
+    runner: function(ctx){
+        ctx.fillStyle = '#0A001B';
+        ctx.fillRect(0,0,an.width,an.height);
+    }
+});
+
+// static start
+an.glob.starsCunnt = 200;
+an.glob.starColors = ['#ADB2BF','#40BF00','#BF000A'];
+for(var si=0;si<an.glob.starsCunnt;si++){
+    an.scene({
+        index: 1,
+        starX: an.u.rand(0,an.width),
+        starY: an.u.rand(0,an.height),
+        starSize: an.u.rand(1,3),
+        starColor: an.glob.starColors[an.u.rand(0,2)],
+        runner: function(ctx){
+            ctx.fillStyle = this.starColor;
+            ctx.fillRect(this.starX, this.starY, this.starSize, this.starSize);
+        }
+    });
+}
+
+// sun
+an.scene({
+    index: 5,
+    x: 0,
+    runner: function(ctx){
+        ctx.shadow(0,0,15,'#D8FF00');
+        ctx.fillStyle = '#D8FF00';
+        ctx.arc(an.width/2,an.height/2,30,0,2 * Math.PI);
+        ctx.fill();
+    }
+});
+
+// planet creator
+an.graphic.planet = function(radius,size,speed,color,colorShadow,degrees){
+    return {
+        index: 5,
+        speed: speed||3,
+        radius: radius||50,
+        size: size||10,
+        degrees: degrees||0,
+        color: color||'#DCE7FF',
+        colorShadow: colorShadow||'#F9C4F4',
+        runner: function(ctx){
+            ctx.beginPath();
+            ctx.save();
+            ctx.shadow(0,0,10,this.colorShadow);
+            ctx.fillStyle = this.color;
+            ctx.translate(an.width/2,an.height/2);
+            ctx.rotate(an.u.degreesToRadians(this.degrees));
+            ctx.arc(0,this.radius,this.size,0,2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+            this.degrees += this.speed;
+            if(this.degrees >= 360) this.degrees = 0;
+        }
+    }
+};
+
+an.scene(an.graphic.planet(50,4,1.9));
+an.scene(an.graphic.planet(100,15,1.1,'#8892BF','#FF844B',0));
+an.scene(an.graphic.planet(180,6,0.75,'#FF001B','#970010',0));
+an.scene(an.graphic.planet(200,8,0.65,'#304C3C','#395847',0));
+an.scene(an.graphic.planet(280,20,0.55,'#8892BF','#FF844B',0));
+
+for(var ip=0; ip<80; ip++){
+    var s = an.u.rand(1,20) / 200;
+    var p = an.u.rand(1,320);
+    var r = an.u.rand(1,4);
+    var distance  = an.u.rand(320,450);
+    an.scene(an.graphic.planet(distance,r,s,'#39644C','#67B389',p));
+}
+
+an.render();
+
+</script>
+
+</body>
+</html>

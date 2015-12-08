@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="../an.script_1.0.0.js"></script>
+
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+var params = {
+	selector:'#canvas',
+    width:800,
+    height:500,
+    fps:30,
+	enableEventMouseMovie:true,
+	enableEventKeys:true
+};
+
+var an = new An(params);
+
+an.imageLoader({
+            map:'images/map.png'
+        },
+        function(images,ctx){
+            an.render();
+        });
+
+an.scene({
+	index:10,
+	width:10,
+	runner:function(ctx){
+		an.graphic.developerPanel();
+	}
+});
+
+
+//map
+an.graphic.map = function(ctx){
+    ctx.drawImage(an.image.map,0,0);
+
+};
+
+//player
+an.graphic.player = function(ctx,o){
+	ctx.beginPath();
+	ctx.fillStyle = 'red';
+	ctx.arc(o.x,o.y, 10, 0, Math.PI*2);
+	ctx.fill();
+};
+
+an.glob.playerOpt = {
+	speed:3,
+	x:220,
+	y:220,
+	dX:0,
+	dY:0,
+	moveToX:0,
+	moveToY:0,
+	enemy:[]
+};
+
+an.scene({
+    index:1,
+    runner:function(ctx){
+		var o = an.glob.playerOpt;
+
+        an.graphic.map(ctx);
+
+		var distance = an.u.distanceBetween(
+				{x:o.x,y:o.y},
+				{x:o.moveToX,y:o.moveToY}
+		);
+
+        var data = ctx.getImageData(o.x, o.y, 1, 1).data;
+
+		if(data[0] > 0){
+            o.x += o.dX *= 0.988;
+            o.y += o.dY *= 0.988;
+        }else{
+            o.x += -(o.dX *2);
+            o.y += -(o.dY *2);
+            o.dX = o.dY = 0;
+        }
+
+		an.graphic.player(ctx,o);
+
+		an.addEventClick([0,0,an.width,an.height],this.onClick);
+
+    },
+
+	onClick:function(e){
+		var o = an.glob.playerOpt;
+		o.moveToX = an.mouseClick.x;
+		o.moveToY = an.mouseClick.y;
+
+		var xDiff = o.moveToX - o.x;
+		var yDiff = o.moveToY - o.y;
+
+		var angle = Math.atan2(yDiff, xDiff);
+
+		o.dX = o.speed * Math.cos(angle);
+		o.dY = o.speed * Math.sin(angle);
+
+	}
+
+});
+
+</script>
+</body>
+</html>

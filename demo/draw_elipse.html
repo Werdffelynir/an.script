@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="../an.script.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 600, 300, 30);
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+
+        ctx.beginPath();
+
+        ctx.fillStyle = '#BE8E25';
+        ctx.strokeStyle = '#0A001B';
+        ctx.lineWidth = 10;
+
+        ctx.ellipse(100, 100, 50, 75, 45 * Math.PI/180, 0, 2 * Math.PI);
+
+        ctx.stroke();
+        ctx.fill();
+
+    }
+});
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+
+    }
+});
+
+an.render();
+
+</script>
+
+</body>
+</html>

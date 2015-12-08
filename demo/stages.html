@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="../an.script.js"></script>
+    <style>*{margin: 0; padding: 0;}</style>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 600, 300, 30);
+an.resizeCanvas();
+
+// common graphics
+an.graphic.btn = function(ctx,x,y,text){
+    ctx.beginPath();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#34A200';
+    ctx.fillStyle = '#EAF3AB';
+    ctx.rect(x,y,150,30);
+    ctx.stroke();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.font = '12px/12px Arial';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#180D1E';
+    ctx.fillText(text,x+10,y+10);
+};
+an.graphic.title = function(ctx,x,y,text){
+    ctx.beginPath();
+    ctx.font = '18px/20px Arial';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#000000';
+    ctx.fillText(text,x,y);
+};
+an.graphic.bg = function(ctx,color){
+    ctx.fillStyle = color;
+    ctx.fillRect(0,0,an.width,an.height);
+};
+an.graphic.goBack = function(ctx){
+    an.graphic.btn(ctx, 10, 260, 'Menu');
+    an.addEventClick([10,260,150,30],function(event){
+        an.applyStage('main');
+    });
+};
+
+
+// bg for main
+an.stage('main',{
+    index: 1,
+    runner:function(ctx){
+        an.graphic.bg(ctx, '#E9E9E9');
+    }
+});
+
+// menu and title for main
+an.stage('main',{
+    index: 10,
+    runner:function(ctx){
+
+        an.graphic.title(ctx, 10, 10, 'Page Main');
+
+        an.graphic.btn(ctx, 10, 60, 'Page 1');
+        an.graphic.btn(ctx, 10, 100, 'Page 2');
+        an.graphic.btn(ctx, 10, 140, 'Page 3');
+
+        // actions
+        an.addEventClick([10,60,150,30],function(event){
+            an.applyStage('page1');
+        });
+        an.addEventClick([10,100,150,30],function(event){
+            an.applyStage('page2');
+        });
+        an.addEventClick([10,140,150,30],function(event){
+            an.applyStage('page3');
+        });
+    }
+});
+
+an.stage('page1',{
+    index: 1,
+    x: 180,
+    runner:function(ctx){
+        an.graphic.bg(ctx, '#E9E9E9');
+        an.graphic.title(ctx, 10, 10, 'Page 1');
+        an.graphic.goBack(ctx);
+
+        // simple animation
+        ctx.fillStyle = '#dd00aa';
+        ctx.fillRect(this.x, 125, 50, 50);
+        if(this.x > an.width-100) this.x = 170;
+        else this.x += 5;
+    }
+});
+
+
+an.stage('page2',{
+    index: 1,
+    degrees: 0,
+    runner:function(ctx){
+        an.graphic.bg(ctx, '#E9E9E9');
+        an.graphic.title(ctx, 10, 10, 'Page 2');
+        an.graphic.goBack(ctx);
+
+        // simple animation
+        ctx.fillStyle = '#D1212A';
+        ctx.arc(350,150,30,0,2*Math.PI);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(350,150);
+        ctx.rotate(an.u.degreesToRadians(this.degrees));
+        ctx.arc(0,80,10,0,2*Math.PI);
+        ctx.fill();
+        ctx.restore();
+
+        this.degrees += 3;
+        if(this.degrees >= 360) this.degrees = 0;
+    }
+});
+
+
+an.stage('page3',{
+    index: 1,
+    runner:function(ctx){
+        an.graphic.bg(ctx, '#E9E9E9');
+        an.graphic.title(ctx, 10, 10, 'Page 3');
+        an.graphic.goBack(ctx);
+    }
+});
+
+
+an.render('main');
+
+</script>
+
+</body>
+</html>

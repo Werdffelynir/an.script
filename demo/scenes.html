@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="../an.script.js"></script>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+
+<script>
+
+var an = new An('#can', 600, 300, 30);
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.fillStyle = '#1A1A52';
+        ctx.fillRect(this.x, 50, 20, 20);
+        if(this.x > an.width) this.x = 0;
+        else this.x += 2.8;
+    }
+});
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.fillStyle = '#dd00aa';
+        ctx.fillRect(this.x, 100, 20, 20);
+        if(this.x > an.width) this.x = 0;
+        else this.x += 2;
+    }
+});
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.fillStyle = '#ffddaa';
+        ctx.fillRect(this.x, 150, 20, 20);
+        if(this.x > an.width) this.x = 0;
+        else this.x += 3.2;
+    }
+});
+
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        ctx.fillStyle = '#525100';
+        ctx.fillRect(this.x, 200, 20, 20);
+        if(this.x > an.width) this.x = 0;
+        else this.x += 2.4;
+    }
+});
+
+an.render();
+
+</script>
+
+</body>
+</html>
