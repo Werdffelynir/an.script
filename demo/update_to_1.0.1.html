@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game: Where it?</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="../an.script_1.0.1.js"></script>
+    <style>
+        *{font-family: sans-serif;  font-size: 100%;}
+        html,body{background-color: #fff;  }
+        #page{margin: 0 auto; width: 806px;text-align: center; background-image: url("images/bg_road.png")}
+        #game{border: 3px solid #800008;}
+        .btn{ background-color: #800008; color: #fff6a6; border: 3px solid #480005;  display: inline-block;  padding: 5px 0;  text-align: center;  width: 220px; font-weight: bold;  margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+<div id="page">
+    <div id="game">
+        <canvas id="can"></canvas>
+    </div>
+    <div class="btn play_game">PLAY</div>
+    <div class="btn stop_game">STOP</div>
+</div>
+
+
+<script>
+    (function(){
+
+        var an = new An({
+            selector: '#can',
+            width: 800,
+            height: 400,
+            fps: 30,
+            autoStart: false,
+            enableEventClick: true
+        });
+
+
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){an.graphic.debugPanel()}
+        });
+
+
+        // draw rain in loop
+        an.context.fillStyle = 'rgba(65,63,128,0.4)';
+        for(var i = 0; i < 250; i ++){
+
+            var speed = An.Util.rand(2,6);
+            var point = {
+                x: an.u.rand(0, an.width+100),
+                y: an.u.rand(-100, an.height)
+            };
+
+            an.scene({
+                index: 1,
+                point: point,
+                speed: speed,
+                runner: function(ctx)
+                {
+                    ctx.save();
+                    ctx.rotate(an.u.degreesToRadians(5));
+                    //ctx.translate();
+                    ctx.fillRect(this.point.x,this.point.y, 1, 6);
+
+                    if( this.point.y > an.height ) {
+                        this.point.x = an.u.rand(0, an.width+100);
+                        this.point.y = -100;
+                    } else
+                        this.point.y += this.speed;
+
+                    ctx.restore();
+                }
+            });
+
+        }
+
+        // render all
+        an.render();
+
+
+        // actions
+        document.querySelector('.play_game').onclick = function(e){
+            an.play();
+        };
+        document.querySelector('.stop_game').onclick = function(e){
+            an.stop();
+        };
+
+
+
+    })();
+
+
+/*
+an.scene({
+    index: 1,
+    x: 0,
+    runner: function(ctx){
+        an.graphic.debugPanel();
+        ctx.fillStyle = '#dd00aa';
+        ctx.fillRect(this.x, 100, 10, 10);
+        if(this.x > an.width) this.x = 0;
+        else this.x += 2;
+    }
+});
+*/
+
+
+
+</script>
+
+</body>
+</html>

@@ -6,8 +6,10 @@ and some event-control model for "click", "mousemove",
 */
 (function(window){
 
+    'use strict';
+
     var root = {
-        version:    '1.0.0',
+        version:    '1.0.1',
         selector:   null,
         width:      0,
         height:     0,
@@ -23,6 +25,7 @@ and some event-control model for "click", "mousemove",
         mouseClick: { x:0, y:0 },
         keydownCode:null,
         keyupCode:  null,
+        interval:  null,
         extensions: []
     };
 
@@ -50,7 +53,7 @@ and some event-control model for "click", "mousemove",
             autoClear:true,
             enableEventClick:true,
             enableEventMouseMovie:false,
-            enableEventKeys:false,
+            enableEventKeys:false
         };
 
         // root.options
@@ -183,23 +186,25 @@ and some event-control model for "click", "mousemove",
                     if(typeof root.extensions[ei] === 'function') root.extensions[ei].call(root, root);
             }
 
-            if(root.fps > 0) {
-                drawFrame();
-                if(root.options.autoStart)
-                    root.interval = setInterval(drawFrame, 1000 / root.fps);
-            } else
-                drawFrame();
+            if(root.options.autoStart)
+                this.play();
         };
 
         // Полная остановка анимации
         this.stop = function(){
-            clearInterval(root.interval);
+            if( root.interval !== null ){
+                clearInterval(root.interval);
+                root.interval = null;
+            }
         };
 
         // Начать анимацию
-        this.play = function(fps, name){
-            root.fps = fps || 24;
-            this.render(name);
+        this.play = function(){
+            if(root.fps > 0 && root.interval === null) {
+                drawFrame();
+                root.interval = setInterval(drawFrame, 1000 / root.fps);
+            } else
+                drawFrame()
         };
 
         // Очищает холст
@@ -278,67 +283,6 @@ and some event-control model for "click", "mousemove",
 
 
         // - - - - - - - - - - - - - - - - - - - - - - - - -
-        // graphics methods
-        // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        root.graphic.developerPanel = function(option){
-
-            option = (option) ? option : {};
-
-            if(root.options.devPanel === undefined){
-                root.options.devPanel = {
-                    bgColor:option.bgColor||'#DDDDDD',
-                    textColor:option.textColor||'#000000',
-                    iterator:0,
-                    timeStart:new Date().getTime(),
-                    timeLast:0,
-                    percent:0,
-                    countElements:true,
-                    countEvents:true,
-                    countScenes:true,
-                    countStages:true,
-                    developerPanelLoaded:6,
-                    margin:{x:0,y:0},
-                    padding:{x:3,y:3}
-                };
-            }
-            var opt = root.options.devPanel;
-
-            root.context.fillStyle = opt.bgColor;
-            root.context.fillRect(opt.margin.x,opt.margin.y,root.width,30);
-            root.context.font = '12px/12px Arial';
-            root.context.textBaseline = 'top';
-            root.context.fillStyle = opt.textColor;
-            root.context.fillText('frames: ' + opt.iterator, opt.padding.x,opt.padding.y);
-            root.context.fillText('seconds: ' + parseInt((new Date().getTime() - opt.timeStart) / 1000), opt.padding.x,opt.padding.y + 12);
-
-            var timeNow = (new Date).getTime();
-            var ftp = (timeNow - opt.timeLast)/1000;
-
-            if(opt.iterator % 60 == 0){
-                var p = parseInt(parseInt(1/ftp) *  100 / root.fps) + opt.developerPanelLoaded;
-                opt.percent = ((p>100)?100:p) + '%';
-            }
-
-            root.context.fillStyle = opt.textColor;
-            root.context.font = "12px/14px Arial";
-            root.context.fillText("FPS: " + parseInt(1/ftp) + '/' + root.fps, 80+opt.padding.x, opt.padding.y+6);
-            root.context.fillText(opt.percent+'', 150+opt.padding.x, opt.padding.y+6);
-            if(opt.countElements)
-                root.context.fillText("Elements: " + root.lists.scenes.length , 190+opt.padding.x, opt.padding.y+6);
-            if(opt.countEvents)
-                root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 300+opt.padding.x, opt.padding.y+6);
-            if(opt.countScenes)
-                root.context.fillText("Scenes: " + root.lists.scenes.length, 390+opt.padding.x, opt.padding.y+6);
-            if(opt.countStages)
-                root.context.fillText("Stages: " + Util.objLength(root.lists.events.stages), 490+opt.padding.x, opt.padding.y+6);
-
-            opt.timeLast = timeNow;
-            opt.iterator ++;
-
-        };
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - -
         // insides methods
         // - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -386,6 +330,72 @@ and some event-control model for "click", "mousemove",
             });
         }
     };
+
+
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - -
+    // graphics methods
+    // - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    root.graphic.debugPanel = function(option){
+
+        option = (option) ? option : {};
+
+        if(root.options.devPanel === undefined){
+            root.options.devPanel = {
+                bgColor:option.bgColor||'#DDDDDD',
+                textColor:option.textColor||'#000000',
+                iterator:0,
+                timeStart:new Date().getTime(),
+                timeLast:0,
+                percent:0,
+                countElements:true,
+                countEvents:true,
+                countScenes:true,
+                countStages:true,
+                developerPanelLoaded:6,
+                margin:{x:0,y:0},
+                padding:{x:3,y:3}
+            };
+        }
+        var opt = root.options.devPanel;
+
+        root.context.fillStyle = opt.bgColor;
+        root.context.fillRect(opt.margin.x,opt.margin.y,root.width,30);
+        root.context.font = '12px/12px Arial';
+        root.context.textBaseline = 'top';
+        root.context.fillStyle = opt.textColor;
+        root.context.fillText('frames: ' + opt.iterator, opt.padding.x,opt.padding.y);
+        root.context.fillText('seconds: ' + parseInt((new Date().getTime() - opt.timeStart) / 1000), opt.padding.x,opt.padding.y + 12);
+
+        var timeNow = (new Date).getTime();
+        var ftp = (timeNow - opt.timeLast)/1000;
+
+        if(opt.iterator % 60 == 0){
+            var p = parseInt(parseInt(1/ftp) *  100 / root.fps) + opt.developerPanelLoaded;
+            opt.percent = ((p>100)?100:p) + '%';
+        }
+
+        root.context.fillStyle = opt.textColor;
+        root.context.font = "12px/14px Arial";
+        root.context.fillText("FPS: " + parseInt(1/ftp) + '/' + root.fps, 80+opt.padding.x, opt.padding.y+6);
+        root.context.fillText(opt.percent+'', 150+opt.padding.x, opt.padding.y+6);
+        if(opt.countElements)
+            root.context.fillText("Elements: " + root.lists.scenes.length , 190+opt.padding.x, opt.padding.y+6);
+        if(opt.countEvents)
+            root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 300+opt.padding.x, opt.padding.y+6);
+        if(opt.countScenes)
+            root.context.fillText("Scenes: " + root.lists.scenes.length, 390+opt.padding.x, opt.padding.y+6);
+        if(opt.countStages)
+            root.context.fillText("Stages: " + Util.objLength(root.lists.events.stages), 490+opt.padding.x, opt.padding.y+6);
+
+        opt.timeLast = timeNow;
+        opt.iterator ++;
+
+    };
+
+
 
     var Util = {};
 
