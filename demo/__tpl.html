@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="../an.script.js"></script>
+    <style type="text/css"></style>
+</head>
+<body>
+
+<canvas id="canva"></canvas>
+
+<script>
+
+    (function(){
+
+        var an = new An({selector: '#canva'
+            , width: 800
+            , height: 400
+            , fps: 30
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){an.graphic.debugPanel()}
+        });
+
+        // my scene
+        an.scene({
+            index: 1,
+            runner: function(ctx){
+
+            }
+        });
+
+        // render all
+        an.render();
+
+    })();
+
+</script>
+
+</body>
+</html>

@@ -141,41 +141,58 @@ and some event-control model for "click", "mousemove",
             root.context.shadowColor = color;
         };
 
-        // Добавляет callback на событие keydown для keyCode
+        /**
+         * Добавляет callback на событие keydown для keyCode
+         * @param keyCode Numeric
+         * @param callback Function callback
+         */
         this.addEventKeydown = function(keyCode, callback)
         {
             if(root.lists.events.keydown == null) root.lists.events.keydown = {};
-
             root.lists.events.keydown[keyCode] = {keyCode: keyCode, callback: callback};
         };
 
-        // Добавляет callback на событие keyup для keyCode
+        /**
+         * Добавляет callback на событие keyup для keyCode
+         * @param keyCode Numeric
+         * @param callback Function callback
+         */
         this.addEventKeyup = function(keyCode, callback)
         {
             if(root.lists.events.keyup == null) root.lists.events.keyup = {};
-
             root.lists.events.keyup[keyCode] = {keyCode: keyCode, callback: callback};
         };
 
-        // Добавляет callback на событие click на определенный участок: rectangle = [x,y,width,height]
+
+        /**
+         * Добавляет callback на событие click на определенный участок: rectangle = [x,y,width,height]
+         * @param rectangle Array [x, y, width, height]
+         * @param callback Function callback
+         */
         this.addEventClick = function(rectangle, callback)
         {
             if(root.lists.events.click == null) root.lists.events.click = {};
-
             var eventItem = rectangle.join('_');
-
             if(root.lists.events.click[eventItem] == null)
                 root.lists.events.click[eventItem] = {rectangle: rectangle, callback: callback};
         };
 
-        // Удаляет callback событич click вызваного методом this.addEventClick, определенный участок: rectangle = [x,y,width,height]
+
+        /**
+         * Удаляет callback событич click вызваного методом this.addEventClick, определенный участок: rectangle = [x,y,width,height]
+         * @param rectangle Array [x, y, width, height]
+         */
         this.removeEventClick = function(rectangle){
             var item = rectangle.join('_');
             if(root.lists.events.click != null && root.lists.events.click[item] != null)
                 delete root.lists.events.click[item];
         };
 
-        // Рисует сцены, или если указано name состояния
+
+        /**
+         * Рисует сцены, или если указано name состояния
+         * @param name String, if name set draw stage by name
+         */
         this.render = function(name)
         {
             if(name !== undefined && typeof name === 'string')
@@ -190,7 +207,10 @@ and some event-control model for "click", "mousemove",
                 this.play();
         };
 
-        // Полная остановка анимации
+
+        /**
+         * Остановка анимации
+         */
         this.stop = function(){
             if( root.interval !== null ){
                 clearInterval(root.interval);
@@ -198,7 +218,9 @@ and some event-control model for "click", "mousemove",
             }
         };
 
-        // Начать анимацию
+        /**
+         * Начать анимацию
+         */
         this.play = function(){
             if(root.fps > 0 && root.interval === null) {
                 drawFrame();
@@ -207,17 +229,25 @@ and some event-control model for "click", "mousemove",
                 drawFrame()
         };
 
-        // Очищает холст
+        /**
+         * Очищает холст
+         */
         root.clear = function(){
             root.context.clearRect(0, 0, root.width, root.height);
         };
 
-        // Очищает холсты для нового состояния
+        /**
+         * Очищает холсты для нового состояния
+         */
         root.clearStage = function(){
             root.lists.scenes = root.lists.scenesTemp = root.lists.events = [];
         };
 
-        // добавление сцены
+        /**
+         * Добавление сцены
+         * @param obj Object.
+         * @returns {An}
+         */
         this.scene = function(obj) {
             if(obj !== null) {
                 if(typeof obj === 'function') {
@@ -229,7 +259,11 @@ and some event-control model for "click", "mousemove",
             return this;
         };
 
-        // Добавления состояния
+        /**
+         * Добавления состояния
+         * @param name
+         * @param obj Object. is scene object
+         */
         this.stage = function(name, obj)
         {
             if(root.lists.stages[name] == null)
@@ -238,12 +272,15 @@ and some event-control model for "click", "mousemove",
             root.lists.stages[name].push(obj);
         };
 
-        // Приминения состояния
+
+        /**
+         * Приминения состояния
+         * @param name
+         * @param clear
+         */
         this.applyStage = function(name, clear)
         {
-            clear = (clear === false) ? false : true;
-
-            if(clear)
+             if(clear !== false)
                 root.clearStage();
 
             if(Array.isArray(root.lists.stages[name])){
@@ -253,14 +290,23 @@ and some event-control model for "click", "mousemove",
             }
         };
 
-        // Разворачивает Canvas на всю страницу
-        this.resizeCanvas = function() {
-            root.canvas.style.position = 'absolute';
 
-            root.canvas.width = root.width = window.innerWidth;
-            root.canvas.height = root.height = window.innerHeight;
+        /**
+         * Разворачивает Canvas на всю страницу
+         * @param width
+         * @param height
+         */
+        this.resizeCanvas = function(width,height) {
+            root.canvas.style.position = 'absolute';
+            root.canvas.width = root.width = width || window.innerWidth;
+            root.canvas.height = root.height = height || window.innerHeight;
         };
 
+        /**
+         *
+         * @param imgs
+         * @param callback
+         */
         this.imageLoader = function(imgs, callback) {
             if(!imgs && typeof imgs !== 'object') return;
             var length = an.u.objLength(imgs);
@@ -335,7 +381,7 @@ and some event-control model for "click", "mousemove",
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
-    // graphics methods
+    // Graphics static methods
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
     root.graphic.debugPanel = function(option){

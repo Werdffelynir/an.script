@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Mouse Move</title>
+    <script src="../an.script.js"></script>
+</head>
+<body>
+
+<canvas id="canva"></canvas>
+
+<script>
+
+    (function(){
+
+        var an = new An({ selector: '#canva'
+            , width: 800
+            , height: 400
+            , fps: 30
+            , autoStart: true
+            , enableEventClick: true
+            , enableEventMouseMovie: true
+        });
+
+
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){an.graphic.debugPanel()}
+        });
+
+
+        an.scene({
+            index: 10,
+            width: 10,
+            runner: function(ctx){
+
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(65,63,128,.8)';
+                ctx.fillRect(10,50,this.width,10);
+                if(this.width > an.width-10)  this.width = 10;
+                else this.width += 1;
+
+                ctx.beginPath();
+                ctx.fillStyle = '#002A4A';
+                ctx.font = "italic bold 16px/30px Georgia, serif";
+                var showText = 'Mouse X: ' + an.mouse.x + ' Mouse Y: ' + an.mouse.y;
+                ctx.fillText(showText, 10, 100);
+            }
+        });
+
+        an.render();
+
+    })();
+
+</script>
+
+</body>
+</html>

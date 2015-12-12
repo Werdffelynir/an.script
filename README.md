@@ -21,18 +21,18 @@ var an = An({option})
 
 #### Constructor advance options:
 ```js
-{
-    selector:null,
-    width:null,
-    height:null,
-    fps:0,
-    autoStart:true,
-    autoClear:true,
-    enableEventClick:true,
-    enableEventMouseMovie:false,
-    enableEventKeys:false,
-}
+var an = new An({selector: '#canva'
+    , width: 800
+    , height: 400
+    , fps: 30
+    , autoStart: true
+    , autoClear: true
+    , enableEventClick: true
+    , enableEventMouseMovie: false
+    , enableEventKeys: false
+});
 ```
+option required: selector, width and height.
 
 
 ## Properties:
@@ -111,9 +111,9 @@ imageLoader(images:object):void
 
 ### Graphics methods
 
-#### graphic.developerPanel(options)
+#### graphic.debugPanel(options)
 ```
-{
+options = {
 	bgColor:'#DDDDDD',
 	textColor:'#000000',
 	margin:{x:0,y:0},
@@ -256,28 +256,33 @@ an.render('home');
 
 
 ### Work with Events
+Params An default:
+```
+enableEventClick:true,
+enableEventMouseMovie:false,
+enableEventKeys:false
+```
 
 #### Event mouse 'click'
-Event ...
+Add event click and remove after clicked
 ```
+var rectangle = [10,220,64,64];
+an.addEventClick(rectangle, function(e,rectangle){
+    console.log('one click');
+    an.removeEventClick(rectangle);
+});
 ```
 
 
 #### Event mouse 'mousemove'
+```
+console.log('Mouse X: ' + an.mouse.x + ' Mouse Y: ' + an.mouse.y);
+```
+
+
+#### Event mouse 'keydown' and 'keyup'
 Event ...
 ```
+
+
 ```
-
-
-#### Event mouse 'keydown'
-Event ...
-```
-```
-
-
-#### Event mouse 'keyup'
-Event ...
-```
-```
-
-
