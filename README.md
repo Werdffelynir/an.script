@@ -1,25 +1,25 @@
-# An JS script
+# Animation JS script
 
 The script implements a control HTML5 element canvas.
 Simplified realization of animation or static graphs, and some event-control model for "click", "mousemove", "keydown" and "keypress"
 
 
+## Constructor. parameters
 
+Constructor can accept 4 parameters
 
-
-
-
-## Constructor
+```js
+var an = An(selector,width,height,fps)
 ```
+
+The second variant specify the advanced settings, send as a single parameter `object`
+
+```js
 var an = An({option})
 ```
 
 
-
-
-
-
-### Constructor Options:
+#### Constructor advance options:
 ```js
 {
     selector:null,
@@ -35,61 +35,78 @@ var an = An({option})
 ```
 
 
-
-
-
-
-
 ## Properties:
+```js
+version:string
+
+selector:string
+
+width:integer
+
+height:integer
+
+fps:integer
+
+canvas:object
+
+context:object
+
+frame:integer
+
+image:object
+
+graphic:object
+
+glob:object
+
+options:object
+
+mouse:object { x:0, y:0 }
+
+mouseClick:object { x:0, y:0 }
+
+keydownCode:integer
+
+keyupCode:integer
 ```
-version:    '1.0.0',
-selector:   null,
-width:      0,
-height:     0,
-fps:        null,
-canvas:     null,
-context:    null,
-frame:      0,
-graphic:    {},
-image:      {},
-glob:       {},
-options:    {},
-mouse:      { x:0, y:0 },
-mouseClick: { x:0, y:0 },
-keydownCode:null,
-keyupCode:  null,
-lists:  	{stages:{},events:[],scenes:[],scenesTemp:[]},
-```
-
-
-
-
-
-
 
 
 ## Methods:
 
 ### Control methods
+```js
+scene(operation:object||function):An
 
-#### scene(obj)
-#### stage(name, obj)
-#### applyStage(name, clear)
-#### render([name])
-#### stop() [not tested]
-#### play() [not tested]
-#### clear()
-#### clearStage()
-#### resizeCanvas()
+stage(name:string, obj:object):An
+
+applyStage(name:string [, clear:bool]):void
+
+render([name]):void
+
+stop():void
+
+play():void
+
+clear():void
+
+clearStage():void
+
+resizeCanvas():void
+```
 
 
 ### Events methods
+```js
+addEventKeydown(keyCode:int, callback:function):void
 
-#### addEventKeydown(keyCode, callback)
-#### addEventKeyup(keyCode, callback)
-#### addEventClick(rectangle, callback)
-#### removeEventClick(rectangle)
-#### imageLoader(object)
+addEventKeyup(keyCode:int, callback:function):void
+
+addEventClick(rectangle:array, callback:function):void
+
+removeEventClick(rectangle:array):void
+
+imageLoader(images:object):void
+```
 
 
 ### Graphics methods
@@ -101,55 +118,91 @@ lists:  	{stages:{},events:[],scenes:[],scenesTemp:[]},
 	textColor:'#000000',
 	margin:{x:0,y:0},
 	padding:{x:0,y:0},
+    countElements:true,
+    countEvents:true,
+    countScenes:true,
+    countStages:true,
+    developerPanelLoaded:6,
 }
 ```
 
-### Utilites methods
+### Utilities methods
+
 ``` 
 // static call
-AnUtil.method()
+An.Util.method()
 
-// alternative call
+// instance call
 an.u.method()
 ```
-#### objClone(obj)
-#### objMerge(obj1, obj2)
-#### objLength(obj)
-#### rand(min,max)
-#### randColor()
-#### degreesToRadians(deg)
-#### radiansToDegrees(rad)
-#### distanceBetween(p1,p2)
-#### getMouseElementelement, event)
-#### getMouseCanvas(canvas, event)
 
+```js
+objClone(obj:object):object
 
+objMerge(objectBase:object, object:object):object
 
+objMergeNotExists(objectBase:object, object:object):object
 
+objMergeOnlyExists(objectBase:object, object:object):object
 
+objLength(obj:object):object
+
+rand(min:int, max:int):int
+
+randColor():string
+
+degreesToRadians(deg:int):int
+
+radiansToDegrees(rad:int):int
+
+distanceBetween(point1:object, point2:object):int
+
+getMouseElement(element:object, event:object):object
+
+getMouseCanvas(canvas:object, event:object):object
+```
 
 
 ## Methods added to object 'context' of element canvas:
 
-#### context.rectRound(x, y, width, height, radius)
+```js
+context.rectRound(x, y, width, height, radius)
 
-#### context.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
+context.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
 
-#### context.shadow()
+context.shadow()
 
-#### context.clearShadow()
-
-
-
-
+context.clearShadow()
+```
 
 
+## Extension 
+
+Create Extension weary simple: 
+file 'an.extension.shapes.js'
+
+```
+An.Extension(function(root){
+
+    root.shape = function(name){
+        console.log(name);
+    };
+    
+});
+```
+and include after main script
+
+Use:
+```
+var an = new An(params);
+
+an.shape('Frodo');
+```
 
 
+## Example:
 
-## Exemple:
-
-### Created base statment
+### Created base
 ```
 var params = {
     selector:'#canvas',
