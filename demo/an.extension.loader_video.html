@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>an.extension.loader</title>
+
+    <script src="../an.script_1.0.2.js"></script>
+    <script src="../extensions/an.extension.loader.js"></script>
+
+</head>
+<body>
+
+<canvas id="canva"></canvas>
+
+<script>
+    (function(){
+
+        'use strict';
+
+        var an = new An({selector: '#canva'
+            , width: 800
+            , height: 400
+            , fps: 12
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+
+        var resPath = '/an.script2/resources/';
+
+        an.loader({
+            video:{
+                bunny:'http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4',
+                small:'http://techslides.com/demos/sample-videos/small.mp4'
+            },
+            image:{
+                img1:resPath+'image/image1.png',
+                img2:resPath+'image/image2.png',
+                img3:resPath+'image/image3.png',
+                img4:resPath+'image/image4.png',
+                img5:resPath+'image/image5.png'
+            },
+            script:{
+                jquery:resPath+'script/jquery.js',
+                box2d:resPath+'script/box2d.js'
+            },
+            audio:{
+                good_theme:resPath+'audio/good_theme.mp3',
+                music04:resPath+'audio/music04.mp3',
+                music05:resPath+'audio/music05.mp3',
+                music06:resPath+'audio/music06.mp3'
+            },
+            style:{
+                grid:resPath+'style/grid.css',
+                normalize:resPath+'style/normalize.css'
+            },
+            error:onLoaderError,
+            progress:onLoaderProgress,
+            complete:onLoaderComplete
+        });
+
+        function onLoaderProgress(event, total, index, item){
+            console.log('Loaded success: file: "' + item.name + '" progress (' + index + '/' + (total-1) + ')' );
+        }
+        function onLoaderError(event){
+            console.log('onLoaderError', event);
+        }
+        function onLoaderComplete(resources){
+            //console.log(resources);
+            //console.log(an.loader.resources);
+
+//            var videoBuckBunny = resources.video.bunny;
+//            videoBuckBunny.source.style.display = 'block';
+//            videoBuckBunny.source.play();
+
+            // render all
+            an.render();
+        }
+
+
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){an.graphic.debugPanel()}
+        });
+
+
+        // my scene
+        an.scene({
+            index: 1,
+            video: null,
+            isPlay: false,
+            runner: function(ctx){
+                if(this.video===null && an.loader.resources.video.bunny.source!=null){
+                    this.video = an.loader.resources.video.bunny.source;
+                    //this.video.style.display = 'block';
+                    this.video.play();
+                    this.video.loop = true;
+                    this.isPlay = true;
+                }
+                ctx.drawImage(this.video, 0, 0, an.width, an.height);
+            }
+        });
+
+    })();
+</script>
+
+</body>
+</html>

@@ -28,3 +28,7 @@ dom_11.02.15.loc.zip
 demodev-12.08.15.rar
 demodev
 _versions
+resources/audio/*
+resources/image/*
+resources/script/*
+resources/style/*

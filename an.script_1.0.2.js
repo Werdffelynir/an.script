@@ -57,19 +57,23 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
         // root.options
         root.options = Util.objMerge(defaultOption, options);
         options = defaultOption = null;
-
         root.selector = root.options.selector;
         root.canvas = document.querySelector(root.selector);
         root.canvas.width = root.width = root.options.width || 600;
         root.canvas.height = root.height = root.options.height || 400;
         root.context = this.canvas.getContext('2d');
         root.fps = root.options.fps;
-
         root.lists = {};
         root.lists.stages = {};
         root.lists.events = [];
         root.lists.scenes = [];
         root.lists.scenesTemp = [];
+
+        // initialize extensions
+        if(root.extensions.length > 0){
+            for(var ei = 0; ei < root.extensions.length; ei ++)
+                if(typeof root.extensions[ei] === 'function') root.extensions[ei].call(root, root);
+        }
 
         // It catches the mouse movement on the canvas, and writes changes root.mouse
         if(root.options.enableEventMouseMovie){
@@ -214,17 +218,12 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
         /**
          * It renders the scene assignments,
          * or if the specified parameter name - renders the stage by name
-         * @param {String} name - stage name
+         * @param name - stage name
          */
         this.render = function(name)
         {
             if(name !== undefined && typeof name === 'string')
                 this.applyStage(name);
-
-            if(root.extensions.length > 0){
-                for(var ei = 0; ei < root.extensions.length; ei ++)
-                    if(typeof root.extensions[ei] === 'function') root.extensions[ei].call(root, root);
-            }
 
             if(root.options.autoStart)
                 this.play();
@@ -417,7 +416,7 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
      * Debug Panel, show dynamic information: load, performance, frames ...
      * Panel size - full width and 30px height.
      * Position - default on top
-     * @param  {Object} option - params object
+     * @param  {Object|?} option - params object
      * @param  {String} option.bgColor - background color of panel, default = #DDDDDD
      * @param  {String} option.textColor - color of panel text, default = #000000
      * @param  {Boolean} option.countEvents - show the number of active events
@@ -473,14 +472,14 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
 
         root.context.fillStyle = opt.textColor;
         root.context.font = "12px/14px Arial";
-        root.context.fillText("FPS: " + parseInt(1/ftp) + '/' + root.fps, 80+textX, textY+6);
-        root.context.fillText(opt.percent+'', 150+textX, textY+6);
+        root.context.fillText("FPS: " + parseInt(1/ftp) + '/' + root.fps, 100+textX, textY+6);
+        root.context.fillText(opt.percent+'', 170+textX, textY+6);
         if(opt.countEvents)
-            root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 210+textX, textY+6);
+            root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 230+textX, textY+6);
         if(opt.countScenes)
-            root.context.fillText("Scenes: " + root.lists.scenes.length, 300+textX, textY+6);
+            root.context.fillText("Scenes: " + root.lists.scenes.length, 320+textX, textY+6);
         if(opt.countStages)
-            root.context.fillText("Stages: " + Util.objLength(root.lists.stages), 390+textX, textY+6);
+            root.context.fillText("Stages: " + Util.objLength(root.lists.stages), 410+textX, textY+6);
 
         opt.timeLast = timeNow;
         opt.iterator ++;
