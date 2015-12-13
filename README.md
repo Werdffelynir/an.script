@@ -114,16 +114,16 @@ imageLoader(images:object):void
 #### graphic.debugPanel(options)
 ```
 options = {
-	bgColor:'#DDDDDD',
-	textColor:'#000000',
-	margin:{x:0,y:0},
-	padding:{x:0,y:0},
-    countElements:true,
-    countEvents:true,
-    countScenes:true,
-    countStages:true,
-    developerPanelLoaded:6,
-}
+      bgColor:'#DDDDDD'
+    , textColor:'#000000'
+    , margin:{x:0,y:0}
+    , padding:{x:0,y:0}
+    , countElements:true
+    , countEvents:true
+    , countScenes:true
+    , countStages:true
+    , developerPanelLoaded:6
+};
 ```
 
 ### Utilities methods
