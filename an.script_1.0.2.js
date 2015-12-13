@@ -54,7 +54,7 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
             enableEventKeys:false
         };
 
-        // root.options
+        // root.options CanvasRenderingContext2D
         root.options = Util.objMerge(defaultOption, options);
         options = defaultOption = null;
         root.selector = root.options.selector;

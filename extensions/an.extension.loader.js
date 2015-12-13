@@ -138,6 +138,7 @@ An.Extension(function(root) {
         video.width = loader.options.videoSizeWidth;
         video.height = loader.options.videoSizeHeight;
         video.style.display = 'none';
+        //video.setAttribute('crossOrigin','anonymous');
         var source = document.createElement('source');
         source.src = item.url;
         source.type = loader.options.videoType;

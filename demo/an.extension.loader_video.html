@@ -62,10 +62,10 @@
         });
 
         function onLoaderProgress(event, total, index, item){
-            console.log('Loaded success: file: "' + item.name + '" progress (' + index + '/' + (total-1) + ')' );
+            //console.log('Loaded success: file: "' + item.name + '" progress (' + index + '/' + (total-1) + ')' );
         }
         function onLoaderError(event){
-            console.log('onLoaderError', event);
+            //console.log('onLoaderError', event);
         }
         function onLoaderComplete(resources){
             //console.log(resources);
@@ -93,16 +93,55 @@
             video: null,
             isPlay: false,
             runner: function(ctx){
+
                 if(this.video===null && an.loader.resources.video.bunny.source!=null){
                     this.video = an.loader.resources.video.bunny.source;
+                    //this.video.crossOrigin = "anonymous";
                     //this.video.style.display = 'block';
                     this.video.play();
                     this.video.loop = true;
                     this.isPlay = true;
                 }
                 ctx.drawImage(this.video, 0, 0, an.width, an.height);
+
+
+
+                /*var frame = ctx.getImageData(0, 0, an.width, an.height);
+                console.log(frame);
+
+                var l = frame.data.length / 4;
+
+                for (var i = 0; i < l; i++) {
+                    var r = frame.data[i * 4 + 0];
+                    var g = frame.data[i * 4 + 1];
+                    var b = frame.data[i * 4 + 2];
+                    if (g > 100 && r > 100 && b < 43)
+                        frame.data[i * 4 + 3] = 0;
+                }
+                ctx.putImageData(frame, 0, 0);*/
             }
         });
+
+        an.scene({
+            index: 10,
+            runner: function(ctx){
+
+               // if(an.frame % 10 == 0){}
+                    //console.log(an.canvas.toDataURL());
+                    //console.log(ctx.createImageData(100, 100));
+                    //console.log(ctx.getImageData(50, 50, 100, 100));
+                    //ctx.drawImage(image, 200, 100, 200, 100, 0, 250, 100, 50);
+                    //var imagedata = ctx.createImageData(100, 100);
+                   // ctx.putImageData(imagedata, 200, 200);
+                    //ctx.drawImage(part.data, 200, 100, 200, 100, 0, 250, 100, 50);
+
+                //var image = new Image();
+                //image.crossOrigin = "anonymous";  // This enables CORS
+                //image.onload = function (event) {};
+
+            }
+        });
+
 
     })();
 </script>
