@@ -109,6 +109,7 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
          * @param radius
          */
         root.context.rectRound = function(x, y, width, height, radius){
+            radius = radius || 5;
             root.context.beginPath();
             root.context.moveTo(x + radius, y);
             root.context.arcTo(x + width, y, x + width, y + height, radius);
@@ -419,7 +420,6 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
      * @param  {Object} option - params object
      * @param  {String} option.bgColor - background color of panel, default = #DDDDDD
      * @param  {String} option.textColor - color of panel text, default = #000000
-     * @param  {Boolean} option.countElements - show the number of active elements
      * @param  {Boolean} option.countEvents - show the number of active events
      * @param  {Boolean} option.countScenes - show the total number of scenes
      * @param  {Boolean} option.countStages - show the total number of stages
@@ -443,7 +443,6 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
                 timeStart:new Date().getTime(),
                 timeLast:0,
                 percent:0,
-                countElements:(option.countElements===false)?false:true,
                 countEvents:(option.countEvents===false)?false:true,
                 countScenes:(option.countScenes===false)?false:true,
                 countStages:(option.countStages===false)?false:true,
@@ -476,14 +475,12 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
         root.context.font = "12px/14px Arial";
         root.context.fillText("FPS: " + parseInt(1/ftp) + '/' + root.fps, 80+textX, textY+6);
         root.context.fillText(opt.percent+'', 150+textX, textY+6);
-        if(opt.countElements)
-            root.context.fillText("Elements: " + root.lists.scenes.length , 190+textX, textY+6);
         if(opt.countEvents)
-            root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 300+textX, textY+6);
+            root.context.fillText("Events: " + Util.objLength(root.lists.events.click), 210+textX, textY+6);
         if(opt.countScenes)
-            root.context.fillText("Scenes: " + root.lists.scenes.length, 390+textX, textY+6);
+            root.context.fillText("Scenes: " + root.lists.scenes.length, 300+textX, textY+6);
         if(opt.countStages)
-            root.context.fillText("Stages: " + Util.objLength(root.lists.events.stages), 490+textX, textY+6);
+            root.context.fillText("Stages: " + Util.objLength(root.lists.stages), 390+textX, textY+6);
 
         opt.timeLast = timeNow;
         opt.iterator ++;
