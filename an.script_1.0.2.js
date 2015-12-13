@@ -377,8 +377,8 @@ and some event-control model for "click", "mousemove", "keydown" and "keyup"
 
             root.lists.scenes.forEach(function(item){
                 try{
-                    root.context.save();
                     root.context.beginPath();
+                    root.context.save();
                     item.runner.call(item, root.context, root);
                     root.context.restore();
                 }catch(error){
