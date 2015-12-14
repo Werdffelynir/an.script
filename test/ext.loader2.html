@@ -55,12 +55,14 @@
         		an.render();
         	}
         });
+        
 
         // draw debugPanel
         an.scene({
             index: 100,
             runner: function(){an.graphic.debugPanel()}
         });
+        
 
         // my scene
         an.scene({
@@ -69,14 +71,40 @@
             placePattern: null,
             runner: function(ctx){
             	if( !this.isInit ){ this.isInit = true; this.init(ctx) }
-				ctx.fillStyle = this.placePattern;
-            	ctx.fillRect(100, 100, an.width - 200, an.height - 200);
+                
+                ctx.beginPath();
+                ctx.fillStyle = '#E2E782';
+                ctx.rectRound(50, 50, 150, 150, 75);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.fillStyle = '#997FF1';
+                ctx.rectRound(an.width/2 - 75, an.height/2 - 75, 150, 150, 75);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.fillStyle = '#F51440';
+                ctx.rectRound(an.width - 150 - 50, an.height - 150 - 50, 150, 150, 75);
+                ctx.fill();
 
             },
             init: function(ctx){
 				console.log('Init Once!');
 				var placeIMG = an.loader.resources.image.placeIMG.source;
-                this.placePattern = ctx.createPattern(placeIMG, 'no-repeat');
+
+                placeIMG.width = an.width - 200;
+                placeIMG.height = an.height - 200;
+                placeIMG.style.display = 'block';
+                placeIMG.style.position = 'absolute';
+                placeIMG.style.top = '100px';
+                placeIMG.style.left = '100px';
+
+                an.canvas.style.position = 'absolute';
+
+                if(document.body.hasChildNodes()){
+                    document.body.insertBefore(placeIMG,document.body.firstChild);
+                }
+
             }
         });
 
