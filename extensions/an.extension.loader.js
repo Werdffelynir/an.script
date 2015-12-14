@@ -1,8 +1,8 @@
 /**
  * Resources loader with events progress, error, complete
  * load types - image, audio, video, script, style
+ * .setAttribute('crossOrigin','anonymous');
  *
- videoSizeWidth videoSizeHeight videoType
  * @version 0.0.1
  * @author Werd
  */
@@ -14,6 +14,7 @@ An.Extension(function(root) {
     loader.total = 0;
     loader.iterator = 0;
     loader.options = null;
+    loader.resourcesLibrary = [];
     loader.defaultOptions = {
         image: null,
         audio: null,
@@ -28,7 +29,6 @@ An.Extension(function(root) {
         error: new Function,
         complete: new Function
     };
-    loader.resourcesLibrary = [];
 
     loader.addResourceItems = function (type, obj) {
         for (var n in obj)
@@ -80,29 +80,22 @@ An.Extension(function(root) {
             }
         });
     }
-
-    loader.total = 0;
-    loader.iterator = 0;
     loader.loadImage = function (item, index) {
         var elem = document.createElement('img');
         elem.name = item.name;
         elem.src = item.url;
-        elem.onerror = function (e) {
-            root.loader.onError.call(root, e, item);
-        };
         elem.data = {item: item,index: index};
-        elem.onload = loader.onLoadEvent;
+        elem.onerror = loader.eventOnError;
+        elem.onload = loader.eventOnLoad;
     };
     loader.loadScript = function (item, index) {
         var elem = document.createElement('script');
         elem.name = item.name;
         elem.src = item.url;
         elem.type = 'text/javascript';
-        elem.onerror = function (e) {
-            root.loader.onError.call(root, e, item);
-        };
         elem.data = {item: item,index: index};
-        elem.onload = loader.onLoadEvent;
+        elem.onerror = loader.eventOnError;
+        elem.onload = loader.eventOnLoad;
         document.head.appendChild(elem);
     };
     loader.loadStyle = function (item, index) {
@@ -110,11 +103,9 @@ An.Extension(function(root) {
         elem.name = item.name;
         elem.href = item.url;
         elem.rel = "stylesheet";
-        elem.onerror = function (e) {
-            root.loader.onError.call(root, e, item);
-        };
         elem.data = {item: item,index: index};
-        elem.onload = loader.onLoadEvent;
+        elem.onerror = loader.eventOnError;
+        elem.onload = loader.eventOnLoad;
         document.head.appendChild(elem);
     };
     loader.loadAudio = function (item, index) {
@@ -125,11 +116,9 @@ An.Extension(function(root) {
         source.src = item.url;
         source.type = loader.options.audioType;
         audio.appendChild(source);
-        audio.onerror = function (e) {
-            root.loader.onError.call(root, e, item);
-        };
         audio.data = {item: item,index: index};
-        audio.onloadstart = loader.onLoadEvent;
+        audio.onerror = loader.eventOnError;
+        audio.onloadstart = loader.eventOnLoad;
         document.body.appendChild(audio);
     };
     loader.loadVideo = function (item, index) {
@@ -138,30 +127,30 @@ An.Extension(function(root) {
         video.width = loader.options.videoSizeWidth;
         video.height = loader.options.videoSizeHeight;
         video.style.display = 'none';
-        //video.setAttribute('crossOrigin','anonymous');
         var source = document.createElement('source');
         source.src = item.url;
         source.type = loader.options.videoType;
         video.appendChild(source);
-        video.onerror = function (e) {
-            root.loader.onError.call(root, e, item);
-        };
         video.data = {item: item,index: index};
-        video.onloadstart = loader.onLoadEvent;
+        video.onerror = loader.eventOnError;
+        video.onloadstart = loader.eventOnLoad;
         document.body.appendChild(video);
     };
-    loader.onLoadEvent = function (event) {
+    loader.eventOnLoad = function (event) {
         var item = this.data.item,
             index = this.data.index;
         loader.resourcesLibrary[index].source = this;
         loader.resourcesLibrary[index].total = loader.total;
         loader.resourcesLibrary[index].index = index;
         loader.iterator ++;
-        root.loader.onProgress.call(root, event, loader.total, index, item);
+        root.loader.onProgress.call(root, event, item, loader.total, loader.iterator);
         if(loader.iterator == loader.total)
-            root.loader.onComplete.call(root, loader.convertToObject());
-        //else
+            root.loader.onComplete.call(root, event, loader.convertToObject());
     };
+    loader.eventOnError = function (event) {
+        console.error(event);
+        root.loader.onError.call(root, event, this.data.item);
+    }
     loader.convertToObject = function () {
         var _obj = Object.create({});
         for(var i = 0; i < loader.total; i ++){

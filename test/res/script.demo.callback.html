@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo script.timer.callback</title>
+
+    <script src="script.timer.callback.js"></script>
+
+    <style>
+        *{
+            margin: 0; padding: 0;
+        }
+        #page{
+            width: 200px;
+            margin: 100px auto;
+        }
+        #page input{
+            width: 200px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div id="page">
+    <input id="count" type="text" value="0">
+    <button id="start">start</button>
+    <button id="kill">stop</button>
+    <button id="pause">pause</button>
+    <button id="reset">reset</button>
+</div>
+
+
+
+<script>
+
+    function setTimestamp(iterator, repeat){
+        count.value = iterator + ' / ' + repeat + ' : ' + (new Date).getTime();
+    }
+
+    var timer = new Timer(setTimestamp, 60, 60);
+
+    start.onclick = function(){
+        timer.start();
+    };
+
+    kill.onclick = function(){
+        timer.stop();
+    };
+
+    pause.onclick = function(){
+        timer.pause();
+    };
+
+    reset.onclick = function(){
+        timer.reset();
+    };
+
+</script>
+
+</body>
+</html>

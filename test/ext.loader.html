@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ext.Loader</title>
+    <script src="../an.script_1.0.2.js"></script>
+    <script src="../extensions/an.extension.loader.js"></script>
+</head>
+<body>
+	
+<canvas id="canva"></canvas>
+
+<script>
+
+    (function(){
+
+        var an = new An({selector: '#canva'
+            , width: 800
+            , height: 400
+            , fps: 30
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+
+        an.loader({
+
+        	image:{
+        			placeIMG: 	'../demo/images/bg_place.jpg',
+        			roadIMG: 	'../demo/images/bg_road.png',
+        			sunGreenIMG:'../demo/images/bg_sun_green.png'
+        		  },
+
+        	script:{
+        			domJS:      'res/script.dom.js',
+        			ajJS:       'res/script.aj.js',
+        			timerJS:    'res/script.timer.js',
+        			sharedJS: 	'res/script.shared.js'
+        		  },
+
+        	style:{
+        			gridCSS:     'res/grid.css',
+        			pageCSS:     'res/page.css'
+        		  },
+
+        	error:function(event,item){
+        		console.log(event,item)},
+
+        	progress:function(event,item,total,current){
+        		console.log('progressEvent:' + current + '/' + total)},
+
+        	complete:function(event,items){
+        		an.render();
+        	}
+        });
+
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){an.graphic.debugPanel()}
+        });
+
+        // my scene
+        an.scene({
+            index: 1,
+            isInit: false,
+            placePattern: null,
+            runner: function(ctx){
+            	if( !this.isInit ){ this.isInit = true; this.init(ctx) }
+				//ctx.fillStyle = this.placePattern;
+            	//ctx.fillRect(100, 100, an.width - 200, an.height - 200);
+                ctx.fillStyle = 'white';
+                ctx.fillRect(50, 50, an.width - 100, an.height - 100);
+
+            },
+            init: function(ctx){
+				console.log('Init Once!');
+				var placeIMG = an.loader.resources.image.placeIMG.source;
+                //this.placePattern = ctx.createPattern(placeIMG, 'no-repeat');
+
+                placeIMG.width = an.width - 200;
+                placeIMG.height = an.height - 200;
+                placeIMG.style.display = 'block';
+                placeIMG.style.position = 'absolute';
+                placeIMG.style.top = '100px';
+                placeIMG.style.left = '100px';
+                placeIMG.style.zIndex = '1';
+
+                if(document.body.hasChildNodes()){
+                    document.body.insertBefore(placeIMG,document.body.firstChild);
+                }
+
+            }
+        });
+
+
+    })();
+
+</script>
+
+</body>
+</html>
