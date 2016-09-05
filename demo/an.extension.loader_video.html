@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>an.extension.loader</title>
 
-    <script src="../an.script_1.0.2.js"></script>
+    <script src="../an.script.js"></script>
     <script src="../extensions/an.extension.loader.js"></script>
 
 </head>
@@ -28,7 +28,7 @@
             , enableEventKeys: false
         });
 
-        var resPath = '/an.script2/resources/';
+        var resPath = '/an.script/demo/';
 
         an.loader({
             video:{
@@ -36,25 +36,22 @@
                 small:'http://techslides.com/demos/sample-videos/small.mp4'
             },
             image:{
-                img1:resPath+'image/image1.png',
-                img2:resPath+'image/image2.png',
-                img3:resPath+'image/image3.png',
-                img4:resPath+'image/image4.png',
-                img5:resPath+'image/image5.png'
+                img1:resPath+'data/boxman.png',
+                img2:resPath+'data/cartman.png',
+                img3:resPath+'data/skellington.png',
+                img4:resPath+'data/table.png'
             },
             script:{
-                jquery:resPath+'script/jquery.js',
-                box2d:resPath+'script/box2d.js'
+                jquery:resPath+'data/jquery.js',
+                box2d:resPath+'data/box2d.js'
             },
             audio:{
-                good_theme:resPath+'audio/good_theme.mp3',
-                music04:resPath+'audio/music04.mp3',
-                music05:resPath+'audio/music05.mp3',
-                music06:resPath+'audio/music06.mp3'
+                music04:resPath+'data/audio1.mp3',
+                music05:resPath+'data/audio2.mp3'
             },
             style:{
-                grid:resPath+'style/grid.css',
-                normalize:resPath+'style/normalize.css'
+                grid:resPath+'data/grid.css',
+                normalize:resPath+'data/normalize.css'
             },
             error:onLoaderError,
             progress:onLoaderProgress,
@@ -62,13 +59,15 @@
         });
 
         function onLoaderProgress(event, total, index, item){
+            console.log('Progress', total, item);
             //console.log('Loaded success: file: "' + item.name + '" progress (' + index + '/' + (total-1) + ')' );
         }
         function onLoaderError(event){
+            console.log('Error', event);
             //console.log('onLoaderError', event);
         }
         function onLoaderComplete(resources){
-            //console.log(resources);
+            console.log('Complete', resources);
             //console.log(an.loader.resources);
 
 //            var videoBuckBunny = resources.video.bunny;

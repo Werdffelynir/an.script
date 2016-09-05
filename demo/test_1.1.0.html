@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="../an.script_1.1.0.js"></script>
+    <style type="text/css"></style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<canvas id="canvas2"></canvas>
+
+<script>
+
+    (function(){
+
+        /**
+         * @param selector
+         * @returns {*|An}
+         */
+        function createAnimation(selector){
+
+            return new An({
+                selector: selector
+                , width: 400
+                , height: 200
+                , fps: 12
+                , autoStart: true
+                , autoClear: true
+                , enableEventClick: true
+                , enableEventMouseMovie: false
+                , enableEventKeys: false
+            });
+
+        }
+
+        var an = createAnimation('#canvas');
+
+        an.scene({
+            index: 100,
+            runner: function(){
+                an.context.rectRound(100, 100, 200, 50);
+                an.context.fillStyle = '#D55';
+                an.context.fill();
+            }
+        });
+
+        // render all
+        an.render();
+
+
+
+
+
+
+        //var an2 = createAnimation('#canvas2');
+/*
+        // draw debugPanel
+        an.scene({
+            index: 100,
+            runner: function(){
+                an.debugPanel()
+            }
+        });
+
+        // my scene
+        an.scene({
+            index: 1,
+            runner: function(ctx){
+                console.log();
+            }
+        });
+*/
+
+        // render all
+
+    })();
+
+</script>
+
+</body>
+</html>
