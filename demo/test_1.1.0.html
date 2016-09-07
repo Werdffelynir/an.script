@@ -5,54 +5,135 @@
     <title>title</title>
     <link rel="stylesheet" href="grid.css">
     <script src="../an.script_1.1.0.js"></script>
-    <style type="text/css"></style>
+    <style type="text/css">
+        canvas{
+            border: 2px solid #800008;
+        }
+    </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
+
 <canvas id="canvas2"></canvas>
+<br>
+<canvas id="canvas3"></canvas>
 
 <script>
 
     (function(){
 
-        /**
-         * @param selector
-         * @returns {*|An}
-         */
-        function createAnimation(selector){
 
-            return new An({
-                selector: selector
-                , width: 400
-                , height: 200
-                , fps: 12
-                , autoStart: true
-                , autoClear: true
-                , enableEventClick: true
-                , enableEventMouseMovie: false
-                , enableEventKeys: false
-            });
-
-        }
-
-        var an = createAnimation('#canvas');
+        var an =  new An({
+            selector: '#canvas'
+            , width: 400
+            , height: 200
+            , fps: 24
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+        console.log('properties 1 >>>', an);
 
         an.scene({
+            x: 10,
+            y: 10,
+            speed: 1,
             index: 100,
-            runner: function(){
-                an.context.rectRound(100, 100, 200, 50);
+            runner: function () {
+                an.context.rectRound(this.x, 10, 50, 25);
                 an.context.fillStyle = '#D55';
                 an.context.fill();
+
+                if(this.x > 350) {
+                    this.x = 0;
+                }
+                else this.x += this.speed;
             }
         });
 
         // render all
         an.render();
 
+        var an2 =  new An({
+            selector: '#canvas2'
+            , width: 480
+            , height: 150
+            , fps: 30
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+        console.log('properties 2 >>>', an2);
+
+        an2.scene({
+            x: 10,
+            y: 10,
+            speed: 2,
+            index: 80,
+            runner: function () {
+                an2.context.rectRound(this.x, 10, 100, 25);
+                an2.context.fillStyle = '#F33';
+                an2.context.fill();
+
+                if(this.x > 350) {
+                    this.x = 0;
+                }
+                else this.x += this.speed;
+            }
+        });
+        // render all
+        an2.render();
 
 
 
+        var anDev =  new An({
+            selector: '#canvas3'
+            , width: 800
+            , height: 600
+            , fps: 60
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+        anDev.scene({
+            x: 10,
+            y: 10,
+            speed: 2,
+            index: 80,
+            runner: function () {
+                anDev.debugPanel();
+            }
+        });
+        // render all
+        anDev.render();
+
+
+
+        /*
+
+        var User = function(){};
+        User.prototype.name = 'None';
+        User.prototype.set_name = function(name){
+            this.name = name;
+        };
+        User.prototype.get_name = function(){
+            console.log(this.name);
+        };
+
+        var u1 = new User();
+        u1.set_name('Petia');
+        u1.get_name();
+
+        var u2 = new User();
+        u2.get_name();
+ */
 
 
         //var an2 = createAnimation('#canvas2');

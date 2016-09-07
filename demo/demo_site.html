@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo event click</title>
+
+    <link rel="stylesheet" href="grid.css">
+
+    <script src="../an.script_1.1.0.js"></script>
+    <script src="../extensions/an.extension.graphics.js"></script>
+
+    <style type="text/css">
+        canvas {}
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+    (function () {
+
+        var an = new An({
+            selector: '#canvas'
+            , width: 400
+            , height: 200
+            , fps: 50/100
+            , fullScreen: true
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+
+        an.graphic.menu = function(ctx, x, y, list){
+
+        };
+        an.graphic.page = function(ctx, title, content){};
+
+        an.scene({
+            index: 1,
+            runner: function (ctx) {
+                an.graphic.backgroundColor('#285773');
+                an.debugPanel();
+            }
+        });
+
+        // render all
+        an.render();
+
+    })();
+
+</script>
+
+</body>
+</html>

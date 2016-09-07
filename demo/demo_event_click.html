@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo site</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="../an.script_1.1.0.js"></script>
+    <style type="text/css">
+        canvas {}
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+    (function () {
+
+        var an = new An({
+            selector: '#canvas'
+            , width: 400
+            , height: 200
+            , fps: 50/100
+            , fullScreen: true
+            , autoStart: true
+            , autoClear: true
+            , enableEventClick: true
+            , enableEventMouseMovie: false
+            , enableEventKeys: false
+        });
+
+        an.graphic.btn = function (ctx, x, y) {
+            ctx.rectRound(x, y, 150, 25, 3);
+            ctx.fillStyle = '#001A25';
+            ctx.fill();
+
+            ctx.textBaseline = "top";
+            ctx.shadow(2, 0, 2.85, '#fff');
+            ctx.fillStyle = '#C1BFC3';
+            ctx.font = "18px Arial";
+            ctx.fillText("Click me!", x + 34, y + 5);
+        };
+
+        an.graphic.score = function (ctx, value) {
+            ctx.fillStyle = '#A00';
+            ctx.font = "28px Arial";
+            ctx.fillText(value, 10, 35);
+
+        };
+
+        an.scene({
+            point: {x: 200, y: 100},
+            clicks: 0,
+            index: 1,
+            runner: function (ctx) {
+                an.debugPanel();
+                an.graphic.score(ctx, this.clicks);
+                an.graphic.btn(ctx, this.point.x, this.point.y);
+
+                var self = this,
+                    rectangle = [this.point.x, this.point.y, 150, 25];
+
+                an.addEventClick(rectangle, function (e, rectangle) {
+                    console.log('one click');
+                    self.point.x = An.Util.rand(0, an.width - 150);
+                    self.point.y = An.Util.rand(0, an.height - 25);
+                    self.clicks ++;
+                    an.removeEventClick(rectangle);
+                    an.play();
+                });
+
+            }
+        });
+
+        // render all
+        an.render();
+
+    })();
+
+</script>
+
+</body>
+</html>
