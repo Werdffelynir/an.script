@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>requestAnimationFrame</title>
+    <style>
+        #loader{
+            height: 50px;
+            width: 1px;
+            background-color: #800008;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="can"></canvas>
+<div id="loader"></div>
+
+<script>
+
+    (function() {
+        var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        window.requestAnimationFrame = requestAnimationFrame;
+    })();
+
+
+
+
+
+    var start = Date.now();
+
+    var tm = Date.now();
+    var tm_last = tm;
+    var frame = 0;
+    var fps = 12;
+    var ftp = 0;
+    var percent = 0;
+    function step(timestamp) {
+        var progress = timestamp - start;
+
+        //console.log( frame, (timestamp - timestamp_last) / (Date.now() - start));
+
+        tm = Date.now();
+        ftp = (tm - tm_last) / 1000;
+
+        var p = parseInt(parseInt(1 / ftp) *  100 / fps);
+        percent = (( p > 100) ? 100 : p) + '%';
+
+        percent = "FPS: " + percent + '/' + fps;
+        console.log(ftp, p, percent);
+
+        tm_last = tm;
+
+
+        if (progress < 2000) {
+            frame ++;
+            requestAnimationFrame(step);
+
+
+            // ...
+            // ...
+            // ...
+        }
+
+    }
+    //
+
+
+
+
+    function animate(timestamp) {
+        console.log(timestamp);
+
+        // ...
+        // ...
+        // ...
+
+        setTimeout(function(){
+            requestAnimationFrame(animate);
+        }, 1000 / fps);
+    }
+
+    animate();
+
+
+
+
+//    setInterval(function(){
+//
+//    }, 500);
+
+</script>
+
+</body>
+</html>

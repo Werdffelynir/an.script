@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 1.2.0 </title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="../ai.js"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+
+
+
+var ai = new Ai({
+    selector: '#canvas',
+    width: 500,
+    height: 300,
+    fps: 12
+});
+
+
+ai.scene({
+    index: 1,
+    width: 150,
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 10, this.width, 25);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.x += 15;
+        if(this.x > this.width) {
+            ai.stop()
+        }
+        if(this.x > ai.width - this.width) {
+            this.x = 10;
+        }
+    }
+});
+
+ai.play();
+
+
+
+
+
+
+
+/*
+    var start = Date.now();
+
+    var tm = Date.now();
+    var tm_last = tm;
+    var frame = 0;
+    var fps = 12;
+    var ftp = 0;
+    var percent = 0;
+    function step(timestamp) {
+        var progress = timestamp - start;
+
+        //console.log( frame, (timestamp - timestamp_last) / (Date.now() - start));
+
+        tm = Date.now();
+        ftp = (tm - tm_last) / 1000;
+
+        var p = parseInt(parseInt(1 / ftp) *  100 / fps);
+        percent = (( p > 100) ? 100 : p) + '%';
+
+        percent = "FPS: " + percent + '/' + fps;
+        console.log(ftp, p, percent);
+
+        tm_last = tm;
+
+
+        if (progress < 2000) {
+            frame ++;
+            requestAnimationFrame(step);
+
+
+            // ...
+            // ...
+            // ...
+        }
+
+    }
+    //
+
+
+
+
+
+ /*        var self = this;
+ if(self.fps > 0 && !self.intervalMark) {
+ self.intervalMark = setInterval(function() {
+ self.animate();
+ }, 1000 / self.fps);
+ }
+
+
+
+ console.log('stop intervalMark', self.intervalMark);
+
+ if( self.intervalMark ) {
+ clearInterval(self.intervalMark);
+ self.intervalMark = null;
+ }
+
+ console.log('stop intervalMark', self.intervalMark);
+
+
+        console.log(self.intervalAnimationFrameMark);
+ window.cancelAnimationFrame(this.intervalAnimationFrameMark);
+ this.intervalAnimationFrameMark = undefined;
+
+
+
+ console.log(this.intervalMark);
+
+ if( this.intervalMark ) {
+ clearInterval(this.intervalMark);
+ this.intervalMark = undefined;
+ }
+
+
+
+
+ if( this.intervalAnimationFrameMark ) {
+ window.cancelAnimationFrame(this.intervalAnimationFrameMark);
+ this.intervalAnimationFrameMark = undefined;
+ }
+
+*/
+
+
+/*
+ if(!this.intervalAnimationFrameMark){
+ this.intervalAnimationFrameMark = requestAnimationFrame(function(){
+ self.animate();
+ });
+ }
+ */
+
+/*        if(self.fps > 0 && !self.intervalMark) {
+ self.intervalMark = setInterval(function() {
+ self.animate();
+ }, 1000 / self.fps);
+ }*/
+
+/*        if(self.fps > 0){
+
+ self.intervalAnimationFrameMark = requestAnimationFrame(function(){
+ self.animate();
+ });
+ }
+ */
+    //animate();
+
+
+
+
+//    setInterval(function(){
+//
+//    }, 500);
+
+</script>
+
+</body>
+</html>

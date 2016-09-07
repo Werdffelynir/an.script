@@ -1,8 +1,21 @@
+/**
+ The script implements a control HTML5 element canvas. Simplified realization of animation or static graphs,
+ and some event-control model for "click", "mousemove", "keydown" and "keyup"
+ */
 (function(window){
 
     "use strict";
 
-
+    /**
+     * Constructor, create one animation canvas
+     *
+     * @param prop
+     * @param p1
+     * @param p2
+     * @param p3
+     * @returns {An}
+     * @constructor
+     */
     var An = function (prop, p1, p2, p3)
     {
         if (!(this instanceof An))
@@ -69,17 +82,16 @@
         }
 
         if(!!this.properties.fullScreen) {
-            this.properties.width = window.innerWidth - 10;
-            this.properties.height = window.innerHeight - 10; //window.outerHeight;
-            //this.properties.canvas.style.
+            this.resizeCanvas();
         }
 
-
-        this.width = this.canvas.width = this.properties.width;
-        this.height = this.canvas.height = this.properties.height;
+        this.width = this.properties.canvas.width = this.properties.width;
+        this.height = this.properties.canvas.height = this.properties.height;
         this.context = this.properties.context = this.properties.canvas.getContext('2d');
         this.frame = this.properties.frame;
+        this.mouse = this.properties.mouse;
         this.graphic = {};
+        this.u = Util;
 
         var self = this;
 
@@ -89,15 +101,12 @@
                 if(typeof An._extensions[ei] === 'function') An._extensions[ei].call(self, self);
         }
 
-
-
         // It catches the mouse movement on the canvas, and writes changes root.mouse
         if(this.properties.enableEventMouseMovie){
             this.properties.canvas.addEventListener('mousemove', function(event){
-                self.properties.mouse = Util.getMouseCanvas(self.properties.canvas, event);
+                self.mouse = self.properties.mouse = Util.getMouseCanvas(self.properties.canvas, event);
             });
         }
-
 
         // It catches the mouse clicks on the canvas, and writes changes root.mouseClick
         if(this.properties.enableEventClick){
@@ -120,9 +129,8 @@
             });
         }
 
-
         /**
-         * Draw round rectengle
+         * Draw round rectangle
          * @param x
          * @param y
          * @param width
@@ -140,15 +148,28 @@
             self.properties.context.arcTo(x, y + height, x, y, radius);
             self.properties.context.arcTo(x, y, x + width, y, radius);
         };
+
+        /**
+         * Draw shadow for all elements on scene
+         * @param x
+         * @param y
+         * @param blur
+         * @param color
+         */
         self.properties.context.shadow = function (x, y, blur, color){
             self.properties.context.shadowOffsetX = x;
             self.properties.context.shadowOffsetY = y;
             self.properties.context.shadowBlur = blur;
             self.properties.context.shadowColor = color;
         };
+
+        /**
+         * Clear shadow params (shadowOffsetX,shadowOffsetY,shadowBlur)
+         */
         self.properties.context.clearShadow = function(){
             self.properties.context.shadowOffsetX = self.properties.context.shadowOffsetY = self.properties.context.shadowBlur = 0;
         };
+
         if(!self.properties.context.ellipse){
             /**
              * Draw ellipse - cross-browser function
@@ -176,15 +197,32 @@
 
     };
 
+    /**
+     * Alias
+     * @type {{}}
+     */
     An.prototype.properties = {};
 
+    /**
+     * Storage of extensions
+     * @type {Array}
+     * @private
+     */
     An._extensions = [];
 
+    /**
+     * Add extensions in loader
+     * @param func
+     * @constructor
+     */
     An.Extension = function(func){
         An._extensions.push(func);
     };
 
-
+    /**
+     * System method
+     * @param _this
+     */
     function internalDrawFrame(_this)
     {
         var self = _this,
@@ -218,8 +256,6 @@
             }
         });
 
-
-
         if(prop.enableEventKeys){
             window.addEventListener('keydown', function(event){
                 prop.keydownCode = event.keyCode;
@@ -239,6 +275,13 @@
 
     }
 
+    /**
+     * Added scene
+     * @param {Object} obj
+     * @param {Number} obj.index - deeps scene, option march on z-index
+     * @param {Function} obj.runner - function run every time relatively root.fps
+     * @returns {An}
+     */
     An.prototype.scene = function(obj){
         if(obj !== null) {
             if(typeof obj === 'function') {
@@ -250,6 +293,13 @@
         return this;
     };
 
+    /**
+     * Added stage
+     * @param {String} name - name of stage, rendering is defined by name
+     * @param {Object} obj - Object. is scene object
+     * @param {Number} obj.index - deeps scene, option march on z-index
+     * @param {Function} obj.runner - function run every time relatively root.fps
+     */
     An.prototype.stage = function(name, obj)
     {
         if(this.properties.lists.stages[name] == null)
@@ -258,6 +308,11 @@
         this.properties.lists.stages[name].push(obj);
     };
 
+    /**
+     * It renders the scene assignments,
+     * or if the specified parameter name - renders the stage by name
+     * @param name - stage name
+     */
     An.prototype.render = function (name) {
         if(name !== undefined && typeof name === 'string')
             this.applyStage(name);
@@ -266,7 +321,11 @@
             this.play();
     };
 
-
+    /**
+     * Apply renderer for the scene by the name
+     * @param {String} name
+     * @param {Boolean} clear
+     */
     An.prototype.applyStage = function(name, clear)
     {
         if(clear !== false)
@@ -279,6 +338,9 @@
         }
     };
 
+    /**
+     * Play animation
+     */
     An.prototype.play = function(){
         if(this.properties.fps > 0 && this.properties.interval === null) {
             var self = this;
@@ -294,23 +356,48 @@
     };
 
 
+    /**
+     * Clear canvas area
+     */
     An.prototype.clear = function(){
         this.properties.context.clearRect(0, 0, this.properties.width, this.properties.height);
     };
+
+
+    /**
+     * It clears the canvas to render the new stage
+     */
     An.prototype.clearStage = function(){
         this.properties.lists.scenes = this.properties.lists.scenesTemp = this.properties.lists.events = [];
     };
 
+    /**
+     * Added callback for event "keydown" by "keyCode"
+     *
+     * @param {Number} keyCode
+     * @param {Function} callback - callback on event
+     */
     An.prototype.addEventKeydown = function(keyCode, callback){
         if(this.properties.lists.events.keydown == null) this.properties.lists.events.keydown = {};
         this.properties.lists.events.keydown[keyCode] = {keyCode: keyCode, callback: callback};
 
     };
+
+    /**
+     * Added callback for event "keyup" by "keyCode"
+     * @param {Number} keyCode
+     * @param {Function} callback - callback on event
+     */
     An.prototype.addEventKeyup = function(keyCode, callback){
         if(this.properties.lists.events.keyup == null) this.properties.lists.events.keyup = {};
         this.properties.lists.events.keyup[keyCode] = {keyCode: keyCode, callback: callback};
-
     };
+
+    /**
+     * Adds a callback for the event click on a certain area: rectangle = [x,y,width,height]
+     * @param {Array} rectangle - [x, y, width, height]
+     * @param {Function} callback - callback on event
+     */
     An.prototype.addEventClick = function(rectangle, callback){
         if(this.properties.lists.events.click == null) this.properties.lists.events.click = {};
         var eventItem = rectangle.join('_');
@@ -318,27 +405,47 @@
             this.properties.lists.events.click[eventItem] = {rectangle: rectangle, callback: callback};
 
     };
+
+    /**
+     * Removes the callback onclick event appointed above by this.addEvent Click,
+     * specific area: rectangle = [x,y,width,height]
+     * @param {Array} rectangle - [x, y, width, height]
+     */
     An.prototype.removeEventClick = function(rectangle){
         var item = rectangle.join('_');
         if(this.properties.lists.events.click != null && this.properties.lists.events.click[item] != null)
             delete this.properties.lists.events.click[item];
     };
 
-
+    /**
+     * Stop animation
+     */
     An.prototype.stop = function() {
         if( this.properties.interval !== null ) {
-            clearInterval(this.properties.interva);
+            clearInterval(this.properties.interval);
             this.properties.interval = null;
         }
     };
 
-
+    /**
+     * Resize element Canvas on full page, or by params
+     * @param {Number} width - default full window width
+     * @param {Number} height - default full window height
+     */
     An.prototype.resizeCanvas = function(width, height){
         this.properties.canvas.style.position = 'absolute';
-        this.properties.canvas.width = this.properties.width = width || window.innerWidth;
-        this.properties.canvas.height = this.properties.height = height || window.innerHeight;
+        this.properties.canvas.width = this.properties.width = this.width = width || window.innerWidth;
+        this.properties.canvas.height = this.properties.height = this.height = height || window.innerHeight;
     };
 
+    /**
+     * Loading Resource Image.
+     * Object imgs:
+     * key - is the name for the access, assigned after loading
+     * value - is the URL of the resource to load
+     * @param {Object} imgs - { key : value, key : value, ...  }
+     * @param {Function} callback
+     */
     An.prototype.imageLoader = function(imgs, callback){
         if(!imgs && typeof imgs !== 'object') return;
         var self = this;
@@ -359,6 +466,26 @@
             };
         }
     };
+
+
+    /**
+     * Debug Panel, show dynamic information: load, performance, frames ...
+     * Panel size - full width and 30px height.
+     * Position - default on top
+     * @param  {Object} option - params object
+     * @param  {String} option.bgColor - background color of panel, default = #DDDDDD
+     * @param  {String} option.textColor - color of panel text, default = #000000
+     * @param  {Boolean} option.countEvents - show the number of active events
+     * @param  {Boolean} option.countScenes - show the total number of scenes
+     * @param  {Boolean} option.countStages - show the total number of stages
+     * @param  {Number} option.load - loading panel, default = 6%
+     * @param  {Object} option.margin - params position, margin of panel
+     * @param  {Number} option.margin.x - margin x
+     * @param  {Number} option.margin.y - margin y
+     * @param  {Object} option.padding - params padding text inside panel
+     * @param  {Number} option.padding.x - padding x
+     * @param  {Number} option.padding.y - padding y
+     */
     An.prototype.debugPanel = function(option){
         option = (option) ? option : {};
 
@@ -426,6 +553,7 @@
 
 
     var Util = {};
+
     /**
      * Cloned object
      * @param {Object} obj
@@ -438,6 +566,7 @@
             temp[key] = Util.objClone(obj[key]);
         return temp;
     };
+
     /**
      * Merge object into objectBase. Object objectBase will be modified!
      * @param {Object} objectBase
@@ -462,6 +591,7 @@
                 objectBase[key] = object[key];
         return objectBase;
     };
+
     /**
      * Returns a random integer between min, max, unless specified from 0 to 100
      * @param {number} min
@@ -473,6 +603,7 @@
         max = max || 100;
         return Math.floor(Math.random() * (max - min + 1) + min);
     };
+
     /**
      * Random color. Returns a string HEX format color.
      * @returns {string}
@@ -484,6 +615,7 @@
             color += letters[Math.floor(Math.random() * 16)];
         return color;
     };
+
     /**
      * Converts degrees to radians
      * @param {number} deg - degrees
@@ -492,6 +624,7 @@
     Util.degreesToRadians = function (deg) {
         return (deg * Math.PI) / 180;
     };
+
     /**
      * Converts radians to degrees
      * @param {number} rad - radians
@@ -500,6 +633,7 @@
     Util.radiansToDegrees = function (rad) {
         return (rad * 180) / Math.PI;
     };
+
     /**
      * Calculate the number of items in e "obj"
      * @param {Object} obj
@@ -510,6 +644,7 @@
         for (var k in obj) it++;
         return it;
     };
+
     /**
      * Calculate the distance between points
      * @param {Object} p1
@@ -525,6 +660,7 @@
         var dy = p2.y - p1.y;
         return Math.sqrt(dx * dx + dy * dy);
     };
+
     /**
      * Returns the coordinates of the mouse on any designated element
      * @param {Object} element
@@ -536,6 +672,7 @@
         var y = event.pageY - element.offsetTop;
         return {x: x, y: y};
     };
+
     /**
      * Returns the coordinates of the mouse on canvas element
      * @param {Object} canvas
@@ -552,8 +689,7 @@
 
 
     window.An = An;
-    window.An.prototype = An.prototype;
-    window.An.prototype.constructor = An;
     window.An.Util = Util;
+    window.An.version = '1.1.0';
 
 })(window);

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 1.2.0 </title>
+    <script src="../an.1.2.0.js"></script>
+    <style>
+        #loader{
+            height: 50px;
+            width: 1px;
+            background-color: #800008;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="layers"></div>
+
+<script>
+
+
+
+
+var an = An({
+    selector: 'canvas#canvas',
+    width: 800,
+    height: 400,
+    fps: 12,
+});
+
+an.scene({
+    index: 10,
+    runner: function(ctx){
+        an.debugPanel();
+    }
+});
+
+an.scene({
+    index: 1,
+    speed: 3,
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 50, 250, 50);
+        ctx.fillStyle = '#52A';
+        ctx.fill();
+
+        if(this.x > an.width - 250)
+            this.x = 10;
+        else
+            this.x += this.speed;
+    }
+});
+
+an.scene({
+    index: 1,
+    color: 0,
+    x: 10,
+    runner: function(ctx) {
+        if(an.frame % 30 === 0) {
+            this.color = an.u.randColor();
+        }
+
+        ctx.rect(10, 110, 250, 50);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+});
+
+an.scene({
+    index: 1,
+    speed: 1,
+    rotate: 0,
+    x: 10,
+    runner: function(ctx) {
+        ctx.shadow(2, 2, 4, '#000');
+        ctx.ellipse(200, 250, 70, 30, An.Util.degreesToRadians(this.rotate), An.Util.degreesToRadians(0), An.Util.degreesToRadians(360));
+        ctx.fillStyle = '#CA421D';
+        ctx.fill();
+
+        this.rotate += this.speed;
+        if(this.rotate > 360) this.rotate = 0;
+    }
+});
+
+
+
+
+
+
+an.render();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+    var start = Date.now();
+
+    var tm = Date.now();
+    var tm_last = tm;
+    var frame = 0;
+    var fps = 12;
+    var ftp = 0;
+    var percent = 0;
+    function step(timestamp) {
+        var progress = timestamp - start;
+
+        //console.log( frame, (timestamp - timestamp_last) / (Date.now() - start));
+
+        tm = Date.now();
+        ftp = (tm - tm_last) / 1000;
+
+        var p = parseInt(parseInt(1 / ftp) *  100 / fps);
+        percent = (( p > 100) ? 100 : p) + '%';
+
+        percent = "FPS: " + percent + '/' + fps;
+        console.log(ftp, p, percent);
+
+        tm_last = tm;
+
+
+        if (progress < 2000) {
+            frame ++;
+            requestAnimationFrame(step);
+
+
+            // ...
+            // ...
+            // ...
+        }
+
+    }
+    //
+
+
+*/
+
+    function animate(timestamp) {
+        console.log(timestamp);
+
+        // ...
+        // ...
+        // ...
+
+        setTimeout(function(){
+            requestAnimationFrame(animate);
+        }, 1000 / fps);
+    }
+
+    //animate();
+
+
+
+
+//    setInterval(function(){
+//
+//    }, 500);
+
+</script>
+
+</body>
+</html>
