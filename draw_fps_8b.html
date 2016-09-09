@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        html, body{
+            margin: 0; padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="box">Click me</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+    var limitLoop = function (fn, fps) {
+
+        // Use var then = Date.now(); if you
+        // don't care about targetting < IE9
+        var then = new Date().getTime();
+
+        // custom fps, otherwise fallback to 60
+        fps = fps || 60;
+        var interval = 1000 / fps;
+
+        return (function loop(time){
+            requestAnimationFrame(loop);
+
+            // again, Date.now() if it's available
+            var now = new Date().getTime();
+            var delta = now - then;
+
+            if (delta > interval) {
+                // Update time
+                // now - (delta % interval) is an improvement over just
+                // using then = now, which can end up lowering overall fps
+                then = now - (delta % interval);
+
+                // call the fn
+                fn();
+            }
+        }(0));
+    };
+
+    /*
+     Feel free to play with this over at http://jsfiddle.net/addyo/Y8P6S/1/.
+     You can either use the Chrome DevTools Timeline or FPS counter to confirm
+     if you're hitting a consistent fps.
+     */
+
+    // rAF normalization
+    window.requestAnimationFrame = function() {
+        return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                function(f) {
+                    window.setTimeout(f,1e3/60);
+                }
+    }();
+
+    var canvas = document.getElementById('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+
+    // define a reference to the canvas's 2D context
+    var context = canvas.getContext('2d');
+
+    // create a buffer to hold the pixel data
+    var pixelBuffer = context.createImageData(canvas.width, canvas.height);
+
+    function drawStatic() {
+        var color,
+                data = pixelBuffer.data,
+                index = 0,
+                len = data.length;
+
+        while (index < len) {
+            // choose a random grayscale color
+            color = Math.floor(Math.random() * 0xff);
+
+            // red, green and blue are set to the same color
+            // to result in a random gray pixel
+            data[index++] = data[index++] = data[index++] = color;
+            // the fourth multiple is always completely opaque
+            data[index++] = 0xff; // alpha
+        }
+
+        // flush our pixel buffer to the canvas
+        context.putImageData(pixelBuffer, 0, 0);
+
+    }
+
+    limitLoop(drawStatic, 60);
+
+</script>
+</body>
+</html>

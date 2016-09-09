@@ -1,0 +1,548 @@
+
+(function(){
+
+    window.requestAnimationFrame = function() {
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            function(f) {
+                window.setTimeout(f,1e3/60);
+            }
+    }();
+
+    var An = function(props_selector, width, height, fps){
+
+        if (!(this instanceof An))
+            return new An(props_selector, width, height, fps);
+
+        if (arguments.length > 2 && arguments[1] > 0)
+            props_selector = {selector: arguments[0], width: arguments[1], height: arguments[2], fps: arguments[3]};
+
+        if (!props_selector || !props_selector.selector || typeof props_selector !== 'object') {
+            console.error('Error: selector not find');
+            return;
+        }
+
+        var pk, propertiesDefault = {
+
+            selector: null,
+            width: 600,
+            height: 400,
+            fps: 30,
+            canvas: null,
+            context: null,
+            contextId: '2d',
+
+            onClick: null,
+            loop: 'animation',
+            fullScreen: false,
+            autoStart: true,
+            autoClear: true,
+            enableEventClick: true,
+            enableEventMouseMovie: false,
+            enableEventKeys: false
+        };
+
+        Util.mergeObject(propertiesDefault, props_selector);
+        for (pk in propertiesDefault)
+            this[pk] = propertiesDefault[pk];
+
+        this.canvas = document.querySelector(this.selector);
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.context = this.canvas.getContext(this.contextId);
+
+        this.isPlaying = false;
+        this.isFiltering = false;
+        this.setTimeoutIterator = 0;
+        this.requestAnimationFrameIterator = 0;
+        this.errorDrawframe = false;
+        this.frameCounter = 0;
+        this.mouse = {x: 0, y: 0};
+        this.mouseClick = {x: 0, y: 0};
+        this.keydownCode = null;
+        this.keyupCode = null;
+
+        this.lists = {
+            scenes: [],
+            stages: {},
+            layers: {},
+            events: {},
+            images: []
+        };
+
+        this.options = {
+            sorting: true,
+            filtering: true,
+        };
+        Util.mergeObject(this.options, props_selector);
+
+        var that = this;
+
+        // initialize extensions
+        if(An.internalExtensions.length > 0) {
+            for(var ei = 0; ei < An.internalExtensions.length; ei ++)
+                if(typeof An.internalExtensions[ei] === 'function') An.internalExtensions[ei].call(that, that);
+        }
+
+        // It catches the mouse movement on the canvas, and writes changes root.mouse
+        if(that.enableEventMouseMovie) {
+            that.canvas.addEventListener('mousemove', function(event){
+                that.mouse = Util.getMouseCanvas(that.canvas, event);
+            });
+        }
+
+        // It catches the mouse clicks on the canvas, and writes changes root.mouseClick
+        if(that.enableEventClick) {
+            that.canvas.addEventListener('click', function(event)
+            {
+                that.mouseClick = Util.getMouseCanvas(that.canvas, event);
+
+                if(typeof that.onClick === 'function')
+                    that.onClick.call(that, that.mouseClick);
+
+                if(typeof that.lists.events.click === 'object') {
+                    var key, eventsClicks = that.lists.events.click;
+
+                    for(key in eventsClicks ) {
+                        if(
+                            eventsClicks[key].rectangle[0] < that.mouseClick.x &&
+                            eventsClicks[key].rectangle[1] < that.mouseClick.y &&
+                            eventsClicks[key].rectangle[0] + eventsClicks[key].rectangle[2] > that.mouseClick.x &&
+                            eventsClicks[key].rectangle[1] + eventsClicks[key].rectangle[3] > that.mouseClick.y
+                        ) {
+                            eventsClicks[key].callback.call(that, event, eventsClicks[key].rectangle);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        /**
+         * Loading Resource Image.
+         * Object imgs:
+         * key - is the name for the access, assigned after loading
+         * value - is the URL of the resource to load
+         * @param {Object} imgs - { key : value, key : value, ...  }
+         * @param {Function} callback
+         */
+        An.prototype.imageLoader = function(imgs, callback) {
+            if(!imgs && typeof imgs !== 'object') return;
+            var that = this;
+            var length = Util.objectLength(imgs);
+            var images = {};
+            var iterator = 0;
+            for(var name in imgs){
+                var eImg = document.createElement('img');
+                eImg.src = imgs[name];
+                eImg.name = name;
+                eImg.onload = function(e){
+                    images[this.name] = this;
+                    iterator ++;
+                    if(iterator == length) {
+                        that.lists.images = Util.mergeObject(that.lists.images, images);
+                        callback.call(that, that.lists.images, that.context);
+                    }
+                };
+            }
+        };
+
+
+
+
+
+
+
+
+
+    };
+
+
+    An.LOOP_TIMER = 'timer';
+    An.LOOP_ANIMATE = 'animation';
+    An.internalExtensions = [];
+
+    An.Extension = function(func){
+        An.internalExtensions.push(func);
+    };
+
+
+    An.prototype.toString = function () {
+        return '[object An]'
+    };
+
+    An.prototype.internalDrawframe = function () {
+
+        this.frameCounter ++;
+        this.scenesFiltering();
+
+        var i,
+            scene,
+            that = this,
+            scenes = this.lists.scenes;
+
+        if(this.autoClear === true)
+            this.clear();
+
+        if(!this.errorDrawframe) {
+            for (i = 0; i < scenes.length; i ++) {
+                scene = scenes[i];
+                try{
+                    that.context.beginPath();
+                    that.context.save();
+                    scenes[i].runner.call(scenes[i], that.context, that);
+                    that.context.restore();
+                }catch (error) {
+                    this.errorDrawframe = error.message;
+                    break;
+                }
+            }
+        } else {
+            this.stop();
+            console.error(this.errorDrawframe);
+        }
+
+
+/*
+        this.lists.scenes.forEach(function(item){
+            try{
+                that.context.beginPath();
+                that.context.save();
+                item.runner.call(item, that.context, that);
+                that.context.restore();
+            }catch(error){
+                console.error(error.message);
+            }
+        });*/
+
+
+        //console.log('scenes >>> ', scenes);
+        //console.log('scenes >>> ', scenes);
+
+        //document.querySelector('#counter').innerHTML = this.frameCounter;
+    };
+
+    An.prototype.render = function(stageName) {
+        var run = true;
+        if(typeof stageName === 'string') {
+            run = this.internalStagesToScenes(stageName);
+        }
+
+        if(run && this.autoStart)
+            this.play();
+    };
+
+    An.prototype.play = function(){
+        if(!this.isPlaying){
+            this.internalDrawframe();
+
+            if(this.fps && this.loop === An.LOOP_ANIMATE) {
+                this.loopAnimationFrame();
+            } else
+            if(this.fps && this.loop === An.LOOP_TIMER) {
+                this.loopTimer();
+            }
+            this.isPlaying = true;
+        }
+    };
+
+    An.prototype.stop = function(){
+        if(this.isPlaying){
+            if(this.loop === An.LOOP_ANIMATE) {
+                cancelAnimationFrame(this.requestAnimationFrameIterator);
+            } else if (this.loop === An.LOOP_TIMER) {
+                clearTimeout(this.setTimeoutIterator);
+            }
+            this.isPlaying = false;
+        }
+    };
+
+    An.prototype.loopTimer = function() {
+        var that = this;
+        var fps = this.fps || 30;
+        var interval = 1000 / fps;
+
+        return (function loop(time){
+            that.setTimeoutIterator = setTimeout(loop, interval);
+            // call the draw method
+            that.internalDrawframe.call(that);
+        }());
+    };
+
+    An.prototype.loopAnimationFrame = function () {
+        var that = this;
+        var then = new Date().getTime();
+        var fps = this.fps || 30;
+        var interval = 1000 / fps;
+
+        return (function loop(time){
+            that.requestAnimationFrameIterator = requestAnimationFrame(loop);
+            var now = new Date().getTime();
+            var delta = now - then;
+            if (delta > interval) {
+                then = now - (delta % interval);
+                // call the draw method
+                that.internalDrawframe.call(that);
+            }
+        }(0));
+    };
+
+    An.prototype.scene = function (sceneObject) {
+        var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
+        if(typeof sceneObject === 'function')
+            sceneObject = {runner:sceneObject};
+
+        Util.mergeObject(sceneObjectDefault, sceneObject);
+        this.lists.scenes.push(sceneObjectDefault);
+        return sceneObjectDefault;
+    };
+
+    An.prototype.scenesFiltering = function () {
+        var lists = this.lists;
+
+        if(!this.isFiltering && lists.scenes.length > 0){
+
+            if (!!this.options.sorting )
+                lists.scenes = lists.scenes.sort(function(one, two){ return one['index'] > two['index'] });
+
+            if (!!this.options.filtering )
+                lists.scenes = lists.scenes.filter(function(val){ return !val['hide']});
+
+            this.isFiltering = true;
+        }
+    };
+
+    An.prototype.stage = function(stageName, sceneObject) {
+        if(this.lists.stages[stageName] == null)
+            this.lists.stages[stageName] = [];
+        this.lists.stages[stageName].push(sceneObject);
+    };
+
+    An.prototype.internalStagesToScenes = function (stageName, clear) {
+        var i, lists = this.lists;
+
+        if(clear !== false) this.clearScene();
+
+        if(Array.isArray(lists.stages[stageName]))
+        {
+            for(i = 0; i < lists.stages[stageName].length; i ++){
+                this.scene(lists.stages[stageName][i]);
+            }
+            return true;
+        } else
+            return false;
+    };
+
+    An.prototype.clearScene = function () {
+        this.lists.scenes = this.lists.events = [];
+    };
+
+    An.prototype.clear = function(){
+        this.context.clearRect(0, 0, this.width, this.height);
+    };
+
+    An.prototype.resizeCanvas = function(width, height){
+        this.canvas.style.position = 'absolute';
+        this.canvas.width = this.width = width || window.innerWidth;
+        this.canvas.height = this.height = height || window.innerHeight;
+    };
+
+    /**
+     * Added callback for event "keydown" by "keyCode"
+     *
+     * @param {Number} keyCode
+     * @param {Function} callback - callback on event
+     */
+    An.prototype.addEventKeydown = function(keyCode, callback){
+        if(this.lists.events.keydown == null)
+            this.lists.events.keydown = {};
+
+        this.lists.events.keydown[keyCode] = {keyCode: keyCode, callback: callback};
+    };
+
+    /**
+     * Added callback for event "keyup" by "keyCode"
+     * @param {Number} keyCode
+     * @param {Function} callback - callback on event
+     */
+    An.prototype.addEventKeyup = function(keyCode, callback){
+        if(this.lists.events.keyup == null)
+            this.lists.events.keyup = {};
+
+        this.lists.events.keyup[keyCode] = {keyCode: keyCode, callback: callback};
+    };
+
+    /**
+     * Adds a callback for the event click on a certain area: rectangle = [x,y,width,height]
+     * @param {Array} rectangle - [x, y, width, height]
+     * @param {Function} callback - callback on event
+     */
+    An.prototype.addEventClick = function(rectangle, callback){
+        if(this.lists.events.click == null)
+            this.lists.events.click = {};
+
+        var eventItem = rectangle.join('_');
+
+        if(this.lists.events.click[eventItem] == null)
+            this.lists.events.click[eventItem] = {rectangle: rectangle, callback: callback};
+    };
+
+    /**
+     * Removes the callback onclick event appointed above by this.addEvent Click,
+     * specific area: rectangle = [x,y,width,height]
+     * @param {Array} rectangle - [x, y, width, height]
+     */
+    An.prototype.removeEventClick = function(rectangle){
+        var item = rectangle.join('_');
+
+        if(this.lists.events.click != null && this.lists.events.click[item] != null)
+            delete this.lists.events.click[item];
+    };
+
+    An.prototype.point = function(x, y){
+        return {x: x, y: y};
+    };
+
+    An.prototype.rectangle = function(x, y, width, height){
+        return [x, y, width, height];
+    };
+
+
+
+
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Utilities static methods
+    //
+
+    var Util = {};
+
+    /**
+     * Cloned object
+     * @param {Object} object
+     * @returns {Object}
+     */
+    Util.cloneObject = function (object) {
+        if (object === null || typeof object !== 'object') return obj;
+        var temp = object.constructor();
+        for (var key in object)
+            temp[key] = Util.objClone(object[key]);
+        return temp;
+    };
+
+    /**
+     * Merge object into objectBase. Object objectBase will be modified!
+     * @param {Object} defaultObject
+     * @param {Object} object
+     * @returns {*}
+     */
+    Util.mergeObject = function (defaultObject, object) {
+        for (var key in object) {
+            defaultObject[key] = object[key];
+        }
+        return defaultObject;
+    };
+
+    /**
+     * Returns a random integer between min, max, unless specified from 0 to 100
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
+    Util.rand = function (min, max) {
+        min = min || 0;
+        max = max || 100;
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
+    /**
+     * Random color. Returns a string HEX format color.
+     * @returns {string}
+     */
+    Util.randColor = function () {
+        var letters = '0123456789ABCDEF'.split(''),
+            color = '#';
+        for (var i = 0; i < 6; i++)
+            color += letters[Math.floor(Math.random() * 16)];
+        return color;
+    };
+
+    /**
+     * Converts degrees to radians
+     * @param {number} deg - degrees
+     * @returns {number}
+     */
+    Util.degreesToRadians = function (deg) {
+        return (deg * Math.PI) / 180;
+    };
+
+    /**
+     * Converts radians to degrees
+     * @param {number} rad - radians
+     * @returns {number}
+     */
+    Util.radiansToDegrees = function (rad) {
+        return (rad * 180) / Math.PI;
+    };
+
+    /**
+     * Calculate the number of items in e "obj"
+     * @param {Object} obj
+     * @returns {number}
+     */
+    Util.objectLength = function (obj) {
+        var it = 0;
+        for (var k in obj) it ++;
+        return it;
+    };
+
+    /**
+     * Calculate the distance between points
+     * @param {Object} p1
+     * @param {number} p1.x
+     * @param {number} p1.y
+     * @param {Object} p2
+     * @param {number} p2.x
+     * @param {number} p2.y
+     * @returns {number}
+     */
+    Util.distanceBetween = function (p1, p2) {
+        var dx = p2.x - p1.x;
+        var dy = p2.y - p1.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    /**
+     * Returns the coordinates of the mouse on any designated element
+     * @param {Object} element
+     * @param {Object} event
+     * @returns {{x: number, y: number}}
+     */
+    Util.getMouseElement = function (element, event) {
+        var x = event.pageX - element.offsetLeft;
+        var y = event.pageY - element.offsetTop;
+        return {x: x, y: y};
+    };
+
+    /**
+     * Returns the coordinates of the mouse on canvas element
+     * @param {Object} canvas
+     * @param {Object} event
+     * @returns {{x: number, y: number}}
+     */
+    Util.getMouseCanvas = function (canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    };
+
+    window.An = An;
+    window.An.Util = Util;
+
+})();

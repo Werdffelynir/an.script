@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.dev.js"></script>
+    <style>
+        #counter{
+            border: 3px solid brown;
+        }
+        #canvas{
+            border: 3px solid brown;
+            margin: 5px auto;
+            position: relative;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+
+
+
+var counter = document.querySelector('#counter');
+
+var o = {
+    selector: '#canvas',
+    width: 500,
+    height: 300,
+    fps: 30,
+    onClick: function(point) {
+        counter.innerHTML = point.x + 'px / ' + point.y + 'px';
+    }
+};
+var a = new An(o);
+
+
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    x: 10,
+    color: '#CA921D',
+    lastRectangle: [],
+    runner: function(ctx) {
+
+        a.removeEventClick(this.lastRectangle);
+
+        this.lastRectangle = [this.x, 0, 20, 20];
+
+        var that = this;
+        a.addEventClick(this.lastRectangle , function(event, rectangle){
+            console.log(event, rectangle);
+            that.color = An.Util.randColor();
+        });
+
+        ctx.rect(this.x, 0, 20, 20);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        this.x += 2;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+a.scene({
+    hide: false,
+    index: 3,
+    name: 'three',
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 50, 20, 20);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.x += 1;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+
+a.render();
+
+
+
+
+/*
+var sceneObject = {
+    hide: false,
+    index: 1,
+    name: 'scene',
+    runner: function(ctx){}
+};
+
+var s1 = An.Util.cloneObject(sceneObject),
+    s2 = An.Util.cloneObject(sceneObject),
+    s3 = An.Util.cloneObject(sceneObject),
+    s4 = An.Util.cloneObject(sceneObject),
+    s5 = An.Util.cloneObject(sceneObject);
+
+s1.name = '1';
+s2.name = '2';
+s3.name = '3';
+s4.name = '4';
+s5.name = '5';
+
+a.stage('main', s1);
+a.stage('main', s2);
+a.stage('main', s3);
+a.stage('main', s4);
+a.stage('main', s5);
+
+a.stage('page', s1);
+a.stage('page', s3);
+a.stage('page', s5);
+
+a.render('main');
+//a.render('page');
+
+*/
+
+
+/*
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: true,
+    index: 3,
+    name: 'three',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 1,
+    name: 'one',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 2,
+    name: 'two',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 5,
+    name: 'five',
+    runner: function(ctx){}
+});
+*/
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

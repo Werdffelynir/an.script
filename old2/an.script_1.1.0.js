@@ -282,7 +282,7 @@
      * @param {Function} obj.runner - function run every time relatively root.fps
      * @returns {An}
      */
-    An.prototype.scene = function(obj){
+    An.prototype.scene = function(obj) {
         if(obj !== null) {
             if(typeof obj === 'function') {
                 this.properties.lists.scenesTemp.push({runner:obj});

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <style>
+        #counter{
+
+        }
+        #canvas{
+
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<canvas id="canvas"></canvas>
+
+<script>
+
+(function(){
+
+    var An = function(props, p2, p3, p4){
+
+
+
+        var pk, propertiesDefault = {
+            selector: null,
+            width: 600,
+            height: 400,
+            fps: 30,
+            loop: 'animation',
+            autoStart: true,
+        };
+
+        Util.mergeObject(propertiesDefault, props);
+        for (pk in propertiesDefault)
+            this[pk] = propertiesDefault[pk];
+
+        this.isPlaying = false;
+        this.isFiltering = false;
+        this.setTimeoutIterator = 0;
+        this.requestAnimationFrameIterator = 0;
+        this.frameCounter = 0;
+
+        this.lists = {
+            scenes: [],
+            stages: {},
+            layers: {},
+            events: []
+        };
+
+        this.options = {
+            sorting: true,
+            filtering: true,
+        };
+        Util.mergeObject(this.options, props);
+
+
+
+
+    };
+    An.LOOP_TIMER = 'timer';
+    An.LOOP_ANIMATE = 'animation';
+
+    An.prototype.internalDrawframe = function () {
+        this.frameCounter ++;
+        this.scenesFiltering();
+
+        console.log('scenes >>> ', this.lists.scenes);
+        document.querySelector('#counter').innerHTML = this.frameCounter;
+    };
+
+    An.prototype.render = function(stageName) {
+        var run = true;
+        if(typeof stageName === 'string') {
+            run = this.internalStagesToScenes(stageName);
+        }
+
+        if(run && this.autoStart)
+            this.play();
+    };
+
+    An.prototype.play = function(){
+        if(!this.isPlaying){
+            this.internalDrawframe();
+
+            if(this.fps && this.loop === An.LOOP_ANIMATE) {
+                this.loopAnimationFrame();
+            } else
+            if(this.fps && this.loop === An.LOOP_TIMER) {
+                this.loopTimer();
+            }
+            this.isPlaying = true;
+        }
+    };
+
+    An.prototype.stop = function(){
+        if(this.isPlaying){
+            if(this.loop === An.LOOP_ANIMATE) {
+                cancelAnimationFrame(this.requestAnimationFrameIterator);
+            } else if (this.loop === An.LOOP_TIMER) {
+                clearTimeout(this.setTimeoutIterator);
+            }
+            this.isPlaying = false;
+        }
+    };
+
+    An.prototype.loopTimer = function() {
+        var that = this;
+        var fps = this.fps || 30;
+        var interval = 1000 / fps;
+
+        return (function loop(time){
+            that.setTimeoutIterator = setTimeout(loop, interval);
+            // call the draw method
+            that.internalDrawframe.call(that);
+        }());
+    };
+
+    An.prototype.loopAnimationFrame = function () {
+        var that = this;
+        var then = new Date().getTime();
+        var fps = this.fps || 30;
+        var interval = 1000 / fps;
+
+        return (function loop(time){
+            that.requestAnimationFrameIterator = requestAnimationFrame(loop);
+            var now = new Date().getTime();
+            var delta = now - then;
+            if (delta > interval) {
+                then = now - (delta % interval);
+                // call the draw method
+                that.internalDrawframe.call(that);
+            }
+        }(0));
+    };
+
+    An.prototype.scene = function (sceneObject) {
+        var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
+        if(typeof sceneObject === 'function')
+            sceneObject = {runner:sceneObject};
+
+        Util.mergeObject(sceneObjectDefault, sceneObject);
+        return this.lists.scenes.push(sceneObjectDefault);
+    };
+
+    An.prototype.scenesFiltering = function () {
+        var lists = this.lists;
+
+        if(!this.isFiltering && lists.scenes.length > 0){
+
+            if (!!this.options.sorting )
+                lists.scenes = lists.scenes.sort(function(one, two){ return one['index'] > two['index'] });
+
+            if (!!this.options.filtering )
+                lists.scenes = lists.scenes.filter(function(val){ return !val['hide']});
+
+            this.isFiltering = true;
+        }
+    };
+
+    An.prototype.stage = function(stageName, sceneObject) {
+        if(this.lists.stages[stageName] == null)
+            this.lists.stages[stageName] = [];
+        this.lists.stages[stageName].push(sceneObject);
+    };
+
+    An.prototype.internalStagesToScenes = function (stageName, clear) {
+        var i, lists = this.lists;
+
+        if(clear !== false) this.clearScene();
+
+        if(Array.isArray(lists.stages[stageName]))
+        {
+            for(i = 0; i < lists.stages[stageName].length; i ++){
+                this.scene(lists.stages[stageName][i]);
+            }
+            return true;
+        } else
+            return false;
+    };
+
+    An.prototype.clearScene = function () {
+        this.lists.scenes = this.lists.events = [];
+    };
+
+    An.prototype.clear = function(){
+        this.context.clearRect(0, 0, this.width, this.height);
+    };
+
+
+
+
+
+
+
+
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Utilities static methods
+    //
+
+    var Util = {};
+
+    Util.cloneObject = function (obj) {
+        if (obj === null || typeof obj !== 'object') return obj;
+        var temp = obj.constructor();
+        for (var key in obj)
+            temp[key] = Util.cloneObject(obj[key]);
+        return temp;
+    };
+
+    Util.mergeObject = function (defaultObject, object) {
+        for (var key in object) {
+            defaultObject[key] = object[key];
+        }
+        return defaultObject;
+    };
+
+
+    window.An = An;
+    window.An.Util = Util;
+
+})();
+
+var o = {
+    selector: '#canvas',
+    fps: 1,
+    loop: An.LOOP_ANIMATE,
+    filtering: true,
+};
+var a = new An(o);
+
+
+var sceneObject = {
+    hide: false,
+    index: 1,
+    name: 'scene',
+    runner: function(ctx){}
+};
+
+var s1 = An.Util.cloneObject(sceneObject),
+    s2 = An.Util.cloneObject(sceneObject),
+    s3 = An.Util.cloneObject(sceneObject),
+    s4 = An.Util.cloneObject(sceneObject),
+    s5 = An.Util.cloneObject(sceneObject);
+
+s1.name = '1';
+s2.name = '2';
+s3.name = '3';
+s4.name = '4';
+s5.name = '5';
+
+a.stage('main', s1);
+a.stage('main', s2);
+a.stage('main', s3);
+a.stage('main', s4);
+a.stage('main', s5);
+
+a.stage('page', s1);
+a.stage('page', s2);
+a.stage('page', s3);
+
+a.render('main');
+//a.render('page');
+
+
+
+
+/*
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: true,
+    index: 3,
+    name: 'three',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 1,
+    name: 'one',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 2,
+    name: 'two',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 5,
+    name: 'five',
+    runner: function(ctx){}
+});
+*/
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

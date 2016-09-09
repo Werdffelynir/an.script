@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body {font:16px sans-serif}
+    </style>
+</head>
+<body>
+
+<label>Framerate: <select id="sFPS">
+    <option>12</option>
+    <option>15</option>
+    <option>24</option>
+    <option>25</option>
+    <option>29.97</option>
+    <option>30</option>
+    <option>60</option>
+</select></label><br>
+<canvas id="c" height="60"></canvas><br>
+<button id="bState">Start/Stop</button>
+
+
+<script>
+
+    var canvas = document.querySelector('canvas#c');
+    var ctx = canvas.getContext('2d');
+    var mTime = Date.now();
+    var pTime = null;
+
+    // update canvas with some information and animation
+    var fps = new FpsCtrl(12, function(e) {
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.fillText("FPS: " + fps.frameRate() +
+                " Frame: " + e.frame +
+                " Time: " + (e.time - pTime).toFixed(1), 4, 30);
+        pTime = e.time;
+        var x = (pTime - mTime) * 0.1;
+        if (x > c.width) mTime = pTime;
+        ctx.fillRect(x, 50, 10, 10)
+    });
+
+    // start the loop
+    fps.start();
+
+    // UI
+    bState.onclick = function() {
+        fps.isPlaying ? fps.pause() : fps.start();
+    };
+
+    sFPS.onchange = function() {
+        fps.frameRate(+this.value)
+    };
+
+    function FpsCtrl(fps, callback) {
+
+        var	delay = 1000 / fps,
+                time = null,
+                frame = -1,
+                tref;
+
+        function loop(timestamp) {
+            if (time === null) time = timestamp;
+            var seg = Math.floor((timestamp - time) / delay);
+            if (seg > frame) {
+                frame = seg;
+                callback({
+                    time: timestamp,
+                    frame: frame
+                })
+            }
+            tref = requestAnimationFrame(loop)
+        }
+
+        this.isPlaying = false;
+
+        this.frameRate = function(newfps) {
+            if (!arguments.length) return fps;
+            fps = newfps;
+            delay = 1000 / fps;
+            frame = -1;
+            time = null;
+        };
+
+        this.start = function() {
+            if (!this.isPlaying) {
+                this.isPlaying = true;
+                tref = requestAnimationFrame(loop);
+            }
+        };
+
+        this.pause = function() {
+            if (this.isPlaying) {
+                cancelAnimationFrame(tref);
+                this.isPlaying = false;
+                time = null;
+                frame = -1;
+            }
+        };
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        html, body{
+            margin: 0; padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="box">Click me</div>
+
+<script>
+
+    console.clear();
+
+    function Ticker(args) {
+        if (!(this instanceof Ticker)) { return new Ticker(args); }
+
+        if ( typeof args === 'function' ) { this.callback = args; }
+        else {
+            for (var key in args) {
+                if ( args.hasOwnProperty(key) ) { this[key] = args[key]; }
+            }
+        }
+
+        this._interval = 1000 / this.fps;
+        this._prev = Date.now();
+        ( this.running ? this.start() :0);
+        return this;
+    }
+
+    Ticker.prototype = {
+        constructor: Ticker,
+        fps: 60,
+        callback: function(){},
+        callbackArgs: [],
+        running: true,
+
+        start: function(){
+            this.running = true;
+            this.run = this.run.bind(this);
+            this.frame = requestAnimationFrame(this.run);
+        },
+
+        stop: function(){
+            this.running = false;
+            cancelAnimationFrame(this.frame);
+        },
+
+        run: function(){
+
+            if ( !this.running ) { return; }
+
+            this.frame = requestAnimationFrame(this.run);
+
+            var now = Date.now(),
+                    elapsed = now - this._prev;
+
+            if ( elapsed > this._interval ) {
+                this._prev = now - (elapsed % this._interval);
+                this.callback.apply(null, this.callbackArgs);
+            }
+        }
+    }
+
+
+    var div = document.createElement('div'),
+            frames = 0;
+    document.body.appendChild(div);
+
+    var t = Ticker({
+        callback: function(i){ frames++; div.innerHTML = i+frames; },
+        callbackArgs: ['Frame Count: '],
+    });
+
+    setTimeout(function(){ t.stop(); },1010);
+
+</script>
+</body>
+</html>

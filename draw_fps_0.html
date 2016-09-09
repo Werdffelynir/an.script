@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+<div id="frame_count"></div>
+<canvas id="canvas"></canvas>
+
+<script>
+
+    var fps = 30;
+    var frame = 0;
+
+    function draw() {
+        setTimeout(function() {
+            requestAnimationFrame(draw);
+
+            // ... Code for Drawing the Frame ...
+            frame ++;
+            document.querySelector('#frame_count').innerHTML = frame;
+
+        }, 1000 / fps);
+    }
+
+    draw();
+
+</script>
+</body>
+</html>

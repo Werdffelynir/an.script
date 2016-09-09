@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body {font:16px sans-serif}
+    </style>
+</head>
+<body>
+
+<script>
+
+    var time;
+    function draw() {
+        requestAnimationFrame(draw);
+
+        var now = new Date().getTime(),
+                dt = now - (time || now);
+
+        time = now;
+
+        // Drawing code goes here... for example updating an 'x' position:
+        this.x += 10 * dt; // Increase 'x' by 10 units per millisecond
+    }
+
+
+
+
+
+    (function() {
+        var lastTime = 0;
+        var vendors = ['ms', 'moz', 'webkit', 'o'];
+        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                    || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
+
+        if (!window.requestAnimationFrame)
+            window.requestAnimationFrame = function(callback, element) {
+                var currTime = new Date().getTime();
+                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                        timeToCall);
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+
+        if (!window.cancelAnimationFrame)
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+            };
+    }());
+
+
+
+    // Проблемы заключается в том, как контролировать fps для requestAnimationFrame, если вы не можете указать
+    // частоту кадров? Это критично для многих веб приложений и особенно для игр.
+
+    var fps = 15;
+    function step() {
+        setTimeout(function() {
+            requestAnimationFrame(step);
+            // Drawing code goes here
+        }, 1000 / fps);
+    }
+
+
+
+    // Более сложная техника заключается в проверке количества миллисекунд, прошедших с момента последнего вызова
+    // анимирующей функции и обновлять позицию элемента, полагаясь на разницу во времени. Например:
+
+    var time;
+    function step() {
+        requestAnimationFrame(step);
+        var now = new Date().getTime(), dt = now - (time || now);
+
+        time = now;
+
+        // для примера сдвиг по оси х
+        this.x += 10 * dt; // Увеличивать х на десять единиц в секунду
+    }
+
+
+
+
+</script>
+</body>
+</html>
