@@ -36,6 +36,7 @@
             contextId: '2d',
 
             onClick: null,
+            onFrame: null,
             loop: 'animation',
             fullScreen: false,
             autoStart: true,
@@ -195,9 +196,15 @@
                     that.context.save();
                     scenes[i].runner.call(scenes[i], that.context, that);
                     that.context.restore();
+
                 }catch (error) {
                     this.errorDrawframe = error.message;
                     break;
+                }
+
+                if(typeof that.onFrame === 'function') {
+                    console.log('onFrame');
+                    that.onFrame.call(that, that);
                 }
             }
         } else {
@@ -205,24 +212,6 @@
             console.error(this.errorDrawframe);
         }
 
-
-/*
-        this.lists.scenes.forEach(function(item){
-            try{
-                that.context.beginPath();
-                that.context.save();
-                item.runner.call(item, that.context, that);
-                that.context.restore();
-            }catch(error){
-                console.error(error.message);
-            }
-        });*/
-
-
-        //console.log('scenes >>> ', scenes);
-        //console.log('scenes >>> ', scenes);
-
-        //document.querySelector('#counter').innerHTML = this.frameCounter;
     };
 
     An.prototype.render = function(stageName) {
@@ -541,6 +530,88 @@
             y: event.clientY - rect.top
         };
     };
+
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Internal Extensions
+    //
+
+    An.Extension(function(self){
+
+        if(!(this instanceof An) || !(self instanceof An))
+            return;
+
+        /**
+         * Draw round rectangle
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @param radius
+         */
+        self.context.rectRound = function(x, y, width, height, radius){
+            width = width || 100;
+            height = height || 100;
+            radius = radius || 5;
+            self.context.beginPath();
+            self.context.moveTo(x + radius, y);
+            self.context.arcTo(x + width, y, x + width, y + height, radius);
+            self.context.arcTo(x + width, y + height, x, y + height, radius);
+            self.context.arcTo(x, y + height, x, y, radius);
+            self.context.arcTo(x, y, x + width, y, radius);
+        };
+
+        /**
+         * Draw shadow for all elements on scene
+         * @param x
+         * @param y
+         * @param blur
+         * @param color
+         */
+        self.context.shadow = function (x, y, blur, color){
+            self.context.shadowOffsetX = x;
+            self.context.shadowOffsetY = y;
+            self.context.shadowBlur = blur;
+            self.context.shadowColor = color;
+        };
+
+        /**
+         * Clear shadow params (shadowOffsetX,shadowOffsetY,shadowBlur)
+         */
+        self.context.clearShadow = function(){
+            self.context.shadowOffsetX = self.context.shadowOffsetY = self.context.shadowBlur = 0;
+        };
+
+        if(!self.context.ellipse){
+            /**
+             * Draw ellipse - cross-browser function
+             * @param x
+             * @param y
+             * @param radiusX
+             * @param radiusY
+             * @param rotation
+             * @param startAngle
+             * @param endAngle
+             * @param anticlockwise
+             */
+            self.context.ellipse = function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise){
+                self.context.save();
+                self.context.beginPath();
+                self.context.translate(x, y);
+                self.context.rotate(rotation);
+                self.context.scale(radiusX / radiusY, 1);
+                self.context.arc(0, 0, radiusY, startAngle, endAngle, (anticlockwise||true));
+                self.context.restore();
+                self.context.closePath();
+                self.context.stroke();
+            }
+        }
+    });
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // External out
+    //
 
     window.An = An;
     window.An.Util = Util;
