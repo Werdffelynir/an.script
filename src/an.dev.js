@@ -152,6 +152,24 @@
             });
         }
 
+        //
+        if(that.enableEventKeys){
+            window.addEventListener('keydown', function(event){
+                that.keydownCode = event.keyCode;
+                //if(that.lists.events.keydown != null && typeof that.lists.events.keydown[event.keyCode] === 'object'){
+                //    var e = that.lists.events.keydown[event.keyCode];
+                //    e.callback.call(that, event);
+                //}
+            });
+            window.addEventListener('keyup', function(event){
+                that.keyupCode = event.keyCode;
+                //if(that.lists.events.keyup != null && typeof that.lists.events.keyup[event.keyCode] === 'object'){
+                //    var e = that.lists.events.keyup[event.keyCode];
+                //    e.callback.call(that, event);
+                //}
+            });
+        }
+
     };
 
 
@@ -238,6 +256,10 @@
             this.stop();
             console.error(this.errorDrawframe);
         }
+
+
+
+
 
     };
 
@@ -417,6 +439,8 @@
      * Clear canvas area
      */
     An.prototype.clear = function(){
+        //this.keydownCode = false;
+        //this.keyupCode = false;
         this.context.clearRect(0, 0, this.width, this.height);
     };
 

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.dev.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #debugpanel{
+            width: 600px;
+            margin: 0 auto;
+            border: 2px solid #1e1e1e;
+            padding: 5px;
+            background-color: #2b2b2b;
+            color: #d1d1d1;
+        }
+        #canvas{
+            border: 2px solid #1e1e1e;
+            margin: 5px auto;
+            position: relative;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<div id="debugpanel"></div>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+
+
+var debugpanelElement = document.querySelector('#debugpanel');
+
+var debugpanel = function (field, value) {
+    var fieldId = field.replace(/[^\w]/g, '');
+    var fieldElement = debugpanelElement.querySelector('#dp_' + fieldId);
+    if(!fieldElement) {
+        fieldElement = document.createElement('div');
+        fieldElement.id = 'dp_' + fieldId;
+        debugpanelElement.appendChild(fieldElement);
+    }
+    fieldElement.innerHTML = '<strong>' + field + '</strong> ' + value;
+    return fieldElement;
+};
+
+
+
+var conf = {
+    selector: '#canvas',
+    width: 500,
+    height: 300,
+    fps: 60,
+    enableEventKeys: true,
+    onClick: function(point) {
+        debugpanel('Mouse position: ', point.x + 'px / ' + point.y + 'px');
+    }
+    /*onFrame: function(an) {
+        debugpanel('Draw Frame: ', an.frameCounter);
+    }*/
+};
+
+var an = new An(conf);
+
+
+
+an.scene({
+    index: 3,
+    speed: 2,
+    ballWidth: 50,
+    ballHeight: 50,
+    x: 250,
+    y: 0,
+    vx: 2,
+    vy: 0.1,
+    keyEventsEnable: false,
+    runner: function(ctx) {
+        ctx.rectRound(this.x, this.y, this.ballWidth, this.ballHeight, 5);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.y += (this.speed += this.vy);
+
+        if(this.y > (an.height - this.ballHeight) || this.y < 0) {
+            this.vy = 0.1;
+            this.speed *= -1;
+        }
+
+
+
+        if(!this.keyEventsEnable) {
+            an.addEventKeydown(37);
+            an.addEventKeydown(39);
+            this.keyEventsEnable = true;
+        }
+
+
+        if(an.keydownCode == 37 && this.vx > 0) {
+            this.vx *= -1;
+        } else if (an.keydownCode == 39 && this.vx < 0) {
+            this.vx *= -1;
+        }
+
+
+        if(this.x > (an.width - this.ballWidth) || this.x < 0) {
+            this.vx *= -1;
+        }
+
+        this.x += this.vx;
+
+/*
+        if (an.keydownCode == 37) {
+            this.x += (this.vx > 0) ? this.vx : -(this.vx);
+        }
+        if (an.keydownCode == 39) {
+            this.x -= (this.vx > 0) ? this.vx : +(this.vx);
+        }
+*/
+
+    }
+
+
+
+
+});
+
+
+an.render();
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

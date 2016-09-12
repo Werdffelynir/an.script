@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.dev.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #debugpanel{
+            width: 600px;
+            margin: 0 auto;
+            border: 2px solid #1e1e1e;
+            padding: 5px;
+            background-color: #2b2b2b;
+            color: #d1d1d1;
+        }
+        #canvas{
+            border: 2px solid #1e1e1e;
+            margin: 5px auto;
+            position: relative;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<div id="debugpanel"></div>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+
+
+var debugpanelElement = document.querySelector('#debugpanel');
+
+var debugpanel = function (field, value) {
+    var fieldId = field.replace(/[^\w]/g, '');
+    var fieldElement = debugpanelElement.querySelector('#dp_' + fieldId);
+    if(!fieldElement) {
+        fieldElement = document.createElement('div');
+        fieldElement.id = 'dp_' + fieldId;
+        debugpanelElement.appendChild(fieldElement);
+    }
+    fieldElement.innerHTML = '<strong>' + field + '</strong> ' + value;
+    return fieldElement;
+};
+
+
+
+var conf = {
+    selector: '#canvas',
+    width: 500,
+    height: 300,
+    fps: 60,
+    onClick: function(point) {
+        debugpanel('Mouse position: ', point.x + 'px / ' + point.y + 'px');
+    },
+    onFrame: function(an) {
+        debugpanel('Draw Frame: ', an.frameCounter);
+    }
+};
+
+var an = new An(conf);
+
+an.scene({
+    index: 3,
+    speed: 2,
+    ballWidth: 50,
+    ballHeight: 50,
+    x: 100,
+    y: 0,
+    vy: 0.1,
+    runner: function(ctx){
+
+        ctx.rectRound(this.x, this.y, this.ballWidth, this.ballHeight, 5);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.y += (this.speed += this.vy);
+        if(this.y > (an.height - this.ballHeight) || this.y < 0) {
+
+            this.vy = 0.1;
+            this.speed *= -1;
+
+            if(this.y > (an.height - this.ballHeight) && this.speed < 0) {
+                this.ballHeight = (this.ballHeight/2);
+            }
+        }
+
+        this.changeBallHeight();
+    },
+
+    changeBallHeight: function () {
+        if (this.ballHeight < this.ballWidth) {
+            this.ballHeight += 1;
+        }
+    }
+
+
+
+});
+
+
+an.render();
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
