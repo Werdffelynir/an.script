@@ -69,8 +69,8 @@
 
         this.canvas = document.querySelector(this.selector);
 
-        if(!this.canvas) {
-            console.error('Error: canvas not find, [selector:'+this.selector+']');
+        if( !(this.canvas instanceof HTMLCanvasElement) ) {
+            console.error('[Error]: Canvas element not find. selector: ' + this.selector);
             return;
         }
 
@@ -81,6 +81,12 @@
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.context = this.canvas.getContext(this.contextId);
+
+        if( !(this.context instanceof CanvasRenderingContext2D) ) {
+            console.error('[Error]: Canvas context 2d not query from element with selector: ' + this.selector);
+            return;
+        }
+
         this.isPlaying = false;
         this.isFiltering = false;
         this.setTimeoutIterator = 0;
@@ -101,6 +107,7 @@
         this.options = {
             sorting: true,
             filtering: true,
+            debugPanelSettings: false
         };
         Util.mergeObject(this.options, props_selector);
 
@@ -531,6 +538,82 @@
     };
 
 
+    /**
+     * Debug Panel, show dynamic information: load, performance, frames ...
+     * Panel size - full width and 30px height.
+     * Position - default on top
+     * @param  {Object} option - params object
+     * @param  {String} option.bgColor - background color of panel, default = #DDDDDD
+     * @param  {String} option.textColor - color of panel text, default = #000000
+     * @param  {Boolean} option.countEvents - show the number of active events
+     * @param  {Boolean} option.countScenes - show the total number of scenes
+     * @param  {Boolean} option.countStages - show the total number of stages
+     * @param  {Number} option.load - loading panel, default = 6%
+     * @param  {Object} option.margin - params position, margin of panel
+     * @param  {Number} option.margin.x - margin x
+     * @param  {Number} option.margin.y - margin y
+     * @param  {Object} option.padding - params padding text inside panel
+     * @param  {Number} option.padding.x - padding x
+     * @param  {Number} option.padding.y - padding y
+     */
+    An.prototype.debugPanel = function(option){
+        option = (option) ? option : {};
+
+        var self = this;
+
+        if (typeof self.options.debugPanelSettings !== 'object') {
+
+            self.options.debugPanelSettings = {
+                bgColor: option.bgColor || '#DDDDDD',
+                textColor: option.textColor || '#000000',
+                iterator: 0,
+                timeStart: new Date().getTime(),
+                timeLast: 0,
+                percent: 0,
+                countEvents: option.countEvents === false,
+                countScenes: option.countScenes === false,
+                countStages: option.countStages === false,
+                load: (option.load && option.load !== 0) ? option.load : 6,
+                margin: option.margin || {x: 0, y: 0},
+                padding: option.padding || {x: 3, y: 3}
+            };
+        }
+        var opt = self.options.debugPanelSettings;
+        var textX = opt.padding.x + opt.margin.x;
+        var textY = opt.padding.y + opt.margin.y;
+
+        self.context.fillStyle = opt.bgColor;
+        self.context.fillRect(opt.margin.x,opt.margin.y,self.width,30);
+        self.context.font = 'bold 12px/12px Arial';
+        self.context.textBaseline = 'top';
+        self.context.fillStyle = opt.textColor;
+        self.context.fillText('frames: ' + opt.iterator,textX,textY);
+        self.context.fillText('seconds: ' + parseInt((new Date().getTime() - opt.timeStart) / 1000), textX, textY + 12);
+
+        var timeNow = (new Date).getTime();
+        var ftp = (timeNow - opt.timeLast)/1000;
+
+        if(opt.iterator % 60 == 0){
+            var p = parseInt(parseInt(1/ftp) *  100 / self.fps) + opt.load;
+            opt.percent = ((p>100)?100:p) + '%';
+        }
+
+        self.context.fillStyle = opt.textColor;
+        self.context.font = "12px/14px Arial";
+        self.context.fillText("FPS: " + parseInt(1/ftp) + '/' + self.fps, 100+textX, textY+6);
+        self.context.fillText(opt.percent+'', 170+textX, textY+6);
+        if(opt.countEvents)
+            self.context.fillText("Events: " + Util.objLength(self.lists.events.click), 230+textX, textY+6);
+        if(opt.countScenes)
+            self.context.fillText("Scenes: " + self.lists.scenes.length, 320+textX, textY+6);
+        if(opt.countStages)
+            self.context.fillText("Stages: " + Util.objLength(self.lists.stages), 410+textX, textY+6);
+
+        opt.timeLast = timeNow;
+        opt.iterator ++;
+    };
+
+
 
 
 
@@ -749,5 +832,6 @@
 
     window.An = An;
     window.An.Util = Util;
+    window.An.version = '1.2.0';
 
 })();
