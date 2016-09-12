@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.dev.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #debugpanel{
+            width: 600px;
+            margin: 0 auto;
+            border: 2px solid #1e1e1e;
+            padding: 5px;
+            background-color: #2b2b2b;
+            color: #d1d1d1;
+        }
+        #canvas{
+            border: 2px solid #1e1e1e;
+            margin: 5px auto;
+            position: relative;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<div id="debugpanel"></div>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+
+
+var debugpanelElement = document.querySelector('#debugpanel');
+
+var debugpanel = function (field, value) {
+    var fieldId = field.replace(/[^\w]/g, '');
+    var fieldElement = debugpanelElement.querySelector('#dp_' + fieldId);
+    if(!fieldElement) {
+        fieldElement = document.createElement('div');
+        fieldElement.id = 'dp_' + fieldId;
+        debugpanelElement.appendChild(fieldElement);
+    }
+    fieldElement.innerHTML = '<strong>' + field + '</strong> ' + value;
+    return fieldElement;
+};
+
+
+
+var conf = {
+    selector: '#canvas',
+    width: 500,
+    height: 300,
+    fps: 30,
+    onClick: function(point) {
+        debugpanel('Mouse position: ', point.x + 'px / ' + point.y + 'px');
+        //debugpanelElement.innerHTML = point.x + 'px / ' + point.y + 'px';
+    },
+    onFrame: function(an) {
+        debugpanel('Draw Frame: ', an.frameCounter);
+    }
+};
+var an = new An(conf);
+
+an.scene({
+    index: 3,
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 50, 20, 20);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.x += 1;
+        if(this.x > (an.width - 20)) this.x = 10;
+    }
+});
+
+an.scene({
+    index: 3,
+    x: 250,
+    y: 150,
+    dx: 3.2,
+    dy: -2.8,
+    runner: function(ctx){
+
+        ctx.rectRound(this.x, this.y, 20, 20, 10);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        if(this.x > (an.width - 20) || this.x < 0) {
+            this.dx = this.dx * -1;
+        }
+
+        if(this.y > (an.height - 20) || this.y < 0) {
+            this.dy = this.dy * -1;
+        }
+
+        this.x += this.dx;
+        this.y += this.dy;
+    }
+});
+
+an.render();
+
+
+/*
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    x: 10,
+    color: '#CA921D',
+    lastRectangle: [],
+    runner: function(ctx) {
+
+        a.removeEventClick(this.lastRectangle);
+
+        this.lastRectangle = [this.x, 0, 20, 20];
+
+        var that = this;
+        a.addEventClick(this.lastRectangle , function(event, rectangle){
+            console.log(event, rectangle);
+            that.color = An.Util.randColor();
+        });
+
+        ctx.rect(this.x, 0, 20, 20);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        this.x += 2;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+a.scene({
+    hide: false,
+    index: 3,
+    name: 'three',
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 50, 20, 20);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.x += 1;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+
+a.render();
+
+*/
+
+
+/*
+var sceneObject = {
+    hide: false,
+    index: 1,
+    name: 'scene',
+    runner: function(ctx){}
+};
+
+var s1 = An.Util.cloneObject(sceneObject),
+    s2 = An.Util.cloneObject(sceneObject),
+    s3 = An.Util.cloneObject(sceneObject),
+    s4 = An.Util.cloneObject(sceneObject),
+    s5 = An.Util.cloneObject(sceneObject);
+
+s1.name = '1';
+s2.name = '2';
+s3.name = '3';
+s4.name = '4';
+s5.name = '5';
+
+a.stage('main', s1);
+a.stage('main', s2);
+a.stage('main', s3);
+a.stage('main', s4);
+a.stage('main', s5);
+
+a.stage('page', s1);
+a.stage('page', s3);
+a.stage('page', s5);
+
+a.render('main');
+//a.render('page');
+
+*/
+
+
+/*
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: true,
+    index: 3,
+    name: 'three',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 1,
+    name: 'one',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 2,
+    name: 'two',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 5,
+    name: 'five',
+    runner: function(ctx){}
+});
+*/
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -51,6 +51,7 @@
 
             // functionality
             onClick: null,
+            onFrame: null,
             loop: 'animation',
             fullScreen: false,
             autoStart: true,
@@ -215,15 +216,22 @@
                     that.context.save();
                     scenes[i].runner.call(scenes[i], that.context, that);
                     that.context.restore();
+
                 }catch (error) {
                     this.errorDrawframe = error.message;
                     break;
+                }
+
+                if(typeof that.onFrame === 'function') {
+                    console.log('onFrame');
+                    that.onFrame.call(that, that);
                 }
             }
         } else {
             this.stop();
             console.error(this.errorDrawframe);
         }
+
     };
 
 
@@ -658,7 +666,6 @@
 
 
 
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Internal Extensions
     //
@@ -736,7 +743,9 @@
     });
 
 
-
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // External out
+    //
 
     window.An = An;
     window.An.Util = Util;
