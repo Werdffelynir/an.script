@@ -1,6 +1,8 @@
 
 (function(){
 
+    "use strict";
+
     window.requestAnimationFrame = function() {
         return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -12,6 +14,17 @@
             }
     }();
 
+
+    /**
+     * Constructor, create one animation canvas
+     *
+     * @param props_selector
+     * @param width
+     * @param height
+     * @param fps
+     * @returns {An}
+     * @constructor
+     */
     var An = function(props_selector, width, height, fps){
 
         if (!(this instanceof An))
@@ -27,6 +40,7 @@
 
         var pk, propertiesDefault = {
 
+            // canvas settings
             selector: null,
             width: 600,
             height: 400,
@@ -35,6 +49,7 @@
             context: null,
             contextId: '2d',
 
+            // functionality
             onClick: null,
             loop: 'animation',
             fullScreen: false,
@@ -49,11 +64,22 @@
         for (pk in propertiesDefault)
             this[pk] = propertiesDefault[pk];
 
+        // dynamics
+
         this.canvas = document.querySelector(this.selector);
+
+        if(!this.canvas) {
+            console.error('Error: canvas not find, [selector:'+this.selector+']');
+            return;
+        }
+
+        if(!!this.fullScreen) {
+            this.resizeCanvas();
+        }
+
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.context = this.canvas.getContext(this.contextId);
-
         this.isPlaying = false;
         this.isFiltering = false;
         this.setTimeoutIterator = 0;
@@ -64,7 +90,6 @@
         this.mouseClick = {x: 0, y: 0};
         this.keydownCode = null;
         this.keyupCode = null;
-
         this.lists = {
             scenes: [],
             stages: {},
@@ -72,7 +97,6 @@
             events: {},
             images: []
         };
-
         this.options = {
             sorting: true,
             filtering: true,
@@ -120,60 +144,56 @@
             });
         }
 
-
-        /**
-         * Loading Resource Image.
-         * Object imgs:
-         * key - is the name for the access, assigned after loading
-         * value - is the URL of the resource to load
-         * @param {Object} imgs - { key : value, key : value, ...  }
-         * @param {Function} callback
-         */
-        An.prototype.imageLoader = function(imgs, callback) {
-            if(!imgs && typeof imgs !== 'object') return;
-            var that = this;
-            var length = Util.objectLength(imgs);
-            var images = {};
-            var iterator = 0;
-            for(var name in imgs){
-                var eImg = document.createElement('img');
-                eImg.src = imgs[name];
-                eImg.name = name;
-                eImg.onload = function(e){
-                    images[this.name] = this;
-                    iterator ++;
-                    if(iterator == length) {
-                        that.lists.images = Util.mergeObject(that.lists.images, images);
-                        callback.call(that, that.lists.images, that.context);
-                    }
-                };
-            }
-        };
-
-
-
-
-
-
-
-
-
     };
 
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // An static methods
+    //
+
+
+    /**
+     * Constant type of timer
+     * @type {string}
+     */
     An.LOOP_TIMER = 'timer';
     An.LOOP_ANIMATE = 'animation';
+
+    /**
+     * Storage of extensions
+     * @private
+     * @type {Array}
+     */
     An.internalExtensions = [];
 
+
+    /**
+     * Add extensions in loader
+     * @param func
+     * @constructor
+     */
     An.Extension = function(func){
         An.internalExtensions.push(func);
     };
 
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // An prototype methods
+    //
+
+    /**
+     * toString
+     * @returns {string}
+     */
     An.prototype.toString = function () {
         return '[object An]'
     };
 
+    /**
+     * The main method of drawing on the canvas in a loop
+     * Internal method
+     * @private
+     */
     An.prototype.internalDrawframe = function () {
 
         this.frameCounter ++;
@@ -204,27 +224,14 @@
             this.stop();
             console.error(this.errorDrawframe);
         }
-
-
-/*
-        this.lists.scenes.forEach(function(item){
-            try{
-                that.context.beginPath();
-                that.context.save();
-                item.runner.call(item, that.context, that);
-                that.context.restore();
-            }catch(error){
-                console.error(error.message);
-            }
-        });*/
-
-
-        //console.log('scenes >>> ', scenes);
-        //console.log('scenes >>> ', scenes);
-
-        //document.querySelector('#counter').innerHTML = this.frameCounter;
     };
 
+
+    /**
+     * It renders the scene assignments,
+     * or if the specified parameter name - renders the stage by name
+     * @param stageName - stage name
+     */
     An.prototype.render = function(stageName) {
         var run = true;
         if(typeof stageName === 'string') {
@@ -235,6 +242,10 @@
             this.play();
     };
 
+
+    /**
+     * Start "play" animation
+     */
     An.prototype.play = function(){
         if(!this.isPlaying){
             this.internalDrawframe();
@@ -249,6 +260,10 @@
         }
     };
 
+
+    /**
+     * Stop "play" animation
+     */
     An.prototype.stop = function(){
         if(this.isPlaying){
             if(this.loop === An.LOOP_ANIMATE) {
@@ -260,6 +275,11 @@
         }
     };
 
+    /**
+     * Loop for timer type of "timer"
+     * Internal method
+     * @private
+     */
     An.prototype.loopTimer = function() {
         var that = this;
         var fps = this.fps || 30;
@@ -272,6 +292,11 @@
         }());
     };
 
+    /**
+     * Loop for timer type of "requestAnimationFrame"
+     * Internal method
+     * @private
+     */
     An.prototype.loopAnimationFrame = function () {
         var that = this;
         var then = new Date().getTime();
@@ -290,6 +315,16 @@
         }(0));
     };
 
+
+    /**
+     * Added scene
+     * @param {{index: number, hide: boolean, name: string, runner: null}} sceneObject
+     *      index - deep of scene, option march on z-index
+     *      hide - bool
+     *      name - name
+     *      runner - function run every time relatively root.fps
+     * @returns {{index: number, hide: boolean, name: string, runner: null}}
+     */
     An.prototype.scene = function (sceneObject) {
         var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
         if(typeof sceneObject === 'function')
@@ -300,6 +335,10 @@
         return sceneObjectDefault;
     };
 
+    /**
+     * Internal method
+     * @private
+     */
     An.prototype.scenesFiltering = function () {
         var lists = this.lists;
 
@@ -315,12 +354,26 @@
         }
     };
 
+
+    /**
+     * Added stage
+     * @param {String} stageName - name of stage, rendering is defined by name
+     * @param {{index: number, hide: boolean, name: string, runner: null}} sceneObject - Object. is scene object
+     */
     An.prototype.stage = function(stageName, sceneObject) {
         if(this.lists.stages[stageName] == null)
             this.lists.stages[stageName] = [];
         this.lists.stages[stageName].push(sceneObject);
     };
 
+
+    /**
+     * Internal method
+     * @private
+     * @param stageName
+     * @param clear
+     * @returns {boolean}
+     */
     An.prototype.internalStagesToScenes = function (stageName, clear) {
         var i, lists = this.lists;
 
@@ -336,14 +389,28 @@
             return false;
     };
 
+
+    /**
+     * It clears the canvas to render the new stage
+     */
     An.prototype.clearScene = function () {
         this.lists.scenes = this.lists.events = [];
     };
 
+
+    /**
+     * Clear canvas area
+     */
     An.prototype.clear = function(){
         this.context.clearRect(0, 0, this.width, this.height);
     };
 
+
+    /**
+     * Resize element Canvas on full page, or by params
+     * @param {Number} width - default full window width
+     * @param {Number} height - default full window height
+     */
     An.prototype.resizeCanvas = function(width, height){
         this.canvas.style.position = 'absolute';
         this.canvas.width = this.width = width || window.innerWidth;
@@ -402,13 +469,59 @@
             delete this.lists.events.click[item];
     };
 
+    /**
+     * Simple point
+     * @param x
+     * @param y
+     * @returns {{x: *, y: *}}
+     */
     An.prototype.point = function(x, y){
         return {x: x, y: y};
     };
 
+    /**
+     * Simple rectangle
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @returns {*[]}
+     */
     An.prototype.rectangle = function(x, y, width, height){
         return [x, y, width, height];
     };
+
+
+
+    /**
+     * Loading Resource Image.
+     * Object imgs:
+     * key - is the name for the access, assigned after loading
+     * value - is the URL of the resource to load
+     * @param {Object} imgs - { key : value, key : value, ...  }
+     * @param {Function} callback
+     */
+    An.prototype.imageLoader = function (imgs, callback) {
+        if (!imgs && typeof imgs !== 'object') return;
+        var that = this;
+        var length = Util.objectLength(imgs);
+        var images = {};
+        var iterator = 0;
+        for (var name in imgs) {
+            var eImg = document.createElement('img');
+            eImg.src = imgs[name];
+            eImg.name = name;
+            eImg.onload = function (e) {
+                images[this.name] = this;
+                iterator++;
+                if (iterator == length) {
+                    that.lists.images = Util.mergeObject(that.lists.images, images);
+                    callback.call(that, that.lists.images, that.context);
+                }
+            };
+        }
+    };
+
 
 
 
@@ -430,7 +543,7 @@
         if (object === null || typeof object !== 'object') return obj;
         var temp = object.constructor();
         for (var key in object)
-            temp[key] = Util.objClone(object[key]);
+            temp[key] = Util.cloneObject(object[key]);
         return temp;
     };
 
@@ -541,6 +654,89 @@
             y: event.clientY - rect.top
         };
     };
+
+
+
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Internal Extensions
+    //
+
+    An.Extension(function(self){
+
+        if(!(this instanceof An) || !(self instanceof An))
+            return;
+
+        /**
+         * Draw round rectangle
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @param radius
+         */
+        self.context.rectRound = function(x, y, width, height, radius){
+            width = width || 100;
+            height = height || 100;
+            radius = radius || 5;
+            self.context.beginPath();
+            self.context.moveTo(x + radius, y);
+            self.context.arcTo(x + width, y, x + width, y + height, radius);
+            self.context.arcTo(x + width, y + height, x, y + height, radius);
+            self.context.arcTo(x, y + height, x, y, radius);
+            self.context.arcTo(x, y, x + width, y, radius);
+        };
+
+        /**
+         * Draw shadow for all elements on scene
+         * @param x
+         * @param y
+         * @param blur
+         * @param color
+         */
+        self.context.shadow = function (x, y, blur, color){
+            self.context.shadowOffsetX = x;
+            self.context.shadowOffsetY = y;
+            self.context.shadowBlur = blur;
+            self.context.shadowColor = color;
+        };
+
+        /**
+         * Clear shadow params (shadowOffsetX,shadowOffsetY,shadowBlur)
+         */
+        self.context.clearShadow = function(){
+            self.context.shadowOffsetX = self.context.shadowOffsetY = self.context.shadowBlur = 0;
+        };
+
+        if(!self.context.ellipse){
+            /**
+             * Draw ellipse - cross-browser function
+             * @param x
+             * @param y
+             * @param radiusX
+             * @param radiusY
+             * @param rotation
+             * @param startAngle
+             * @param endAngle
+             * @param anticlockwise
+             */
+            self.context.ellipse = function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise){
+                self.context.save();
+                self.context.beginPath();
+                self.context.translate(x, y);
+                self.context.rotate(rotation);
+                self.context.scale(radiusX / radiusY, 1);
+                self.context.arc(0, 0, radiusY, startAngle, endAngle, (anticlockwise||true));
+                self.context.restore();
+                self.context.closePath();
+                self.context.stroke();
+            }
+        }
+    });
+
+
+
 
     window.An = An;
     window.An.Util = Util;
