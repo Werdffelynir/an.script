@@ -822,23 +822,28 @@
 
         self.graphic = {};
 
-        self.graphic.shape = function(points, color, fill){
+        self.graphic.shape = function(points, color, fill, closePath){
             var positions = [];
             var i, startPosition, temp = {};
+
             points.map(function(p){
-                if (!temp.x) {temp.x = p}
-                else if (!temp.y) {temp.y = p}
-                if (temp.x && temp.y) {
+                if (temp.x === undefined) {temp.x = p}
+                else if (temp.y === undefined) {temp.y = p}
+
+                if (temp.x !== undefined && temp.y !== undefined ) {
                     positions.push(temp);
                     temp = {};
                 }
             });
 
             self.context.beginPath();
+
             for (i = 0; i < positions.length; i ++) {
                 self.context.lineTo(positions[i].x, positions[i].y);
             }
-            self.context.closePath();
+
+            if (closePath !== false)
+                self.context.closePath();
 
             if (fill) {
                 self.context.fillStyle = color || '#000';

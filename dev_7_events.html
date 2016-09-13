@@ -45,9 +45,9 @@
 
     var conf = {
         selector: 'canvas#canvas',
-        width: 500,
-        height: 300,
-        fps: 60,
+        width: 800,
+        height: 400,
+        fps: 0,
         autoStart: true,
         autoClear: true,
         enableEventClick: true,
@@ -85,15 +85,38 @@
             //an.graphic.circle(100, 100, 50, 'rgba(125, 125, 0, 0.5)');
             //an.graphic.rectRound(0, 0, 100, 100, 25, 'rgba(125, 125, 0, 0.5)');
             //var points = [100,50, 150,150, 50,150];
-            var points = [100,50, 125,100, 175,100 ];
-            an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)');
 
-            ctx.
+            // rube
+            var points = [200,100,250,150,250,200,200,250,150,200,150,150];
+            //an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)', false);
+
+            // tree
+            points = [100,395,50,285,65,235,30,180,50,150,45,180,90,235,70,280,105,360,100,270,110,190,85,100,125,185,120,270,125,350,150,295,135,230,185,180,225,260,180,205,155,240,175,305,145,360,160,360,150,385,170,395];
+            //an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)', true);
+
+            // label
+            points = [200,0,220,50,200,65,400,65,385,0];
+            //an.graphic.shape(points, '#285773', true);
+
+            // label
+            points = [150,100,250,100,200,150,215,250,200,400,190,250,200,155];
+            //an.graphic.shape(points, '#4B4173', true);
+
+            points = [400,0,400,50,250,150,100,150,45,50,100,0,185,245,180,295,100,310,75,220,270,310,200,365,80,365,20,285,20,185,50,125,150,75,250,65,295,95,320,190,315,250];
+            //an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)', false, false);
+
+            //kijen
+            points = [400,150,400,400,350,400,375,305,325,235,355,175,370,260,380,185,380,115,400,80];
+            //an.graphic.shape(points, '#042528', false, false);
+
+            points = [135,105,160,85,180,125,215,90,240,160,275,65,290,130,315,115,315,185,345,215,270,260,215,300,175,230,130,175,120,135];
+            an.graphic.shape(points, '#042528', false)
 
             ctx.beginPath();
             ctx.rect(this.x, 50, 20, 20);
             ctx.fillStyle = '#CA921D';
             ctx.fill();
+            ctx.closePath();
 
             this.x += 1;
             if (this.x > (an.width - 20)) this.x = 10;

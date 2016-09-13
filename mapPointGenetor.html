@@ -12,10 +12,24 @@
         }
         html, body{}
         #pointmap{
-            margin: 50px;
+            margin: 10px auto;
+        }
+        #display{
+            margin: 10px auto;
+            text-align: center;
+            font-size: 28px;
+        }
+        #dataarea{
+            width: 60%;
+            margin: 20px auto;
+            background: #000;
+            color: aliceblue;
+            padding: 10px;
+            font-family: serif;
+            font-size: 14px;
         }
         .pmg-box{
-            margin: 0;
+            /*margin: 0;*/
             padding: 0;
 
             width: 10px;
@@ -29,7 +43,9 @@
 </head>
 <body>
 
+<div id="display"></div>
 <div id="pointmap"></div>
+<div id="dataarea"></div>
 
 <script>
 
@@ -46,25 +62,61 @@
         this.elem = document.querySelector(selector);
         this.width = width;
         this.height = height;
-        this.elem.style.margin = 0;
         this.elem.style.padding = 0;
         this.elem.style.fontSize = 0;
         this.elem.style.width = (width*10+10) + 'px';
         this.elem.style.height = (height*10) + 'px';
-    };
-    PointMapGen.lastPoint = {x: null, y: null};
-    PointMapGen.createBox = function(point){
 
-        //console.log(name, point);
-// * PointMapGen.scale
+
+        this.elem.addEventListener('mouseover', function(event) {
+            var i, t = event.target;
+
+            if (!t.point || !PointMapGen._events['mouseover']) return;
+
+            for (i = 0; i < PointMapGen._events['mouseover'].length; i++) {
+                if (typeof PointMapGen._events['mouseover'][i] === 'function') {
+                    PointMapGen._events['mouseover'][i].call(this, t, t.point);
+                }
+            }
+        });
+
+
+        this.elem.addEventListener('click', function(event) {
+            var i, t = event.target;
+
+            if (!t.point || !PointMapGen._events['click']) return;
+
+            if (!t.active) t.style.backgroundColor = '#555';
+            else t.style.backgroundColor = t.tempBackgroundColor;
+            t.active = !t.active;
+
+            for (i = 0; i < PointMapGen._events['click'].length; i++) {
+                if (typeof PointMapGen._events['click'][i] === 'function') {
+                    PointMapGen._events['click'][i].call(this, t, t.point);
+                }
+            }
+        }, false);
+    };
+
+    PointMapGen.lastPoint = {x: null, y: null};
+
+    PointMapGen._events = {};
+
+    PointMapGen.addEvent = function (name, callback) {
+        if (!PointMapGen._events[name]) PointMapGen._events[name] = [callback];
+        else PointMapGen._events[name].push(callback);
+    };
+
+    PointMapGen.createBox = function(point){
         var box = document.createElement('span');
         box.id = 'pmg-' + point.x +'x' + point.y;
         box.active = false;
         box.point = {x: point.x, y: point.y};
         box.tempBackgroundColor = '#fff';
         box.className = 'pmg-box';
+        box.setAttribute('data-box', point.x +'x'+point.y);
 
-        if (point.x == 0 || point.y == 0) {
+        if ( (point.x == 0 || point.y == 0) || (point.x % 10 == 0 || point.y % 10 == 0) ) {
             box.tempBackgroundColor = '#ddd';
             box.style.backgroundColor = '#ddd';
         }
@@ -75,39 +127,57 @@
 //        box.style.float = 'left';
 //        box.style.border = '1px solid rgb(236, 236, 236)';
 
-        box.addEventListener('mouseover', function(event) {
-            var t = event.target;
-            //var p = t.id.split('-')[1].split('x');
-            //PointMapGen.lastPoint = {x: p[0], y: p[1]};
-            console.log('Point  ', t.point.x * PointMapGen.scale + 'x' + t.point.y * PointMapGen.scale);
-            //console.log(PointMapGen.lastPoint);
-        });
 
-
-        box.addEventListener('click', function(event) {
-            var t = event.target;
-            if (t.active) {
-                t.style.backgroundColor = '#555';
-            } else
-                t.style.backgroundColor = t.tempBackgroundColor;
-            t.active = !t.active;
-        }, false);
 
         this.elem.appendChild(box);
     };
 
-    PointMapGen.draw = function(){
+    PointMapGen.draw = function () {
         var ix, iy, point = {x: 0, y: 0};
         for (iy = 0; iy < this.width + 1; iy ++) {
             point.y = iy;
             for (ix = 0; ix < this.height + 1; ix ++) {
-                point.x = ix;//
+                point.x = ix;
                 this.createBox(point);
             }
         }
     };
 
-    PointMapGen.create('#pointmap', 20, 20);
+
+
+
+
+
+
+    // ---- Use
+    var display = document.getElementById('display');
+    var dataarea = document.getElementById('dataarea');
+    PointMapGen.create('#pointmap', 80, 80);
+
+
+    PointMapGen.addEvent('mouseover', function(box, point) {
+        var x = point.x * 5;
+        var y = point.y * 5;
+        display.textContent = x + ' x ' + y;
+    });
+
+    PointMapGen.addEvent('click', function(box, point){
+        var x = point.x * 5;
+        var y = point.y * 5;
+
+        if (box.active) {
+            var s = document.createElement('span');
+            //s.textContent = (dataarea.textContent == '') ? x + ',' + y : x + ',' + y
+            s.textContent = (dataarea.textContent == '' ? '':',') + x + ',' + y;
+            dataarea.appendChild(s);
+        }
+
+        console.log('addEvent click >>> ', box.active);
+    });
+
+
+
+
     PointMapGen.draw();
 
 </script>
