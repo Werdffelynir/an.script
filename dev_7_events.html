@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.dev.without_events.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #debugpanel{
+/*            width: 600px;
+            margin: 0 auto;
+            border: 2px solid #1e1e1e;
+            padding: 5px;
+            background-color: #2b2b2b;
+            color: #d1d1d1;*/
+        }
+        #canvas{
+            border: 2px solid #1e1e1e;
+            margin: 5px auto;
+            position: relative;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="counter"></div>
+<div id="debugpanel"></div>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<div id="pointmap"></div>
+
+<script>
+
+    An.Debug.setDebugPanelElement('#debugpanel');
+    An.Debug.field('Draw Frame: ');
+    An.Debug.field('Mouse position: ');
+
+    var conf = {
+        selector: 'canvas#canvas',
+        width: 500,
+        height: 300,
+        fps: 0,
+        autoStart: true,
+        autoClear: true,
+        enableEventClick: true,
+        enableEventMouseMovie: false,
+        enableEventKeys: true,
+        onClick: function (point) {
+            An.Debug.field('Mouse position: ', point.x + 'px / ' + point.y + 'px');
+        },
+        onFrame: function (an) {
+            An.Debug.field('Draw Frame: ', an.frameCounter);
+        }
+    };
+    var an = new An(conf);
+
+/*    an.addEventClick([0, 0, 100, 100], function(event, e){
+        console.log(event, e);
+    });
+    an.addEventClick([0, 100, 100, 100], function(event, e){
+        console.log(event, e);
+    });
+*/
+    an.addEventKeydown(38, function(event){
+        console.log('addEventKeydown >>> ', event);
+
+
+
+    });
+
+    an.scene({
+        index: 3,
+        x: 10,
+        runner: function (ctx) {
+
+            //an.graphic.rect(0, 0, 100, 100, 'rgba(0,0,0,0.5)');
+            //an.graphic.circle(100, 100, 50, 'rgba(125, 125, 0, 0.5)');
+            //an.graphic.rectRound(0, 0, 100, 100, 25, 'rgba(125, 125, 0, 0.5)');
+            //var points = [100,50, 150,150, 50,150];
+            var points = [100,50, 125,100, 175,100 ];
+            an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)');
+
+            ctx.beginPath();
+            ctx.rect(this.x, 50, 20, 20);
+            ctx.fillStyle = '#CA921D';
+            ctx.fill();
+
+            this.x += 1;
+            if (this.x > (an.width - 20)) this.x = 10;
+        }
+    });
+
+
+
+an.render();
+
+
+
+    var PointMapGen = {
+        elem: null,
+        width: null,
+        height: null,
+        points: []
+    };
+
+    PointMapGen.create = function(selector, width, height){
+        this.elem = document.querySelector(selector);
+        this.width = width;
+        this.height = height;
+        this.elem.style.width = (width*10) + 'px';
+        this.elem.style.height = (height*10) + 'px';
+    };
+
+    PointMapGen.createBox = function(name){
+        var box = document.createElement('div');
+        box.id = name;
+        box.style.width = '10px';
+        box.style.height = '10px';
+        box.style.position = 'relation';
+        box.style.float = 'left';
+        box.style.border = '1px solid #ddd';
+        box.addEventListener('click', function(event){
+            box.style.backgroundColor = '#ddd';
+        });
+        this.elem.appendChild(box);
+    };
+
+    PointMapGen.draw = function(){
+        var ix, iy = null;
+        for (ix = 0; ix < this.width; ix ++) {
+            this.createBox('x-'+ix);
+            for (iy = 0; iy < this.height; iy ++) {
+                this.createBox('y-' + iy);
+            }
+
+        }
+    };
+
+    PointMapGen.create('#pointmap', 50, 50);
+    PointMapGen.draw();
+
+/*
+ x, y, width, height
+    --------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    x: 10,
+    color: '#CA921D',
+    lastRectangle: [],
+    runner: function(ctx) {
+
+        a.removeEventClick(this.lastRectangle);
+
+        this.lastRectangle = [this.x, 0, 20, 20];
+
+        var that = this;
+        a.addEventClick(this.lastRectangle , function(event, rectangle){
+            console.log(event, rectangle);
+            that.color = An.Util.randColor();
+        });
+
+        ctx.rect(this.x, 0, 20, 20);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        this.x += 2;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+a.scene({
+    hide: false,
+    index: 3,
+    name: 'three',
+    x: 10,
+    runner: function(ctx){
+        ctx.rect(this.x, 50, 20, 20);
+        ctx.fillStyle = '#CA921D';
+        ctx.fill();
+
+        this.x += 1;
+        if(this.x > (a.width - 20)) this.x = 10;
+    }
+});
+
+a.render();
+
+*/
+
+
+/*
+var sceneObject = {
+    hide: false,
+    index: 1,
+    name: 'scene',
+    runner: function(ctx){}
+};
+
+var s1 = An.Util.cloneObject(sceneObject),
+    s2 = An.Util.cloneObject(sceneObject),
+    s3 = An.Util.cloneObject(sceneObject),
+    s4 = An.Util.cloneObject(sceneObject),
+    s5 = An.Util.cloneObject(sceneObject);
+
+s1.name = '1';
+s2.name = '2';
+s3.name = '3';
+s4.name = '4';
+s5.name = '5';
+
+a.stage('main', s1);
+a.stage('main', s2);
+a.stage('main', s3);
+a.stage('main', s4);
+a.stage('main', s5);
+
+a.stage('page', s1);
+a.stage('page', s3);
+a.stage('page', s5);
+
+a.render('main');
+//a.render('page');
+
+*/
+
+
+/*
+a.scene({
+    hide: false,
+    index: 4,
+    name: 'fore',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: true,
+    index: 3,
+    name: 'three',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 1,
+    name: 'one',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 2,
+    name: 'two',
+    runner: function(ctx){}
+});
+a.scene({
+    hide: false,
+    index: 5,
+    name: 'five',
+    runner: function(ctx){}
+});
+*/
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
