@@ -47,7 +47,7 @@
         selector: 'canvas#canvas',
         width: 500,
         height: 300,
-        fps: 0,
+        fps: 60,
         autoStart: true,
         autoClear: true,
         enableEventClick: true,
@@ -88,6 +88,8 @@
             var points = [100,50, 125,100, 175,100 ];
             an.graphic.shape(points, 'rgba(125, 125, 0, 0.5)');
 
+            ctx.
+
             ctx.beginPath();
             ctx.rect(this.x, 50, 20, 20);
             ctx.fillStyle = '#CA921D';
@@ -102,50 +104,6 @@
 
 an.render();
 
-
-
-    var PointMapGen = {
-        elem: null,
-        width: null,
-        height: null,
-        points: []
-    };
-
-    PointMapGen.create = function(selector, width, height){
-        this.elem = document.querySelector(selector);
-        this.width = width;
-        this.height = height;
-        this.elem.style.width = (width*10) + 'px';
-        this.elem.style.height = (height*10) + 'px';
-    };
-
-    PointMapGen.createBox = function(name){
-        var box = document.createElement('div');
-        box.id = name;
-        box.style.width = '10px';
-        box.style.height = '10px';
-        box.style.position = 'relation';
-        box.style.float = 'left';
-        box.style.border = '1px solid #ddd';
-        box.addEventListener('click', function(event){
-            box.style.backgroundColor = '#ddd';
-        });
-        this.elem.appendChild(box);
-    };
-
-    PointMapGen.draw = function(){
-        var ix, iy = null;
-        for (ix = 0; ix < this.width; ix ++) {
-            this.createBox('x-'+ix);
-            for (iy = 0; iy < this.height; iy ++) {
-                this.createBox('y-' + iy);
-            }
-
-        }
-    };
-
-    PointMapGen.create('#pointmap', 50, 50);
-    PointMapGen.draw();
 
 /*
  x, y, width, height
