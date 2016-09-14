@@ -4,19 +4,19 @@ The script implements a control HTML5 element canvas.
 Simplified realization of animation or static graphs, and some event-control model for "click", "mousemove", "keydown" and "keypress"
 
 
-### Map of script
+## Script Maps
 
 ```
-An. static and constants
+// An. static and constants
     version: String
     LOOP_TIMER: String
     LOOP_ANIMATE: String
     Extension: Function - Add extensions in loader
     @private internalExtensions: Array - Storage of extensions
 
-An.prototype. and instance
 
-    # Properties
+// An.prototype. and instance
+# Properties
     width: Integer - Canvas size of width
     height: Integer - Canvas size of height
     canvas: Object HTMLCanvasElement - Canvas object
@@ -33,8 +33,8 @@ An.prototype. and instance
     @private requestAnimationFrameIterator: Integer 
     @private lists: Object
     @private options: Object
-
-    # Methods
+    
+# Methods
     play () - Start play animation
     stop () - Stop play animation
     scene (sceneObject: Object) - Add new sceneObject
@@ -42,6 +42,7 @@ An.prototype. and instance
     clear () - Clear canvas area
     clearScene () - Remove all scenes and clears the canvas for render a new stage
     render (stageName: String) - Start render and play. Renders a scene assignments
+    renderStage (stageName: String) - Put scenes of stage into timeline
     resizeCanvas (width: Integer, height: Integer) - Resize canvas element to full screen mode, or by width-height
     addEventKeydown (keyCode: Integer, callback: Function) - Add callback for event "keydown" by "keyCode"
     addEventKeyup (keyCode: Integer, callback: Function) - Add callback for event "keyup" by "keyCode"
@@ -59,7 +60,7 @@ An.prototype. and instance
     @private internalStagesToScenes
 
 
-An.Util. Static methods
+// An.Util. Static methods
     cloneObject (object: Object): Object - Cloned object
     mergeObject (objectBase: Object, object: Object): Object - Merge object into objectBase. Object objectBase will be modified!
     rand (min: Integer, max: Integer): Integer - Returns a random integer between min, max, unless specified from 0 to 100
@@ -72,7 +73,7 @@ An.Util. Static methods
     getMouseCanvas (canvas: Object, event: Object): Object - Returns the coordinates of the mouse on canvas element
     
     
-Inside extantion of context.
+// Inside extantion of context.
     context.rectRound(x, y, width, height, radius)
     context.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
     context.shadow()
@@ -192,6 +193,13 @@ an.scene({
         ctx.fillRect(0,50,this.width,30);
         this.width ++;
     }
+});
+
+// or
+an.scene(function(ctx){
+    ctx.fillStyle = '#DD00FF';
+    ctx.fillRect(0,50,this.width,30);
+    this.width ++;
 });
 
 // start animation

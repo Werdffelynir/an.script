@@ -1,4 +1,6 @@
-
+/**
+ * Animation script
+ */
 (function(){
 
     "use strict";
@@ -198,6 +200,7 @@
     An.LOOP_TIMER = 'timer';
     An.LOOP_ANIMATE = 'animation';
 
+
     /**
      * Storage of extensions
      * @private
@@ -287,6 +290,10 @@
             this.play();
     };
 
+    /**
+     * Change current stage
+     * @param stageName
+     */
     An.prototype.renderStage = function(stageName) {
         this.internalStagesToScenes(stageName);
     };
@@ -371,16 +378,12 @@
      *      hide - bool
      *      name - name
      *      runner - function run every time relatively root.fps
-     * @returns {{index: number, hide: boolean, name: string, runner: null}}
+     * @returns {{index: number, hide: boolean, name: string, runner: null}|function}
      */
     An.prototype.scene = function (sceneObject) {
-        var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
-        if(typeof sceneObject === 'function')
-            sceneObject = {runner:sceneObject};
-
-        Util.mergeObject(sceneObjectDefault, sceneObject);
-        this.lists.scenes.push(sceneObjectDefault);
-        return sceneObjectDefault;
+        sceneObject = this.createSceneObject(sceneObject);
+        this.lists.scenes.push(sceneObject);
+        return sceneObject;
     };
 
     /**
@@ -402,15 +405,23 @@
         }
     };
 
-
+    An.prototype.createSceneObject = function (sceneObject) {
+        var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
+        if(typeof sceneObject === 'function') sceneObject = {runner:sceneObject};
+        Util.mergeObject(sceneObjectDefault, sceneObject);
+        return sceneObjectDefault;
+    };
     /**
      * Added stage
      * @param {String} stageName - name of stage, rendering is defined by name
-     * @param {{index: number, hide: boolean, name: string, runner: null}} sceneObject - Object. is scene object
+     * @param {{index: number, hide: boolean, name: string, runner: null}|function} sceneObject - Object. is scene object
      */
     An.prototype.stage = function(stageName, sceneObject) {
         if(this.lists.stages[stageName] == null)
             this.lists.stages[stageName] = [];
+
+        sceneObject = this.createSceneObject(sceneObject);
+
         this.lists.stages[stageName].push(sceneObject);
     };
 
@@ -463,6 +474,7 @@
         this.canvas.width = this.width = width || window.innerWidth;
         this.canvas.height = this.height = height || window.innerHeight;
     };
+
 
     /**
      * Added callback for event "keydown" by "keyCode"
@@ -523,6 +535,7 @@
         if(this.lists.events.click != null && this.lists.events.click[item] != null)
             delete this.lists.events.click[item];
     };
+
 
     /**
      * Simple point
@@ -748,7 +761,17 @@
     // Internal Extensions
     //
 
+
+
+    /**
+     * Extension expands of current context (CanvasRenderingContext2D)
+     */
     An.Extension(function(self){
+
+        /**
+         * @type An self
+         * @type CanvasRenderingContext2D self.context
+         */
 
         if(!(this instanceof An) || !(self instanceof An))
             return;
@@ -820,10 +843,15 @@
         }
     });
 
+
+    /**
+     * Extension of simple graphic shapes
+     */
     An.Extension(function(self) {
 
         /**
          * @type An self
+         * @type CanvasRenderingContext2D self.context
          */
 
         if (!(this instanceof An) || !(self instanceof An))
