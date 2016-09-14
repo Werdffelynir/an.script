@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <link rel="stylesheet" href="../grid.css">
+    <script src="../src/an.dev.002.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #page{
+            width: 80%;
+            margin: 10px auto;
+        }
+        #canvas{
+            margin-left: 10px;
+/*            width: 600px;
+            height: 400px;*/
+            border: 1px solid #2b2b2b;
+        }
+        #scripts_list{}
+        #scripts_list>li{
+            display: block;
+            padding: 5px 10px;
+            background-color: #2b2b2b;
+            color: #a0a0a0;
+            border-top: 1px solid #515151;
+        }
+        #scripts_list>li:hover{
+            background-color: #121212;
+            color: #92f292;
+        }
+        #display{
+            min-height: 30px;
+            line-height: 30px;
+            padding-left: 10px;
+
+            background-color: #1d1d1d;
+            color: #92f292;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id="page">
+   <div class="tbl">
+       <div class="tbl_cell width_25 valign_top">
+           <div id="display"></div>
+            <ul id="scripts_list">
+                <li class="script_clear">Script Clear</li>
+                <li class="script">shapes.js</li>
+                <li class="script">demo2.js</li>
+                <li class="script">400_balls.js</li>
+                <li class="script">50_balls_clicks.js</li>
+                <li class="script">acceleration.js</li>
+                <li class="script">box_jump.js</li>
+                <li class="script">box_jump_key_up.js</li>
+                <li class="script">planets.js</li>
+                <li class="script">game_find_it.js</li>
+            </ul>
+       </div>
+       <div class="tbl_cell valign_top text_center">
+           <canvas id="canvas"></canvas>
+       </div>
+   </div>
+</div>
+
+<script>
+
+    var body = document.body;
+    var canvas = document.getElementById('canvas');
+    var display = document.getElementById('display');
+    var scriptClear = document.getElementById('script_clear');
+    var scriptsList = document.getElementById('scripts_list');
+    var scriptLoader = null;
+
+    scriptsList.addEventListener('click', function(event){
+        var t = event.target;
+        if (t.classList.contains('script_clear') && scriptLoader) {
+            reCreateCanvas(canvas);
+            scriptLoader = display.textContent = null;
+        }
+
+        if (!t.classList.contains('script')) return;
+
+        if (scriptLoader)
+            document.body.removeChild(scriptLoader);
+
+        reCreateCanvas();
+
+        scriptLoader = document.createElement('script');
+        scriptLoader.src = display.textContent = t.textContent.trim();
+        document.body.appendChild(scriptLoader);
+    });
+
+    function reCreateCanvas (){
+        var parentNode = canvas.parentNode;
+        parentNode.removeChild(canvas);
+        canvas = document.createElement('canvas');
+        canvas.id = 'canvas';
+        parentNode.appendChild(canvas);
+    }
+
+
+</script>
+</body>
+</html>
