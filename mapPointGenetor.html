@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="grid.css">
-    <script src="src/an.dev.without_events.js"></script>
     <style>
         *{
             font-family: 'Open Sans', sans-serif;
@@ -15,9 +14,8 @@
             margin: 10px auto;
         }
         #display{
-            margin: 10px auto;
-            text-align: center;
-            font-size: 28px;
+            margin: 5px auto;
+            width: 800px;
         }
         #dataarea{
             width: 60%;
@@ -32,18 +30,38 @@
             /*margin: 0;*/
             padding: 0;
 
-            width: 10px;
-            height: 10px;
+            width: 5px;
+            height: 5px;
 
             border-top: 1px solid #2b2b2b;
             border-left: 1px solid #2b2b2b;
             display: inline-block;
         }
+        #display input{
+            width: 100px;
+        }
+        #position{
+            font-size: 28px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div id="display"></div>
+<div id="display">
+    <div class="tbl">
+        <div class="tbl_cell width_30">
+            <input id="grid_width" type="text" value="800"> x <input id="grid_height" type="text" value="600">
+        </div>
+        <div class="tbl_cell">
+            <button id="grid_create">Create grid</button>
+            <button id="grid_clear">Clear</button>
+            <button id="save_position">Save</button>
+        </div>
+        <div id="position" class="tbl_cell width_20">0 x 0</div>
+    </div>
+</div>
 <div id="pointmap"></div>
 <div id="dataarea"></div>
 
@@ -59,29 +77,31 @@
     };
 
     PointMapGen.create = function(selector, width, height){
-        this.elem = document.querySelector(selector);
-        this.width = width;
-        this.height = height;
-        this.elem.style.padding = 0;
-        this.elem.style.fontSize = 0;
-        this.elem.style.width = (width*10+10) + 'px';
-        this.elem.style.height = (height*10) + 'px';
+        PointMapGen.elem = document.querySelector(selector);
+        PointMapGen.width = parseInt(width);
+        PointMapGen.height = parseInt(height);
+        PointMapGen.elem.style.padding = 0;
+        PointMapGen.elem.style.fontSize = 0;
+        PointMapGen.elem.style.width = (PointMapGen.width + 5) + 'px';
+        PointMapGen.elem.style.height = PointMapGen.height + 'px';
 
+       // console.log(selector, width, height);
+      //  console.log( PointMapGen.height, PointMapGen.elem.style.height);
 
-        this.elem.addEventListener('mouseover', function(event) {
+        PointMapGen.elem.addEventListener('mouseover', function(event) {
             var i, t = event.target;
 
             if (!t.point || !PointMapGen._events['mouseover']) return;
 
             for (i = 0; i < PointMapGen._events['mouseover'].length; i++) {
                 if (typeof PointMapGen._events['mouseover'][i] === 'function') {
-                    PointMapGen._events['mouseover'][i].call(this, t, t.point);
+                    PointMapGen._events['mouseover'][i].call(PointMapGen, t, t.point);
                 }
             }
         });
 
 
-        this.elem.addEventListener('click', function(event) {
+        PointMapGen.elem.addEventListener('click', function(event) {
             var i, t = event.target;
 
             if (!t.point || !PointMapGen._events['click']) return;
@@ -92,7 +112,7 @@
 
             for (i = 0; i < PointMapGen._events['click'].length; i++) {
                 if (typeof PointMapGen._events['click'][i] === 'function') {
-                    PointMapGen._events['click'][i].call(this, t, t.point);
+                    PointMapGen._events['click'][i].call(PointMapGen, t, t.point);
                 }
             }
         }, false);
@@ -129,56 +149,84 @@
 
 
 
-        this.elem.appendChild(box);
+        PointMapGen.elem.appendChild(box);
     };
 
     PointMapGen.draw = function () {
         var ix, iy, point = {x: 0, y: 0};
-        for (iy = 0; iy < this.width + 1; iy ++) {
+        for (iy = 0; iy < PointMapGen.height/5 + 1; iy ++) {
             point.y = iy;
-            for (ix = 0; ix < this.height + 1; ix ++) {
+            for (ix = 0; ix < PointMapGen.width/5 + 1; ix ++) {
                 point.x = ix;
-                this.createBox(point);
+                PointMapGen.createBox(point);
             }
         }
     };
 
 
 
+    // ---- Use ----------------------------------------------------
+    // ---- Use ----------------------------------------------------
+    // ---- Use ----------------------------------------------------
+
+    var Grid = {};
+
+    Grid.display = {};
+
+    Grid.init = function () {
+        Grid.display = document.getElementById('display');
+        Grid.display.pointmap = document.getElementById('pointmap');
+        Grid.display.position = document.getElementById('position');
+        Grid.display.grid_width = document.getElementById('grid_width');
+        Grid.display.grid_height = document.getElementById('grid_height');
+        Grid.display.grid_create = document.getElementById('grid_create');
+        Grid.display.grid_clear = document.getElementById('grid_clear');
+        Grid.display.save_position = document.getElementById('save_position');
+        Grid.display.dataarea = document.getElementById('dataarea');
+
+
+        PointMapGen.addEvent('mouseover', function(box, point) {
+            var x = point.x * 5;
+            var y = point.y * 5;
+            Grid.display.position.textContent = x + ' x ' + y;
+        });
+
+        PointMapGen.addEvent('click', function(box, point){
+            var x = point.x * 5;
+            var y = point.y * 5;
+            if (box.active) {
+                var s = document.createElement('span');
+                s.textContent = (Grid.display.dataarea.textContent == '' ? '':',') + x + ',' + y;
+                Grid.display.dataarea.appendChild(s);
+            }
+        });
+
+        Grid.display.grid_create.addEventListener('click', function(e){
+            //console.log(that.display.grid_width.value, that.display.grid_height.value);
+            Grid.createGrid(Grid.display.grid_width.value, Grid.display.grid_height.value);
+        });
+
+    };
+
+    Grid.createGrid = function(width, height){
+        Grid.display.pointmap.textContent = '';
+        PointMapGen.create('#pointmap', width, height);
+        PointMapGen.draw();
+    };
+
+
+    Grid.init();
 
 
 
 
-    // ---- Use
-    var display = document.getElementById('display');
-    var dataarea = document.getElementById('dataarea');
-    PointMapGen.create('#pointmap', 80, 80);
-
-
-    PointMapGen.addEvent('mouseover', function(box, point) {
-        var x = point.x * 5;
-        var y = point.y * 5;
-        display.textContent = x + ' x ' + y;
-    });
-
-    PointMapGen.addEvent('click', function(box, point){
-        var x = point.x * 5;
-        var y = point.y * 5;
-
-        if (box.active) {
-            var s = document.createElement('span');
-            //s.textContent = (dataarea.textContent == '') ? x + ',' + y : x + ',' + y
-            s.textContent = (dataarea.textContent == '' ? '':',') + x + ',' + y;
-            dataarea.appendChild(s);
-        }
-
-        console.log('addEvent click >>> ', box.active);
-    });
 
 
 
 
-    PointMapGen.draw();
+
+
+
 
 </script>
 </body>
