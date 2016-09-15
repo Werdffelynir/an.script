@@ -566,7 +566,6 @@
         return this.hitTestPoint(rectangle, this.mouseClick)
     };
 
-
     An.prototype.hitTestPoint = function(rectangle, point) {
         if (typeof rectangle !== "object" || typeof rectangle !== "object") {
             console.error("rectangle - must be Array [x, y, w, h]; point - must be Object { x: , y: }");
@@ -578,9 +577,6 @@
                 rectangle[0] + rectangle[2] > mouseClick.x &&
                 rectangle[1] + rectangle[3] > mouseClick.y;
     };
-
-
-
 
 
     /**
@@ -613,30 +609,19 @@
     };
 
 
-
     /**
-     *
+     * Set background color for canvas element;
      * @param color
      */
     An.prototype.backgroundColor = function (color){
-        this.context.beginPath();
-        this.context.fillStyle = color || '#000';
-        this.context.fillRect(0, 0, this.width, this.height);
-        this.context.closePath();
+        this.canvas.style.backgroundColor = color;
     };
 
 
 
-
-
-
-
-
-
-
-
-
-
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Utilities static methods
+    //
 
     An.Debug = {};
     An.Debug.internalSettings = {};
@@ -905,8 +890,8 @@
             return;
 
         var Text = {
-            font: null,
-            lineWidth: null,
+            font: '12px Arial, sans',
+            lineWidth: 1,
             textBaseline: "top"
         };
         Text.font = function(fontString){
@@ -923,9 +908,12 @@
             if (Text.lineWidth)
                 self.context.lineWidth = Text.lineWidth;
 
+            //self.context.beginPath();
+
             if (fill) {
                 self.context.fillStyle = color || '#DDD';
                 self.context.fillText(label, x, y);
+
                 if (typeof fill === 'string') {
                     self.context.strokeStyle = fill || '#000';
                     self.context.strokeText(label, x, y);
@@ -936,6 +924,7 @@
                 self.context.strokeText(label, x, y);
             }
 
+            //self.context.closePath();
         };
 
         self.Text = Text;
@@ -956,7 +945,7 @@
         if (!(this instanceof An) || !(self instanceof An))
             return;
 
-        self.Graphic = self.graphic = {};
+        self.graphic = {};
 
         /**
          *
@@ -964,8 +953,9 @@
          * @param color
          * @param fill
          * @param closePath
+         * @param lineWidth
          */
-        self.graphic.shape = function(points, color, fill, closePath){
+        self.graphic.shape = function(points, color, fill, closePath, lineWidth){
             var positions = [];
             var i, startPosition, temp = {};
 
@@ -985,10 +975,14 @@
                 self.context.lineTo(positions[i].x, positions[i].y);
             }
 
-            if (closePath !== false)
-                self.context.closePath();
+            if (closePath !== false) self.context.closePath();
+            if (lineWidth) self.context.lineWidth = lineWidth;
 
             if (fill) {
+                //if (typeof fill === 'string') {
+                //    self.context.strokeStyle = fill || '#000';
+                //    self.context.strike();
+                //}
                 self.context.fillStyle = color || '#000';
                 self.context.fill();
             }
@@ -996,6 +990,7 @@
                 self.context.strokeStyle = color || '#000';
                 self.context.stroke();
             }
+
         };
 
         /**
@@ -1014,6 +1009,10 @@
             if (fill) {
                 self.context.fillStyle = color || '#000';
                 self.context.fill();
+                if (typeof fill === 'string') {
+                    self.context.strokeStyle = fill || '#000';
+                    self.context.strike();
+                }
             }
             else {
                 self.context.strokeStyle = color || '#000';
@@ -1031,11 +1030,25 @@
          * @param height
          * @param radius
          * @param color
+         * @param fill
          */
-        self.graphic.rectRound = function(x, y, width, height, radius, color){
+        self.graphic.rectRound = function(x, y, width, height, radius, color, fill){
             self.context.rectRound(x, y, width, height, radius);
-            self.context.fillStyle =  color || '#000';
-            self.context.fill();
+
+
+            if (fill) {
+                self.context.fillStyle = color || '#000';
+                self.context.fill();
+                if (typeof fill === 'string') {
+                    self.context.strokeStyle = fill || '#000';
+                    self.context.strike();
+                }
+            }
+            else {
+                self.context.strokeStyle = color || '#000';
+                self.context.stroke();
+            }
+
             self.context.closePath();
         };
 
@@ -1045,9 +1058,50 @@
          * @param y
          * @param radius
          * @param color
+         * @param fill
          */
-        self.graphic.circle = function(x, y, radius, color){
-            self.graphic.rectRound(x - (radius/2), y - (radius/2), radius, radius, radius/2, color);
+        self.graphic.circle = function(x, y, radius, color, fill){
+            self.graphic.rectRound(x - (radius/2), y - (radius/2), radius, radius, radius/2, color, fill);
+        };
+
+        // line.line(10, 10, 100, 2, 'blue');
+
+
+        self.graphic.linePoints = function(point1, point2, lineWidth, color){
+
+            self.context.beginPath();
+            self.context.lineWidth = lineWidth || 1;
+            self.context.moveTo(point1.x, point1.y);
+            self.context.lineTo(point2.x, point2.y);
+            self.context.strokeStyle = color;
+            self.context.stroke();
+
+            self.context.beginPath();
+            self.context.closePath();
+        };
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param width
+         * @param lineWidth thickness
+         * @param color
+         */
+        self.graphic.lineWidth = function(x, y, width, lineWidth, color){
+            if (width < 0) {
+                x -= Math.abs(width);
+                width = Math.abs(width);
+            }
+            self.graphic.linePoints(self.point(x, y), self.point(x + width, y), lineWidth, color);
+        };
+
+        self.graphic.lineHeight = function(x, y, height, lineWidth, color){
+            if (height < 0) {
+                y -= Math.abs(height);
+                height = Math.abs(height);
+            }
+            self.graphic.linePoints(self.point(x, y), self.point(x, y + height), lineWidth, color);
         };
     });
 
