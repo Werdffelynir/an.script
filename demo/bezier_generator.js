@@ -63,7 +63,7 @@
         return defaultValue;
     };
 
-    Generator.onFrame = function(an) {
+    Generator.onFrame = function() {
         if (afterCanvas.querySelector)
             afterCanvas.querySelector('#mouse_pos').innerHTML = an.mouse.x + ' x ' + an.mouse.y;
 

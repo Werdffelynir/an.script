@@ -255,16 +255,22 @@
                 try{
                     //that.context.beginPath();
                     this.context.save();
-                    scene.runner.call(scene, this.context, this);
+                    scene.runner.call(scene, this.context, this.frameCounter);
                     this.context.restore();
 
+
                 }catch (error) {
-                    this.errorDrawframe = error.message;
+                    /**
+                     * @type ReferenceError error
+                     */
+                    this.errorDrawframe = 'Error message: ' + error.message;
+                    this.errorDrawframe +='\nError file: ' +  error.fileName;
+                    this.errorDrawframe +='\nError line: ' +  error.lineNumber;
                     break;
                 }
 
                 if(typeof this.onFrame === 'function') {
-                    this.onFrame.call(this, this);
+                    this.onFrame.call(this, this.context, this.frameCounter);
                 }
             }
         } else {

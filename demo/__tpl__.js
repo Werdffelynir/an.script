@@ -1,13 +1,14 @@
 (function(window, An){
 
     console.clear();
-    console.log("Loaded: DEMO TPL");
+    console.log("Loaded: Shape Generator");
+
 
     var an = new An({
         selector: "canvas#canvas",
-        width: 600,
-        height: 400,
-        fps: 12,
+        width: 800,
+        height: 600,
+        fps: 30,
         onClick: null,
         onFrame: null,
         loop: 'animation',
@@ -15,21 +16,35 @@
         autoStart: true,
         autoClear: true,
         enableEventClick: true,
-        enableEventMouseMovie: false,
+        enableEventMouseMovie: true,
         enableEventKeys: false
     });
 
+    var Pin = {};
+    Pin.list = [];
+
+    Pin.onClick = function(point){
+
+
+
+    };
+
+    Pin.onFrame = function(ctx, frameCounter){
+
+
+
+    };
+
 
     an.scene(function(ctx){
-        ctx.fillStyle = '#1A1A52';
-        ctx.fillRect(50, 150, 20, 20);
-    });
 
-    an.scene(function(ctx){
         ctx.fillStyle = '#1A1A52';
         ctx.fillRect(50, 200, 20, 20);
+
     });
 
+    an.onClick = Pin.onClick;
+    an.onFrame = Pin.onFrame;
     an.render();
 
 })(window, An);
