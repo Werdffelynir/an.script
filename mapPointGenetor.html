@@ -202,8 +202,11 @@
         });
 
         Grid.display.grid_create.addEventListener('click', function(e){
-            //console.log(that.display.grid_width.value, that.display.grid_height.value);
             Grid.createGrid(Grid.display.grid_width.value, Grid.display.grid_height.value);
+        });
+
+        Grid.display.grid_clear.addEventListener('click', function(e){
+            Grid.display.dataarea.textContent = '';
         });
 
     };

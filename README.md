@@ -51,6 +51,8 @@ Simplified realization of animation or static graphs, and some event-control mod
     imageLoader (images: Object) - Loading Resource Image.
     point (x, y): Object {x: 0, y: 0}
     rectangle (x, y, width, height): Array
+    hitTest(rectangle: Array); - Проверка клика в области rectangle. Рек. исп. в onClick после события mouseClick
+    hitTestPoint(rectangle: Array, point: Object); - Проверка point в области rectangle
     toString (): String
     debugPanel (options: Object)
     @private loopTimer
@@ -242,6 +244,18 @@ an.addEventClick(rectangle, function(e,rectangle){
     console.log('one click');
     an.removeEventClick(rectangle);
 });
+```
+
+#### Event mouse 'onClick'
+```
+onClick: function (point) {
+
+    var rectBtn = an.rectangle(350, 300, 100, 30);
+    
+    point                             // {x: , y: }
+    an.hitTest(rectBtn);              // bool
+    an.hitTestPoint(rectBtn, point);  // bool
+},
 ```
 
 

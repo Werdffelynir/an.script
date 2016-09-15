@@ -62,18 +62,27 @@
                 <li class="script">planets.js</li>
                 <li class="script">game_find_it.js</li>
                 <li class="script">game_memo.js</li>
+                <li class="script">text_simple.js</li>
+                <li class="script">navigation.js</li>
+                <li class="script">bezier_generator.js</li>
             </ul>
        </div>
        <div class="tbl_cell valign_top text_center">
+           <div id="before_canvas"></div>
            <canvas id="canvas"></canvas>
+           <div id="after_canvas"></div>
        </div>
    </div>
 </div>
+
+
 
 <script>
 
     var body = document.body;
     var canvas = document.getElementById('canvas');
+    var beforeCanvas = document.getElementById('before_canvas');
+    var afterCanvas = document.getElementById('after_canvas');
     var display = document.getElementById('display');
     var scriptClear = document.getElementById('script_clear');
     var scriptsList = document.getElementById('scripts_list');
@@ -91,6 +100,7 @@
         if (scriptLoader)
             document.body.removeChild(scriptLoader);
 
+        beforeCanvas.textContent = afterCanvas.textContent = '';
         reCreateCanvas();
 
         scriptLoader = document.createElement('script');

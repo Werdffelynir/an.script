@@ -254,17 +254,17 @@
                 scene = scenes[i];
                 try{
                     //that.context.beginPath();
-                    that.context.save();
-                    scenes[i].runner.call(scenes[i], that.context, that);
-                    that.context.restore();
+                    this.context.save();
+                    scene.runner.call(scene, this.context, this);
+                    this.context.restore();
 
                 }catch (error) {
                     this.errorDrawframe = error.message;
                     break;
                 }
 
-                if(typeof that.onFrame === 'function') {
-                    that.onFrame.call(that, that);
+                if(typeof this.onFrame === 'function') {
+                    this.onFrame.call(this, this);
                 }
             }
         } else {
@@ -305,13 +305,15 @@
         if(!this.isPlaying){
             this.internalDrawframe();
 
-            if(this.fps && this.loop === An.LOOP_ANIMATE) {
+            if (this.fps && this.loop === An.LOOP_ANIMATE) {
                 this.loopAnimationFrame();
-            } else
-            if(this.fps && this.loop === An.LOOP_TIMER) {
+            }
+            else if (this.fps && this.loop === An.LOOP_TIMER) {
                 this.loopTimer();
             }
-            this.isPlaying = true;
+
+            if (this.fps > 0 )
+                this.isPlaying = true;
         }
     };
 
@@ -373,12 +375,12 @@
 
     /**
      * Added scene
-     * @param {{index: number, hide: boolean, name: string, runner: null}} sceneObject
+     * @param {{index: number, hide: boolean, name: string, runner: null}|function} sceneObject
      *      index - deep of scene, option march on z-index
      *      hide - bool
      *      name - name
      *      runner - function run every time relatively root.fps
-     * @returns {{index: number, hide: boolean, name: string, runner: null}|function}
+     * @returns {{index: number, hide: boolean, name: string, runner: null}}
      */
     An.prototype.scene = function (sceneObject) {
         sceneObject = this.createSceneObject(sceneObject);
@@ -452,7 +454,8 @@
      * It clears the canvas to render the new stage
      */
     An.prototype.clearScene = function () {
-        this.lists.scenes = this.lists.events = [];
+        this.lists.scenes = [];
+        //this.lists.events = [];
     };
 
 
@@ -559,6 +562,25 @@
         return [x, y, width, height];
     };
 
+    An.prototype.hitTest = function(rectangle) {
+        return this.hitTestPoint(rectangle, this.mouseClick)
+    };
+
+
+    An.prototype.hitTestPoint = function(rectangle, point) {
+        if (typeof rectangle !== "object" || typeof rectangle !== "object") {
+            console.error("rectangle - must be Array [x, y, w, h]; point - must be Object { x: , y: }");
+            return false;
+        }
+        var mouseClick = point;
+        return  rectangle[0] < mouseClick.x &&
+                rectangle[1] < mouseClick.y &&
+                rectangle[0] + rectangle[2] > mouseClick.x &&
+                rectangle[1] + rectangle[3] > mouseClick.y;
+    };
+
+
+
 
 
     /**
@@ -589,6 +611,31 @@
             };
         }
     };
+
+
+
+    /**
+     *
+     * @param color
+     */
+    An.prototype.backgroundColor = function (color){
+        this.context.beginPath();
+        this.context.fillStyle = color || '#000';
+        this.context.fillRect(0, 0, this.width, this.height);
+        this.context.closePath();
+    };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     An.Debug = {};
@@ -845,6 +892,58 @@
 
 
     /**
+     * Extension of simple Text
+     */
+    An.Extension(function(self) {
+
+        /**
+         * @type An self
+         * @type CanvasRenderingContext2D self.context
+         */
+
+        if (!(this instanceof An) || !(self instanceof An))
+            return;
+
+        var Text = {
+            font: null,
+            lineWidth: null,
+            textBaseline: "top"
+        };
+        Text.font = function(fontString){
+            Text._font = fontString;
+        };
+        Text.write = function(x, y, label, color, fill) {
+
+            if (Text.font)
+                self.context.font = Text.font;
+
+            if (Text.textBaseline)
+                self.context.textBaseline = Text.textBaseline;
+
+            if (Text.lineWidth)
+                self.context.lineWidth = Text.lineWidth;
+
+            if (fill) {
+                self.context.fillStyle = color || '#DDD';
+                self.context.fillText(label, x, y);
+                if (typeof fill === 'string') {
+                    self.context.strokeStyle = fill || '#000';
+                    self.context.strokeText(label, x, y);
+                }
+            }
+            else {
+                self.context.strokeStyle = color || '#000';
+                self.context.strokeText(label, x, y);
+            }
+
+        };
+
+        self.Text = Text;
+    });
+
+
+
+    /**
      * Extension of simple graphic shapes
      */
     An.Extension(function(self) {
@@ -857,7 +956,7 @@
         if (!(this instanceof An) || !(self instanceof An))
             return;
 
-        self.graphic = {};
+        self.Graphic = self.graphic = {};
 
         /**
          *
@@ -906,12 +1005,21 @@
          * @param width
          * @param height
          * @param color
+         * @param fill
          */
-        self.graphic.rect = function(x, y, width, height, color){
+        self.graphic.rect = function(x, y, width, height, color, fill){
             self.context.beginPath();
             self.context.rect(x||0, y||0, width||100, height||100);
-            self.context.fillStyle =  color || '#000';
-            self.context.fill();
+
+            if (fill) {
+                self.context.fillStyle = color || '#000';
+                self.context.fill();
+            }
+            else {
+                self.context.strokeStyle = color || '#000';
+                self.context.stroke();
+            }
+
             self.context.closePath();
         };
 
