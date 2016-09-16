@@ -41,11 +41,7 @@
             starSize: An.Util.rand(1, 3),
             starColor: clip.starColors[An.Util.rand(0, 2)],
             runner: function (ctx) {
-
-                //ctx.fillStyle = this.starColor;
-                //ctx.fillRect(this.starX, this.starY, this.starSize, this.starSize);
-
-                an.graphic.circle(this.starX, this.starY, this.starSize, this.starColor);
+                an.graphic.circle(this.starX, this.starY, this.starSize, this.starColor, true);
             }
         });
     }

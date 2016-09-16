@@ -117,16 +117,16 @@ An.Extension(function(self) {
         'single quote': 222
     };
 
+    self.keycode.get = function(name){
+        return self.keycode.list[name];
+    };
+
     self.keycode.getName = function(kc){
         var k;
         for (k in self.keycode.list) {
             if (self.keycode.list[k] === kc)
                 return k;
         }
-    };
-
-    self.keycode.getByName = function(name){
-        return self.keycode.list[name];
     };
 
     self.keycode.getList = function(){

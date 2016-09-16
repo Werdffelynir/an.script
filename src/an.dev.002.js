@@ -47,9 +47,14 @@
             height: 400,
             fps: 30,
 
-            // functionality
+            // events
             onClick: null,
             onFrame: null,
+            onMousemove: null,
+            onKeydown: null,
+            onKeyup: null,
+
+            // functionality
             loop: 'animation',
             fullScreen: false,
             autoStart: true,
@@ -106,7 +111,7 @@
             stages: {},
             layers: {},
             events: {},
-            images: []
+            images: {}
         };
 
         this.options = {
@@ -115,6 +120,7 @@
             debugPanelElement: false,
             debugPanelSettings: false
         };
+
         Util.mergeObject(this.options, props_selector);
 
 
@@ -136,8 +142,11 @@
 
         // It catches the mouse movement on the canvas, and writes changes root.mouse
         if(that.enableEventMouseMovie) {
-            that.canvas.addEventListener('mousemove', function(event){
+            that.canvas.addEventListener('mousemove', function(event) {
                 that.mouse = Util.getMouseCanvas(that.canvas, event);
+
+                if(typeof that.onMousemove === 'function')
+                    that.onMousemove.call(that, that.mouse);
             });
         }
 
@@ -171,6 +180,10 @@
         if(that.enableEventKeys){
             window.addEventListener('keydown', function(event){
                 that.keydownCode = event.keyCode;
+
+                if(typeof that.onKeydown === 'function')
+                    that.onKeydown.call(that, event, event.keyCode);
+
                 if(that.lists.events.keydown != null && typeof that.lists.events.keydown[event.keyCode] === 'object'){
                     var e = that.lists.events.keydown[event.keyCode];
                     e.callback.call(that, event);
@@ -178,6 +191,10 @@
             });
             window.addEventListener('keyup', function(event){
                 that.keyupCode = event.keyCode;
+
+                if(typeof that.onKeyup === 'function')
+                    that.onKeyup.call(that, event, event.keyCode);
+
                 if(that.lists.events.keyup != null && typeof that.lists.events.keyup[event.keyCode] === 'object'){
                     var e = that.lists.events.keyup[event.keyCode];
                     e.callback.call(that, event);
@@ -608,10 +625,22 @@
                 iterator++;
                 if (iterator == length) {
                     that.lists.images = Util.mergeObject(that.lists.images, images);
-                    callback.call(that, that.lists.images, that.context);
+                    callback.call(that, images);
                 }
             };
         }
+    };
+
+    /**
+     *
+     * @param name
+     * @returns {*}
+     */
+    An.prototype.image = function (name) {
+        if (!name)
+            return this.lists.images;
+        if (this.lists.images[name])
+            return this.lists.images[name];
     };
 
 
@@ -1038,9 +1067,8 @@
          * @param color
          * @param fill
          */
-        self.graphic.rectRound = function(x, y, width, height, radius, color, fill){
+        self.graphic.rectRound = function(x, y, width, height, radius, color, fill) {
             self.context.rectRound(x, y, width, height, radius);
-
 
             if (fill) {
                 self.context.fillStyle = color || '#000';
@@ -1055,7 +1083,7 @@
                 self.context.stroke();
             }
 
-            self.context.closePath();
+            //self.context.closePath();
         };
 
         /**
@@ -1077,9 +1105,9 @@
 
             self.context.beginPath();
             self.context.lineWidth = lineWidth || 1;
+            self.context.strokeStyle = color;
             self.context.moveTo(point1.x, point1.y);
             self.context.lineTo(point2.x, point2.y);
-            self.context.strokeStyle = color;
             self.context.stroke();
 
             self.context.beginPath();

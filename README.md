@@ -210,18 +210,23 @@ an.render();
 
 
 ### Work with stages
-```
+```js
 an.stage('home',{
     index:1,
     runner:function(ctx){
         ...
     }
 });
+
 an.stage('main',{
     index:1,
     runner:function(ctx){
         ...
     }
+});
+// or function as method runner
+an.stage('page',function(ctx){
+    ...
 });
 
 an.render('home');

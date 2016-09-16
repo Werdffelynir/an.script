@@ -1,7 +1,7 @@
 (function(window, An){
 
     console.clear();
-    console.log("Loaded: Shape Generator");
+    console.log("Loaded: Demo");
 
 
     var an = new An({
@@ -20,16 +20,16 @@
         enableEventKeys: false
     });
 
-    var Pin = {};
-    Pin.list = [];
+    var Dm = {};
+    Dm.list = [];
 
-    Pin.onClick = function(point){
+    Dm.onClick = function(point){
 
 
 
     };
 
-    Pin.onFrame = function(ctx, frameCounter){
+    Dm.onFrame = function(ctx, frameCounter){
 
 
 
@@ -43,8 +43,8 @@
 
     });
 
-    an.onClick = Pin.onClick;
-    an.onFrame = Pin.onFrame;
+    an.onClick = Dm.onClick;
+    an.onFrame = Dm.onFrame;
     an.render();
 
 })(window, An);

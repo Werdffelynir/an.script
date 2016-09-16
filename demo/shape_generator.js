@@ -25,6 +25,7 @@
     Pin.isMoved = false;
     Pin.moveIndex = null;
     Pin.list = [];
+    Pin.isGrid = false;
 
     Pin.onClick = function(point){
 
@@ -55,66 +56,166 @@
         }
 
 
+
     };
 
     Pin.setPoint = function(point){
         Pin.list.push(point);
     };
 
-    Pin.colorPointsLineDefault = '#C9A9FF';
+    Pin.colorPointsLineDefault = 'rgba(725, 85, 195, 0.6)'; // #C9A9FF
     Pin.colorPointsLine = Pin.colorPointsLineDefault;
-    Pin.colorPointCircleInnerDefault = '#2D1F45';
+    Pin.colorPointCircleInnerDefault = '#7C55C2';
     Pin.colorPointCircleInner = Pin.colorPointCircleInnerDefault;
-    Pin.colorPointCircleOuterDefault = '#C9A9FF';
+    Pin.colorPointCircleOuterDefault = 'rgba(725, 85, 195, 0.4)';
     Pin.colorPointCircleOuter = Pin.colorPointCircleOuterDefault;
+    Pin.mapPoints = [];
+
+    Pin.generateMapPoints = function(){
+        Pin.mapPoints = [];
+        Pin.list.map(function(point){
+            Pin.mapPoints.push(parseInt(point.x), parseInt(point.y));
+        });
+        return Pin.mapPoints;
+    };
 
     Pin.renderPoints = function(ctx, fc){
-        var mapPoints = [];
+        Pin.generateMapPoints();
+
+        an.graphic.shape(Pin.mapPoints, Pin.colorPointsLine, false, false, 1);
+
         Pin.list.map(function(point){
-            mapPoints.push(point.x, point.y);
             an.graphic.circle(point.x, point.y, 15, Pin.colorPointCircleOuter, true);
             an.graphic.circle(point.x, point.y, 5, Pin.colorPointCircleInner, true);
+
+            var label = parseInt(point.x) + ' x ' +  parseInt(point.y);
+            ctx.fillText(label, point.x + 20, point.y);
         });
-        an.graphic.shape(mapPoints, Pin.colorPointsLine, false, false, 1);
+
     };
-    Pin.Control = false;
+    Pin.onClickPointArray = function (event) {
+        var j, a, list = [], t = event.target;
+
+        if (Pin.list.length == 0 && t.className != 'pm_shape') return;
+
+        try {
+            a = t.textContent.slice(1, -1).split(',');
+            if (typeof a === 'object') {
+                for (j = 0; j < a.length; j += 2) {
+                    list.push({x: parseInt(a[j]), y: parseInt(a[j+1])});
+                }
+                Pin.list = list;
+            }
+            Pin.mode = 'move';
+        } catch (e){}
+    };
+
+    Pin.isEditable = false;
 
     document.addEventListener('keydown', function (event) {
         console.log(event);
 
-        if (event.key == "Control") {
-            console.log('Control',Pin.Control);
-            if (Pin.Control) {
+        if (event.keyCode == an.keycode.get('e')) {
+            console.log('Edit!');
+            if (Pin.isEditable)
                 Pin.mode = 'move';
-
-                Pin.colorPointsLine = '#731100';
-                Pin.colorPointCircleOuter = '#FF1E00';
-                Pin.colorPointCircleInner = '#731100';
-            }
-            else {
+            else
                 Pin.mode = 'pointer';
-                Pin.colorPointsLine = Pin.colorPointsLineDefault;
-                Pin.colorPointCircleOuter = Pin.colorPointCircleOuterDefault;
-                Pin.colorPointCircleInner = Pin.colorPointCircleInnerDefault;
-            }
-
-            Pin.Control = !Pin.Control;
+            Pin.isEditable = !Pin.isEditable;
         }
 
-        if (event.key == "t" || event.keyCode == 84) {
+        if (event.keyCode == an.keycode.get('c')) {
             console.log('Clean!');
             Pin.list = [];
         }
 
+        if (event.keyCode == an.keycode.get('s')) {
+            console.log('Save!');
+            var htmlPointArray = '',
+                mapPoints = Pin.generateMapPoints(),
+                elemPointArray = document.createElement('div');
+            elemPointArray.id = 'shape_' + mapPoints.slice(0,10).join('');
+            elemPointArray.className = 'pm_shape';
+            htmlPointArray += '['+mapPoints.join(',')+']';
+            elemPointArray.innerHTML = htmlPointArray;
+            afterCanvas.appendChild(elemPointArray);
+        }
+
+        if (event.keyCode == an.keycode.get('z')) {
+            console.log('Pop!');
+            Pin.list.pop();
+            console.log(Pin.list.length)
+        }
+
     });
+
+    Pin.onLoadMapPoints = function (event) {
+        event.preventDefault();
+        var arr, list = [], value,
+            t = event.target,
+            inp = t.querySelector('input');
+
+        if (inp.value.length > 1) {
+            try {
+                value = inp.value.trim();
+                if (value.slice(0, 1) == '[') value = value.slice(1);
+                if (value.slice(-1, 1) == ']') value = value.slice(0, -1);
+                arr = value.split(',');
+                if (typeof arr === 'object') {
+                    for (j = 0; j < arr.length; j += 2) {
+                        list.push({x: parseInt(arr[j]), y: parseInt(arr[j+1])});
+                    }
+                    Pin.list = list;
+                }
+                Pin.mode = 'move';
+            } catch (e){}
+        }
+    };
+
+
+    beforeCanvas.innerHTML = '<form><input name="map_points" type="text" value="" placeholder="[100,100, 100,100]" style="width: '+an.width+'px; border: 1px solid #2b2b2b; padding: 3px 5px; margin-bottom: 10px"></form>';
+    afterCanvas.addEventListener('click', Pin.onClickPointArray);
+    Pin.formMapPoints = beforeCanvas.querySelector('form');
+    Pin.formMapPoints.addEventListener('submit', Pin.onLoadMapPoints);
 
     an.scene(function(ctx, fc) {
 
+        if (!Pin.isGrid) {
+            var i, j;
+            for (i = 0; i < an.width/5; i ++) {
+                var i5 = i * 5;
+                if (i5 % 100 === 0) {
+                    an.graphic.linePoints({x:0,y:i5}, {x:an.width,y:i5}, 2, '#C6FFFD');
+                    an.graphic.linePoints({x:i5,y:0}, {x:i5,y:an.height}, 2, '#C6FFFD');
+                }
+                else if (i5 % 10 === 0) {
+                    an.graphic.linePoints({x:0,y:i5}, {x:an.width,y:i5}, 1, '#E2FFFD');
+                    an.graphic.linePoints({x:i5,y:0}, {x:i5,y:an.height}, 1, '#E2FFFD');
+                }
+            }
+        }
+
+        ctx.textBaseline = 'middle';
+        ctx.font = '11px Arial';
+
         Pin.renderPoints(ctx, fc);
 
-        an.Text.font = '13px sans, Arial';
-        an.Text.write(10, 10, 'Edit: Ctrl', '#000', true);
-        an.Text.write(10, 25, 'Clear: T', '#000', true);
+        if (Pin.mode == 'move' && Pin.colorPointsLine == Pin.colorPointsLineDefault) {
+            Pin.colorPointsLine = '#FF1E00';
+            Pin.colorPointCircleOuter = 'rgba(255, 30, 0, .4)'; // #FF1E00
+            Pin.colorPointCircleInner = '#FF1E00'; // #731100
+        } else if (Pin.mode == 'pointer' && Pin.colorPointsLine != Pin.colorPointsLineDefault) {
+            Pin.colorPointsLine = Pin.colorPointsLineDefault;
+            Pin.colorPointCircleOuter = Pin.colorPointCircleOuterDefault;
+            Pin.colorPointCircleInner = Pin.colorPointCircleInnerDefault;
+        }
+
+        an.Text.font = '13px bold sans, Arial';
+        an.Text.write(10, 10, 'E - Edit', '#000', true);
+        an.Text.write(10, 25, 'C - Clear', '#000', true);
+        an.Text.write(10, 40, 'S - Save', '#000', true);
+        an.Text.write(10, 55, 'Z - Back', '#000', true);
+
     });
 
     an.onClick = Pin.onClick;

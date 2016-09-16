@@ -1,7 +1,7 @@
 (function(window, An){
 
     console.clear();
-    console.log("Loaded: DEMO TPL");
+    console.log("Loaded: Bezier Generator");
 
 
 
@@ -23,10 +23,10 @@
         enableEventKeys: false
     });
 
-    var Generator = {sp_x:150, sp_y:150, cp1_x:200, cp1_y:220, cp2_x:350, cp2_y:220, ep_x:400, ep_y:150};
-    Generator.fields = {};
+    var Bezier = {sp_x:150, sp_y:150, cp1_x:200, cp1_y:220, cp2_x:350, cp2_y:220, ep_x:400, ep_y:150};
+    Bezier.fields = {};
 
-    Generator.addFields = function(){
+    Bezier.addFields = function(){
         "use strict";
 
         var fields = '';
@@ -44,8 +44,8 @@
         fields += '</div>';
 
         afterCanvas.innerHTML = fields;
-        Generator.fields.element = fields;
-        Generator.fields.inputs = (function(){
+        Bezier.fields.element = fields;
+        Bezier.fields.inputs = (function(){
             var i, inputs = {}, inputsElems = afterCanvas.querySelectorAll('input');
             for (i = 0; i < inputsElems.length; i ++)
                 inputs[inputsElems[i].name] = inputsElems[i];
@@ -54,55 +54,53 @@
 
     };
 
-    Generator.addFields();
+    Bezier.addFields();
 
-    Generator.getValue = function(name, defaultValue) {
+    Bezier.getValue = function(name, defaultValue) {
         try {
-            defaultValue = parseInt(Generator.fields.inputs[name].value);
+            defaultValue = parseInt(Bezier.fields.inputs[name].value);
         }catch (e) { }
         return defaultValue;
     };
 
-    Generator.onFrame = function() {
+    Bezier.onFrame = function() {
         if (afterCanvas.querySelector)
-            afterCanvas.querySelector('#mouse_pos').innerHTML = an.mouse.x + ' x ' + an.mouse.y;
+            afterCanvas.querySelector('#mouse_pos').innerHTML = parseInt(an.mouse.x) + ' x ' + parseInt(an.mouse.y);
 
-        if (Generator.isMove) {
-            Generator[Generator.movePoint[0]] = an.mouse.x;
-            Generator[Generator.movePoint[1]] = an.mouse.y;
-            Generator.fields.inputs[Generator.movePoint[0]].value = an.mouse.x;
-            Generator.fields.inputs[Generator.movePoint[1]].value = an.mouse.y;
+        if (Bezier.isMove) {
+            Bezier[Bezier.movePoint[0]] = Bezier.fields.inputs[Bezier.movePoint[0]].value = parseInt(an.mouse.x);
+            Bezier[Bezier.movePoint[1]] = Bezier.fields.inputs[Bezier.movePoint[1]].value = parseInt(an.mouse.y);
         }
     };
-    Generator.isMove = false;
-    Generator.movePoint = null;
-    Generator.onClick = function(point) {
+    Bezier.isMove = false;
+    Bezier.movePoint = null;
+    Bezier.onClick = function(point) {
 
-        var rectSp = [Generator.sp_x-5, Generator.sp_y-5, 10, 10],
-            rectCp1 = [Generator.cp1_x-5, Generator.cp1_y-5, 10, 10],
-            rectCp2 = [Generator.cp2_x-5, Generator.cp2_y-5, 10, 10],
-            rectEp = [Generator.ep_x-5, Generator.ep_y-5, 10, 10];
+        var rectSp = [Bezier.sp_x-5, Bezier.sp_y-5, 10, 10],
+            rectCp1 = [Bezier.cp1_x-5, Bezier.cp1_y-5, 10, 10],
+            rectCp2 = [Bezier.cp2_x-5, Bezier.cp2_y-5, 10, 10],
+            rectEp = [Bezier.ep_x-5, Bezier.ep_y-5, 10, 10];
 
         if (an.hitTestPoint(rectSp, point)) {
-            Generator.movePoint = ['sp_x', 'sp_y'];
-            Generator.isMove = !Generator.isMove;
+            Bezier.movePoint = ['sp_x', 'sp_y'];
+            Bezier.isMove = !Bezier.isMove;
         }
         else if (an.hitTestPoint(rectCp1, point)) {
-            Generator.movePoint = ['cp1_x', 'cp1_y'];
-            Generator.isMove = !Generator.isMove;
+            Bezier.movePoint = ['cp1_x', 'cp1_y'];
+            Bezier.isMove = !Bezier.isMove;
         }
         else if (an.hitTestPoint(rectCp2, point)) {
-            Generator.movePoint = ['cp2_x', 'cp2_y'];
-            Generator.isMove = !Generator.isMove;
+            Bezier.movePoint = ['cp2_x', 'cp2_y'];
+            Bezier.isMove = !Bezier.isMove;
         }
         else if (an.hitTestPoint(rectEp, point)) {
-            Generator.movePoint = ['ep_x', 'ep_y'];
-            Generator.isMove = !Generator.isMove;
+            Bezier.movePoint = ['ep_x', 'ep_y'];
+            Bezier.isMove = !Bezier.isMove;
         }
 
 
 
-        //console.log(Generator.isMove, rectSp, point, an.hitTestPoint(rectSp, point));
+        //console.log(Bezier.isMove, rectSp, point, an.hitTestPoint(rectSp, point));
 
     };
 
@@ -119,54 +117,68 @@ CanvasRenderingContext2D.prototype.bezierCurveTo([ Number ] cp1x,
 
         var colorPoint = 'red';
 
-        if (!Generator.isMove) {
-            Generator.sp_x = Generator.getValue('sp_x', 150);
-            Generator.sp_y = Generator.getValue('sp_y', 150);
-            Generator.cp1_x = Generator.getValue('cp1_x', 200);
-            Generator.cp1_y = Generator.getValue('cp1_y', 220);
-            Generator.cp2_x = Generator.getValue('cp2_x', 350);
-            Generator.cp2_y = Generator.getValue('cp2_y', 220);
-            Generator.ep_x = Generator.getValue('ep_x', 400);
-            Generator.ep_y = Generator.getValue('ep_y', 150);
+        if (!Bezier.isMove) {
+            Bezier.sp_x = Bezier.getValue('sp_x', 150);
+            Bezier.sp_y = Bezier.getValue('sp_y', 150);
+            Bezier.cp1_x = Bezier.getValue('cp1_x', 200);
+            Bezier.cp1_y = Bezier.getValue('cp1_y', 220);
+            Bezier.cp2_x = Bezier.getValue('cp2_x', 350);
+            Bezier.cp2_y = Bezier.getValue('cp2_y', 220);
+            Bezier.ep_x = Bezier.getValue('ep_x', 400);
+            Bezier.ep_y = Bezier.getValue('ep_y', 150);
         }
+        //console.log(Bezier.sp_x);
 
 
         ctx.textBaseline = 'middle';
         ctx.font = '11px Arial';
-        var labelCp1 = '    ' + Generator.cp1_x + ' x ' +  Generator.cp1_y;
-        ctx.fillText(labelCp1, Generator.cp1_x, Generator.cp1_y);
-        var labelCp2 = '    ' + Generator.cp2_x + ' x ' +  Generator.cp2_y;
-        ctx.fillText(labelCp2, Generator.cp2_x, Generator.cp2_y);
-        var labelEp = '    ' + Generator.ep_x + ' x ' +  Generator.ep_y;
-        ctx.fillText(labelEp, Generator.ep_x, Generator.ep_y);
-        var labelSp = '    ' + Generator.sp_x + ' x ' +  Generator.sp_y;
-        ctx.fillText(labelSp, Generator.sp_x, Generator.sp_y);
+        var labelCp1 = '    ' + Bezier.cp1_x + ' x ' +  Bezier.cp1_y;
+        ctx.fillText(labelCp1, Bezier.cp1_x, Bezier.cp1_y);
+        var labelCp2 = '    ' + Bezier.cp2_x + ' x ' +  Bezier.cp2_y;
+        ctx.fillText(labelCp2, Bezier.cp2_x, Bezier.cp2_y);
+        var labelEp = '    ' + Bezier.ep_x + ' x ' +  Bezier.ep_y;
+        ctx.fillText(labelEp, Bezier.ep_x, Bezier.ep_y);
+        var labelSp = '    ' + Bezier.sp_x + ' x ' +  Bezier.sp_y;
+        ctx.fillText(labelSp, Bezier.sp_x, Bezier.sp_y);
 
         an.graphic.linePoints(
-            an.point(Generator.sp_x,Generator.sp_y),
-            an.point(Generator.cp1_x,Generator.cp1_y),
+            an.point(Bezier.sp_x,Bezier.sp_y),
+            an.point(Bezier.cp1_x,Bezier.cp1_y),
             1, 'blue');
 
         an.graphic.linePoints(
-            an.point(Generator.ep_x,Generator.ep_y),
-            an.point(Generator.cp2_x,Generator.cp2_y),
+            an.point(Bezier.ep_x,Bezier.ep_y),
+            an.point(Bezier.cp2_x,Bezier.cp2_y),
             1, 'blue');
 
 
         ctx.beginPath();
         ctx.strokeStyle = '#000';
-        ctx.moveTo(Generator.sp_x, Generator.sp_y);
-        ctx.bezierCurveTo(Generator.cp1_x, Generator.cp1_y, Generator.cp2_x, Generator.cp2_y, Generator.ep_x, Generator.ep_y);
+        ctx.moveTo(Bezier.sp_x, Bezier.sp_y);
+        ctx.bezierCurveTo(Bezier.cp1_x, Bezier.cp1_y, Bezier.cp2_x, Bezier.cp2_y, Bezier.ep_x, Bezier.ep_y);
         ctx.lineWidth = 3;
         ctx.stroke();
 
-        an.graphic.circle(Generator.sp_x, Generator.sp_y, 10, colorPoint, true);
-        an.graphic.circle(Generator.ep_x, Generator.ep_y, 10, colorPoint, true);
-        an.graphic.circle(Generator.cp1_x, Generator.cp1_y, 10, colorPoint, true);
-        an.graphic.circle(Generator.cp2_x, Generator.cp2_y, 10, colorPoint, true);
+        an.graphic.circle(Bezier.sp_x, Bezier.sp_y, 10, colorPoint, true);
+        an.graphic.circle(Bezier.ep_x, Bezier.ep_y, 10, colorPoint, true);
+        an.graphic.circle(Bezier.cp1_x, Bezier.cp1_y, 10, colorPoint, true);
+        an.graphic.circle(Bezier.cp2_x, Bezier.cp2_y, 10, colorPoint, true);
 
-        //an.graphic.lineWidth(Generator.sp_x, Generator.sp_y, -an.width, 0.5, 'blue');
-        //an.graphic.lineWidth(Generator.cp1_x, Generator.cp1_y, -an.width, 1, 'blue');
+
+        if (Bezier.isMove) {
+        var htmlOutput = '';
+            htmlOutput += '<pre style="text-align: left; padding: 10px 200px; background-color: #2b2b2b; color: #92f292;">';
+            htmlOutput += 'ctx.beginPath();\n';
+            htmlOutput += 'ctx.strokeStyle = "#000";\n';
+            htmlOutput += 'ctx.moveTo('+Bezier.sp_x+', '+Bezier.sp_y+');\n';
+            htmlOutput += 'ctx.bezierCurveTo('+Bezier.cp1_x+', '+Bezier.cp1_y+', '+Bezier.cp2_x+', '+Bezier.cp2_y+', '+Bezier.ep_x+', '+Bezier.ep_y+');\n';
+            htmlOutput += 'ctx.stroke();\n';
+            htmlOutput += '</pre>';
+            beforeCanvas.innerHTML = htmlOutput;
+        }
+
+        //an.graphic.lineWidth(Bezier.sp_x, Bezier.sp_y, -an.width, 0.5, 'blue');
+        //an.graphic.lineWidth(Bezier.cp1_x, Bezier.cp1_y, -an.width, 1, 'blue');
 
 
         //an.graphic.linePoints(an.point(10,10), an.point(150,150), 1, 'blue');
@@ -177,21 +189,21 @@ CanvasRenderingContext2D.prototype.bezierCurveTo([ Number ] cp1x,
 
         //an.Text.write(100, 100, 'Jopa Bugaia', '#000', true);
 
-        //if (!Generator.isMove) {
+        //if (!Bezier.isMove) {
 
 
            // an.Text.font = '12px Arial';
-          //  an.Text.write(Generator.cp1_x + 20, Generator.cp1_y, label, '#000', true);
+          //  an.Text.write(Bezier.cp1_x + 20, Bezier.cp1_y, label, '#000', true);
         //}
 
     });
 
 
-    an.onClick = Generator.onClick;
-    an.onFrame = Generator.onFrame;
+    an.onClick = Bezier.onClick;
+    an.onFrame = Bezier.onFrame;
     an.render();
 
-    window.Generator = Generator;
+    window.Bezier = Bezier;
     window.an = an;
 
 })(window, An);

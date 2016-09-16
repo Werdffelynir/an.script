@@ -5,6 +5,7 @@
     <title>Demo</title>
     <link rel="stylesheet" href="../grid.css">
     <script src="../src/an.dev.002.js"></script>
+    <script src="../extensions/an.extension.keycode.js"></script>
     <style>
         *{
             font-family: 'Open Sans', sans-serif;
@@ -43,6 +44,17 @@
             font-size: 20px;
             font-weight: bold;
         }
+        .pm_shape {
+            font-size: 11px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            padding: 2px 20px;
+            word-wrap: break-word;
+            width: 800px;
+        }
+        .pm_shape:hover {
+            background-color: #dddddd;
+        }
     </style>
 </head>
 <body>
@@ -66,11 +78,15 @@
                 <li class="script">navigation.js</li>
                 <li class="script">bezier_generator.js</li>
                 <li class="script">shape_generator.js</li>
+                <li class="script">move_to_click.js</li>
+                <li class="script">move_to_click_2.js</li>
+                <li class="script">images_loader.js</li>
+                <li class="script">image_data.js</li>
             </ul>
        </div>
        <div class="tbl_cell valign_top text_center">
            <div id="before_canvas"></div>
-           <canvas id="canvas"></canvas>
+           <div><canvas id="canvas"></canvas></div>
            <div id="after_canvas"></div>
        </div>
    </div>
