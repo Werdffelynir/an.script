@@ -7,7 +7,7 @@
         selector: "canvas#canvas",
         width: 800,
         height: 600,
-        fps: 30,
+        fps: 60,
         onClick: null,
         onFrame: null,
         loop: 'animation',

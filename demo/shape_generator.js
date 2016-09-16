@@ -53,6 +53,18 @@
         if (Pin.mode == 'move' && Pin.isMoved && Pin.list[Pin.moveIndex]) {
             Pin.list[Pin.moveIndex].x = an.mouse.x;
             Pin.list[Pin.moveIndex].y = an.mouse.y;
+
+            //an.graphic.circle(an.mouse.x, an.mouse.y, 17, 'rgba(225,0,0,.9)', true);
+            an.graphic.linePoints(
+                {x: an.mouse.x-17, y: an.mouse.y},
+                {x: an.mouse.x+17, y: an.mouse.y},
+                3
+            );
+            an.graphic.linePoints(
+                {x: an.mouse.x, y: an.mouse.y-17},
+                {x: an.mouse.x, y: an.mouse.y+17},
+                3
+            );
         }
 
 
@@ -113,9 +125,9 @@
     Pin.isEditable = false;
 
     document.addEventListener('keydown', function (event) {
-        console.log(event);
+        //console.log(event);
 
-        if (event.keyCode == an.keycode.get('e')) {
+        if (event.keyCode == an.keycode.get('1')) {
             console.log('Edit!');
             if (Pin.isEditable)
                 Pin.mode = 'move';
@@ -123,13 +135,13 @@
                 Pin.mode = 'pointer';
             Pin.isEditable = !Pin.isEditable;
         }
-
-        if (event.keyCode == an.keycode.get('c')) {
-            console.log('Clean!');
-            Pin.list = [];
+        else
+        if (event.keyCode == an.keycode.get('2')) {
+            console.log('Pop!');
+            Pin.list.pop();
         }
-
-        if (event.keyCode == an.keycode.get('s')) {
+        else
+        if (event.keyCode == an.keycode.get('3')) {
             console.log('Save!');
             var htmlPointArray = '',
                 mapPoints = Pin.generateMapPoints(),
@@ -140,11 +152,30 @@
             elemPointArray.innerHTML = htmlPointArray;
             afterCanvas.appendChild(elemPointArray);
         }
-
-        if (event.keyCode == an.keycode.get('z')) {
-            console.log('Pop!');
-            Pin.list.pop();
-            console.log(Pin.list.length)
+        else
+        if (event.keyCode == an.keycode.get('5')) {
+            console.log('Clean!');
+            Pin.list = [];
+        }
+        else
+        if (event.keyCode == an.keycode.get('right arrow')) {
+            console.log('right arrow!');
+            Pin.list.map(function(item){item.x += 5});
+        }
+        else
+        if (event.keyCode == an.keycode.get('left arrow')) {
+            console.log('right arrow!');
+            Pin.list.map(function(item){item.x -= 5});
+        }
+        else
+        if (event.keyCode == an.keycode.get('up arrow')) {
+            console.log('right arrow!');
+            Pin.list.map(function(item){item.y -= 5});
+        }
+        else
+        if (event.keyCode == an.keycode.get('down arrow')) {
+            console.log('right arrow!');
+            Pin.list.map(function(item){item.y += 5});
         }
 
     });
@@ -180,6 +211,7 @@
 
     an.scene(function(ctx, fc) {
 
+
         if (!Pin.isGrid) {
             var i, j;
             for (i = 0; i < an.width/5; i ++) {
@@ -195,8 +227,15 @@
             }
         }
 
+        an.Text.font = 'bold 12px/15px Arial';
+        an.Text.write(10, 10, 'Arrows - Movie','#000', true);
+        an.Text.write(10, 25, '1 - Edit', '#000', true);
+        an.Text.write(10, 40, '2 - Back', '#000', true);
+        an.Text.write(10, 55, '3 - Save', '#000', true);
+        an.Text.write(10, 70, '5 - Clear','#000', true);
+
         ctx.textBaseline = 'middle';
-        ctx.font = '11px Arial';
+        ctx.font = 'normal 11px Arial';
 
         Pin.renderPoints(ctx, fc);
 
@@ -209,12 +248,6 @@
             Pin.colorPointCircleOuter = Pin.colorPointCircleOuterDefault;
             Pin.colorPointCircleInner = Pin.colorPointCircleInnerDefault;
         }
-
-        an.Text.font = '13px bold sans, Arial';
-        an.Text.write(10, 10, 'E - Edit', '#000', true);
-        an.Text.write(10, 25, 'C - Clear', '#000', true);
-        an.Text.write(10, 40, 'S - Save', '#000', true);
-        an.Text.write(10, 55, 'Z - Back', '#000', true);
 
     });
 

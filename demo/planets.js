@@ -7,13 +7,14 @@
         selector: "canvas#canvas",
         width: 1000,
         height: 600,
-        fps: 60,
+        fps: 30,
         onClick: null,
         onFrame: null,
         loop: 'animation',
         fullScreen: false,
         autoStart: true,
         autoClear: true,
+        saveRestore: true,
         enableEventClick: true,
         enableEventMouseMovie: false,
         enableEventKeys: false
@@ -30,7 +31,7 @@
     });
 
     // static start
-    clip.starsCunnt = 400;
+    clip.starsCunnt = 160;
     clip.starColors = ['#ADB2BF', '#40BF00', '#BF000A'];
 
     for (var si = 0; si < clip.starsCunnt; si++) {
@@ -90,7 +91,7 @@
     an.scene(clip.planet(200, 8, 0.65, '#304C3C', '#395847', 0));
     an.scene(clip.planet(280, 20, 0.55, '#8892BF', '#FF844B', 0));
 
-    for (var ip = 0; ip < 500; ip++) {
+    for (var ip = 0; ip < 200; ip++) {
         var s = An.Util.rand(1, 20) / 200;
         var p = An.Util.rand(1, 320);
         var r = An.Util.rand(1, 4);

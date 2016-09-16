@@ -1,18 +1,18 @@
 /**
  * Animation script
  */
-(function(){
+(function () {
 
     "use strict";
 
-    window.requestAnimationFrame = function() {
+    window.requestAnimationFrame = function () {
         return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
             window.oRequestAnimationFrame ||
-            function(f) {
-                window.setTimeout(f,1e3/60);
+            function (f) {
+                window.setTimeout(f, 1e3 / 60);
             }
     }();
 
@@ -26,7 +26,7 @@
      * @returns {An}
      * @constructor
      */
-    var An = function(props_selector, width, height, fps){
+    var An = function (props_selector, width, height, fps) {
 
         if (!(this instanceof An))
             return new An(props_selector, width, height, fps);
@@ -50,26 +50,32 @@
             // events
             onClick: null,
             onFrame: null,
+            onFrameBefore: null,
+            onFrameAfter: null,
             onMousemove: null,
             onKeydown: null,
             onKeyup: null,
 
             // functionality
-            loop: 'animation',
+            loop: An.LOOP_ANIMATE, //'animation',
             fullScreen: false,
+
             autoStart: true,
             autoClear: true,
+            saveRestore: false,
+
             enableEventClick: true,
             enableEventMouseMovie: false,
             enableEventKeys: false,
-            
+
             // else
-            canvas: null,
-            context: null,
+            //canvas: null,
+            //context: null,
             contextId: '2d'
         };
 
         Util.mergeObject(propertiesDefault, props_selector);
+
         for (pk in propertiesDefault)
             this[pk] = propertiesDefault[pk];
 
@@ -77,12 +83,12 @@
 
         this.canvas = document.querySelector(this.selector);
 
-        if( !(this.canvas instanceof HTMLCanvasElement) ) {
+        if (!(this.canvas instanceof HTMLCanvasElement)) {
             console.error('[Error]: Canvas element not find. selector: ' + this.selector);
             return;
         }
 
-        if(!!this.fullScreen) {
+        if (!!this.fullScreen) {
             this.resizeCanvas();
         }
 
@@ -90,7 +96,7 @@
         this.canvas.height = this.height;
         this.context = this.canvas.getContext(this.contextId);
 
-        if( !(this.context instanceof CanvasRenderingContext2D) ) {
+        if (!(this.context instanceof CanvasRenderingContext2D)) {
             console.error('[Error]: Canvas context 2d not query from element with selector: ' + this.selector);
             return;
         }
@@ -135,34 +141,33 @@
         var that = this;
 
         // initialize extensions
-        if(An.internalExtensions.length > 0) {
-            for(var ei = 0; ei < An.internalExtensions.length; ei ++)
-                if(typeof An.internalExtensions[ei] === 'function') An.internalExtensions[ei].call(that, that);
+        if (An.internalExtensions.length > 0) {
+            for (var ei = 0; ei < An.internalExtensions.length; ei++)
+                if (typeof An.internalExtensions[ei] === 'function') An.internalExtensions[ei].call(that, that);
         }
 
         // It catches the mouse movement on the canvas, and writes changes root.mouse
-        if(that.enableEventMouseMovie) {
-            that.canvas.addEventListener('mousemove', function(event) {
+        if (that.enableEventMouseMovie) {
+            that.canvas.addEventListener('mousemove', function (event) {
                 that.mouse = Util.getMouseCanvas(that.canvas, event);
 
-                if(typeof that.onMousemove === 'function')
-                    that.onMousemove.call(that, that.mouse);
+                if (typeof that.onMousemove === 'function')
+                    that.onMousemove.call(that, that.mouse, that.context);
             });
         }
 
         // It catches the mouse clicks on the canvas, and writes changes root.mouseClick
-        if(that.enableEventClick) {
-            that.canvas.addEventListener('click', function(event)
-            {
+        if (that.enableEventClick) {
+            that.canvas.addEventListener('click', function (event) {
                 that.mouseClick = Util.getMouseCanvas(that.canvas, event);
 
-                if(typeof that.onClick === 'function')
-                    that.onClick.call(that, that.mouseClick);
+                if (typeof that.onClick === 'function')
+                    that.onClick.call(that, that.mouseClick, that.context);
 
-                if(typeof that.lists.events.click === 'object') {
+                if (typeof that.lists.events.click === 'object') {
                     var key, eventsClicks = that.lists.events.click;
-                    for(key in eventsClicks ) {
-                        if(
+                    for (key in eventsClicks) {
+                        if (
                             eventsClicks[key].rectangle[0] < that.mouseClick.x &&
                             eventsClicks[key].rectangle[1] < that.mouseClick.y &&
                             eventsClicks[key].rectangle[0] + eventsClicks[key].rectangle[2] > that.mouseClick.x &&
@@ -177,25 +182,25 @@
         }
 
         //
-        if(that.enableEventKeys){
-            window.addEventListener('keydown', function(event){
+        if (that.enableEventKeys) {
+            window.addEventListener('keydown', function (event) {
                 that.keydownCode = event.keyCode;
 
-                if(typeof that.onKeydown === 'function')
+                if (typeof that.onKeydown === 'function')
                     that.onKeydown.call(that, event, event.keyCode);
 
-                if(that.lists.events.keydown != null && typeof that.lists.events.keydown[event.keyCode] === 'object'){
+                if (that.lists.events.keydown != null && typeof that.lists.events.keydown[event.keyCode] === 'object') {
                     var e = that.lists.events.keydown[event.keyCode];
                     e.callback.call(that, event);
                 }
             });
-            window.addEventListener('keyup', function(event){
+            window.addEventListener('keyup', function (event) {
                 that.keyupCode = event.keyCode;
 
-                if(typeof that.onKeyup === 'function')
+                if (typeof that.onKeyup === 'function')
                     that.onKeyup.call(that, event, event.keyCode);
 
-                if(that.lists.events.keyup != null && typeof that.lists.events.keyup[event.keyCode] === 'object'){
+                if (that.lists.events.keyup != null && typeof that.lists.events.keyup[event.keyCode] === 'object') {
                     var e = that.lists.events.keyup[event.keyCode];
                     e.callback.call(that, event);
                 }
@@ -231,7 +236,7 @@
      * @param func
      * @constructor
      */
-    An.Extension = function(func){
+    An.Extension = function (func) {
         An.internalExtensions.push(func);
     };
 
@@ -255,41 +260,54 @@
      */
     An.prototype.internalDrawframe = function () {
 
-        this.frameCounter ++;
+        this.frameCounter++;
         this.scenesFiltering();
 
         var i,
             scene,
-            that = this,
             scenes = this.lists.scenes;
 
-        if(this.autoClear === true)
+        if (this.autoClear === true)
             this.clear();
 
-        if(!this.errorDrawframe) {
-            for (i = 0; i < scenes.length; i ++) {
-                scene = scenes[i];
-                try{
-                    //that.context.beginPath();
-                    this.context.save();
-                    scene.runner.call(scene, this.context, this.frameCounter);
-                    this.context.restore();
+        if (!this.errorDrawframe) {
 
+            if (typeof this.onFrameBefore === 'function')
+                this.onFrameBefore.call(this, this.context, this.frameCounter);
 
-                }catch (error) {
-                    /**
-                     * @type ReferenceError error
-                     */
-                    this.errorDrawframe = 'Error message: ' + error.message;
-                    this.errorDrawframe +='\nError file: ' +  error.fileName;
-                    this.errorDrawframe +='\nError line: ' +  error.lineNumber;
-                    break;
-                }
+            if (scenes.length == 0 && !this.onFrameBefore && !this.onFrameBefore && typeof this.onFrame === 'function')
+                this.onFrame.call(this, this.context, this.frameCounter);
+            else {
 
-                if(typeof this.onFrame === 'function') {
-                    this.onFrame.call(this, this.context, this.frameCounter);
+                for (i = 0; i < scenes.length; i++) {
+                    scene = scenes[i];
+                    try {
+                        if (this.saveRestore)
+                            this.context.save();
+
+                        if (typeof this.onFrame === 'function')
+                            this.onFrame.call(this, this.context, this.frameCounter);
+
+                        scene.runner.call(scene, this.context, this.frameCounter);
+
+                        if (this.saveRestore)
+                            this.context.restore();
+
+                    } catch (error) {
+                        /**
+                         * @type ReferenceError error
+                         */
+                        this.errorDrawframe = 'Error message: ' + error.message;
+                        this.errorDrawframe += '\nError file: ' + error.fileName;
+                        this.errorDrawframe += '\nError line: ' + error.lineNumber;
+                        break;
+                    }
                 }
             }
+
+            if (typeof this.onFrameAfter === 'function')
+                this.onFrameAfter.call(this, this.context, this.frameCounter);
+
         } else {
             this.stop();
             console.error(this.errorDrawframe);
@@ -303,13 +321,13 @@
      * or if the specified parameter name - renders the stage by name
      * @param stageName - stage name
      */
-    An.prototype.render = function(stageName) {
+    An.prototype.render = function (stageName) {
         var run = true;
-        if(typeof stageName === 'string') {
+        if (typeof stageName === 'string') {
             run = this.internalStagesToScenes(stageName);
         }
 
-        if(run && this.autoStart)
+        if (run && this.autoStart)
             this.play();
     };
 
@@ -317,15 +335,15 @@
      * Change current stage
      * @param stageName
      */
-    An.prototype.renderStage = function(stageName) {
+    An.prototype.renderStage = function (stageName) {
         this.internalStagesToScenes(stageName);
     };
 
     /**
      * Start "play" animation
      */
-    An.prototype.play = function(){
-        if(!this.isPlaying){
+    An.prototype.play = function () {
+        if (!this.isPlaying) {
             this.internalDrawframe();
 
             if (this.fps && this.loop === An.LOOP_ANIMATE) {
@@ -335,7 +353,7 @@
                 this.loopTimer();
             }
 
-            if (this.fps > 0 )
+            if (this.fps > 0)
                 this.isPlaying = true;
         }
     };
@@ -344,9 +362,9 @@
     /**
      * Stop "play" animation
      */
-    An.prototype.stop = function(){
-        if(this.isPlaying){
-            if(this.loop === An.LOOP_ANIMATE) {
+    An.prototype.stop = function () {
+        if (this.isPlaying) {
+            if (this.loop === An.LOOP_ANIMATE) {
                 cancelAnimationFrame(this.requestAnimationFrameIterator);
             } else if (this.loop === An.LOOP_TIMER) {
                 clearTimeout(this.setTimeoutIterator);
@@ -360,12 +378,12 @@
      * Internal method
      * @private
      */
-    An.prototype.loopTimer = function() {
+    An.prototype.loopTimer = function () {
         var that = this;
         var fps = this.fps || 30;
         var interval = 1000 / fps;
 
-        return (function loop(time){
+        return (function loop(time) {
             that.setTimeoutIterator = setTimeout(loop, interval);
             // call the draw method
             that.internalDrawframe.call(that);
@@ -383,7 +401,7 @@
         var fps = this.fps || 30;
         var interval = 1000 / fps;
 
-        return (function loop(time){
+        return (function loop(time) {
             that.requestAnimationFrameIterator = requestAnimationFrame(loop);
             var now = new Date().getTime();
             var delta = now - then;
@@ -418,13 +436,17 @@
     An.prototype.scenesFiltering = function () {
         var lists = this.lists;
 
-        if(!this.isFiltering && lists.scenes.length > 0){
+        if (!this.isFiltering && lists.scenes.length > 0) {
 
-            if (!!this.options.sorting )
-                lists.scenes = lists.scenes.sort(function(one, two){ return one['index'] > two['index'] });
+            if (!!this.options.sorting)
+                lists.scenes = lists.scenes.sort(function (one, two) {
+                    return one['index'] > two['index']
+                });
 
-            if (!!this.options.filtering )
-                lists.scenes = lists.scenes.filter(function(val){ return !val['hide']});
+            if (!!this.options.filtering)
+                lists.scenes = lists.scenes.filter(function (val) {
+                    return !val['hide']
+                });
 
             this.isFiltering = true;
         }
@@ -432,7 +454,7 @@
 
     An.prototype.createSceneObject = function (sceneObject) {
         var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
-        if(typeof sceneObject === 'function') sceneObject = {runner:sceneObject};
+        if (typeof sceneObject === 'function') sceneObject = {runner: sceneObject};
         Util.mergeObject(sceneObjectDefault, sceneObject);
         return sceneObjectDefault;
     };
@@ -441,8 +463,8 @@
      * @param {String} stageName - name of stage, rendering is defined by name
      * @param {{index: number, hide: boolean, name: string, runner: null}|function} sceneObject - Object. is scene object
      */
-    An.prototype.stage = function(stageName, sceneObject) {
-        if(this.lists.stages[stageName] == null)
+    An.prototype.stage = function (stageName, sceneObject) {
+        if (this.lists.stages[stageName] == null)
             this.lists.stages[stageName] = [];
 
         sceneObject = this.createSceneObject(sceneObject);
@@ -508,8 +530,8 @@
      * @param {Number} keyCode
      * @param {Function} callback - callback on event
      */
-    An.prototype.addEventKeydown = function(keyCode, callback){
-        if(this.lists.events.keydown == null)
+    An.prototype.addEventKeydown = function (keyCode, callback) {
+        if (this.lists.events.keydown == null)
             this.lists.events.keydown = {};
 
         this.lists.events.keydown[keyCode] = {keyCode: keyCode, callback: callback};
@@ -520,8 +542,8 @@
      * @param {Number} keyCode
      * @param {Function} callback - callback on event
      */
-    An.prototype.addEventKeyup = function(keyCode, callback){
-        if(this.lists.events.keyup == null)
+    An.prototype.addEventKeyup = function (keyCode, callback) {
+        if (this.lists.events.keyup == null)
             this.lists.events.keyup = {};
 
         this.lists.events.keyup[keyCode] = {keyCode: keyCode, callback: callback};
@@ -532,8 +554,8 @@
      * @param {Array} rectangle - [x, y, width, height]
      * @param {Function} callback - callback on event
      */
-    An.prototype.addEventClick = function(rectangle, callback){
-        if(this.lists.events.click == null)
+    An.prototype.addEventClick = function (rectangle, callback) {
+        if (this.lists.events.click == null)
             this.lists.events.click = {};
 
         var eventItem = rectangle.join('_');
@@ -546,7 +568,7 @@
             }
         }
 
-        if(this.lists.events.click[eventItem] == null)
+        if (this.lists.events.click[eventItem] == null)
             this.lists.events.click[eventItem] = {rectangle: rectangle, callback: callback};
     };
 
@@ -555,10 +577,10 @@
      * specific area: rectangle = [x,y,width,height]
      * @param {Array} rectangle - [x, y, width, height]
      */
-    An.prototype.removeEventClick = function(rectangle){
+    An.prototype.removeEventClick = function (rectangle) {
         var item = rectangle.join('_');
 
-        if(this.lists.events.click != null && this.lists.events.click[item] != null)
+        if (this.lists.events.click != null && this.lists.events.click[item] != null)
             delete this.lists.events.click[item];
     };
 
@@ -569,7 +591,7 @@
      * @param y
      * @returns {{x: *, y: *}}
      */
-    An.prototype.point = function(x, y){
+    An.prototype.point = function (x, y) {
         return {x: x, y: y};
     };
 
@@ -581,24 +603,24 @@
      * @param height
      * @returns {*[]}
      */
-    An.prototype.rectangle = function(x, y, width, height){
+    An.prototype.rectangle = function (x, y, width, height) {
         return [x, y, width, height];
     };
 
-    An.prototype.hitTest = function(rectangle) {
+    An.prototype.hitTest = function (rectangle) {
         return this.hitTestPoint(rectangle, this.mouseClick)
     };
 
-    An.prototype.hitTestPoint = function(rectangle, point) {
+    An.prototype.hitTestPoint = function (rectangle, point) {
         if (typeof rectangle !== "object" || typeof rectangle !== "object") {
             console.error("rectangle - must be Array [x, y, w, h]; point - must be Object { x: , y: }");
             return false;
         }
         var mouseClick = point;
-        return  rectangle[0] < mouseClick.x &&
-                rectangle[1] < mouseClick.y &&
-                rectangle[0] + rectangle[2] > mouseClick.x &&
-                rectangle[1] + rectangle[3] > mouseClick.y;
+        return rectangle[0] < mouseClick.x &&
+            rectangle[1] < mouseClick.y &&
+            rectangle[0] + rectangle[2] > mouseClick.x &&
+            rectangle[1] + rectangle[3] > mouseClick.y;
     };
 
 
@@ -648,10 +670,9 @@
      * Set background color for canvas element;
      * @param color
      */
-    An.prototype.backgroundColor = function (color){
+    An.prototype.backgroundColor = function (color) {
         this.canvas.style.backgroundColor = color;
     };
-
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -662,18 +683,20 @@
     An.Debug.internalSettings = {};
     An.Debug.internalElement = null;
 
-    An.Debug.setDebugPanelElement = function(selector){
+    An.Debug.setDebugPanelElement = function (selector) {
         var elem = null;
         if (typeof selector == 'string')
             elem = document.querySelector(selector);
         else if (typeof selector == 'object')
             elem = selector;
-        elem.style.margin = '0 auto';
-        elem.style.border = '2px solid #1e1e1e';
-        elem.style.padding = '5px';
-        elem.style.backgroundColor = '#2b2b2b';
-        elem.style.color = '#d1d1d1';
-        An.Debug.internalElement = elem;
+        if (elem) {
+            elem.style.margin = '0 auto';
+            elem.style.border = '2px solid #1e1e1e';
+            elem.style.padding = '5px';
+            elem.style.backgroundColor = '#2b2b2b';
+            elem.style.color = '#d1d1d1';
+            An.Debug.internalElement = elem;
+        }
     };
 
     An.Debug.field = function (field, value) {
@@ -683,7 +706,7 @@
         }
         var fieldId = field.replace(/[^\w]/g, '');
         var fieldElement = An.Debug.internalElement.querySelector('#dp_' + fieldId);
-        if(!fieldElement) {
+        if (!fieldElement) {
             fieldElement = document.createElement('div');
             fieldElement.id = 'dp_' + fieldId;
             An.Debug.internalElement.appendChild(fieldElement);
@@ -691,7 +714,6 @@
         fieldElement.innerHTML = '<strong>' + field + '</strong> ' + (value || '');
         return fieldElement;
     };
-
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -775,7 +797,7 @@
      */
     Util.objectLength = function (obj) {
         var it = 0;
-        for (var k in obj) it ++;
+        for (var k in obj) it++;
         return it;
     };
 
@@ -822,25 +844,22 @@
     };
 
 
-
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Internal Extensions
     //
 
 
-
     /**
      * Extension expands of current context (CanvasRenderingContext2D)
      */
-    An.Extension(function(self){
+    An.Extension(function (self) {
 
         /**
          * @type An self
          * @type CanvasRenderingContext2D self.context
          */
 
-        if(!(this instanceof An) || !(self instanceof An))
+        if (!(this instanceof An) || !(self instanceof An))
             return;
 
         /**
@@ -851,7 +870,7 @@
          * @param height
          * @param radius
          */
-        self.context.rectRound = function(x, y, width, height, radius){
+        self.context.rectRound = function (x, y, width, height, radius) {
             width = width || 100;
             height = height || 100;
             radius = radius || 5;
@@ -870,7 +889,7 @@
          * @param blur
          * @param color
          */
-        self.context.shadow = function (x, y, blur, color){
+        self.context.shadow = function (x, y, blur, color) {
             self.context.shadowOffsetX = x;
             self.context.shadowOffsetY = y;
             self.context.shadowBlur = blur;
@@ -880,11 +899,11 @@
         /**
          * Clear shadow params (shadowOffsetX,shadowOffsetY,shadowBlur)
          */
-        self.context.clearShadow = function(){
+        self.context.clearShadow = function () {
             self.context.shadowOffsetX = self.context.shadowOffsetY = self.context.shadowBlur = 0;
         };
 
-        if(!self.context.ellipse){
+        if (!self.context.ellipse) {
             /**
              * Draw ellipse - cross-browser function
              * @param x
@@ -896,13 +915,13 @@
              * @param endAngle
              * @param anticlockwise
              */
-            self.context.ellipse = function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise){
+            self.context.ellipse = function (x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
                 self.context.save();
                 self.context.beginPath();
                 self.context.translate(x, y);
                 self.context.rotate(rotation);
                 self.context.scale(radiusX / radiusY, 1);
-                self.context.arc(0, 0, radiusY, startAngle, endAngle, (anticlockwise||true));
+                self.context.arc(0, 0, radiusY, startAngle, endAngle, (anticlockwise || true));
                 self.context.restore();
                 self.context.closePath();
                 self.context.stroke();
@@ -912,9 +931,192 @@
 
 
     /**
+     * Extension of simple graphic shapes
+     */
+    An.Extension(function (self) {
+
+        /**
+         * @type An self
+         * @type CanvasRenderingContext2D self.context
+         */
+
+        if (!(this instanceof An) || !(self instanceof An))
+            return;
+
+        self.graphic = {};
+
+        /**
+         *
+         * @param points
+         * @param color
+         * @param fill
+         * @param closePath
+         * @param lineWidth
+         */
+        self.graphic.shape = function (points, color, fill, closePath, lineWidth) {
+
+            var positions = [];
+            var i, temp = {};
+
+            points.map(function (p) {
+                if (temp.x === undefined) {
+                    temp.x = p
+                }
+                else if (temp.y === undefined) {
+                    temp.y = p
+                }
+                if (temp.x !== undefined && temp.y !== undefined) {
+                    positions.push(temp);
+                    temp = {};
+                }
+            });
+
+            self.context.beginPath();
+
+            for (i = 0; i < positions.length; i++) {
+                self.context.lineTo(positions[i].x, positions[i].y);
+            }
+
+            if (fill) {
+                if (typeof fill === 'string') {
+                    self.graphic.shape(points, color, true);
+                    self.graphic.shape(points, fill, false, closePath, lineWidth);
+                } else {
+                    self.context.closePath();
+                    self.context.fillStyle = color || '#000';
+                    self.context.fill();
+                }
+            }
+            else {
+
+                if (lineWidth)
+                    self.context.lineWidth = lineWidth;
+
+                if (closePath !== false)
+                    self.context.closePath();
+
+                self.context.strokeStyle = color || '#000';
+                self.context.stroke();
+            }
+
+        };
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @param color
+         * @param fill
+         */
+        self.graphic.rect = function (x, y, width, height, color, fill) {
+            self.context.beginPath();
+            self.context.rect(x || 0, y || 0, width || 100, height || 100);
+
+            if (fill) {
+                self.context.fillStyle = color || '#000';
+                self.context.fill();
+                if (typeof fill === 'string') {
+                    self.context.strokeStyle = fill || '#000';
+                    self.context.strike();
+                }
+            }
+            else {
+                self.context.strokeStyle = color || '#000';
+                self.context.stroke();
+            }
+
+            self.context.closePath();
+        };
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @param radius
+         * @param color
+         * @param fill
+         */
+        self.graphic.rectRound = function (x, y, width, height, radius, color, fill) {
+            self.context.rectRound(x, y, width, height, radius);
+
+            if (fill) {
+                self.context.fillStyle = color || '#000';
+                self.context.fill();
+                if (typeof fill === 'string') {
+                    self.context.strokeStyle = fill || '#000';
+                    self.context.strike();
+                }
+            }
+            else {
+                self.context.strokeStyle = color || '#000';
+                self.context.stroke();
+            }
+
+            //self.context.closePath();
+        };
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param radius
+         * @param color
+         * @param fill
+         */
+        self.graphic.circle = function (x, y, radius, color, fill) {
+            self.graphic.rectRound(x - (radius / 2), y - (radius / 2), radius, radius, radius / 2, color, fill);
+        };
+
+        // line.line(10, 10, 100, 2, 'blue');
+
+
+        self.graphic.linePoints = function (point1, point2, lineWidth, color) {
+
+            self.context.beginPath();
+            self.context.lineWidth = lineWidth || 1;
+            self.context.strokeStyle = color;
+            self.context.moveTo(point1.x, point1.y);
+            self.context.lineTo(point2.x, point2.y);
+            self.context.stroke();
+
+            self.context.beginPath();
+            self.context.closePath();
+        };
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param width
+         * @param lineWidth thickness
+         * @param color
+         */
+        self.graphic.lineWidth = function (x, y, width, lineWidth, color) {
+            if (width < 0) {
+                x -= Math.abs(width);
+                width = Math.abs(width);
+            }
+            self.graphic.linePoints(self.point(x, y), self.point(x + width, y), lineWidth, color);
+        };
+
+        self.graphic.lineHeight = function (x, y, height, lineWidth, color) {
+            if (height < 0) {
+                y -= Math.abs(height);
+                height = Math.abs(height);
+            }
+            self.graphic.linePoints(self.point(x, y), self.point(x, y + height), lineWidth, color);
+        };
+    });
+
+
+    /**
      * Extension of simple Text
      */
-    An.Extension(function(self) {
+    An.Extension(function (self) {
 
         /**
          * @type An self
@@ -929,10 +1131,27 @@
             lineWidth: 1,
             textBaseline: "top"
         };
-        Text.font = function(fontString){
+        /**
+         * font 12pt/10pt sans-serif
+         * font bold italic 110% serif
+         * font normal small-caps 12px/14px fantasy
+         * font 400 24pt
+         * font italic 900 14px/10px Arial
+         * @param fontString
+         */
+        Text.font = function (fontString) {
             Text._font = fontString;
         };
-        Text.write = function(x, y, label, color, fill) {
+
+        /**
+         *
+         * @param x
+         * @param y
+         * @param label
+         * @param color
+         * @param fill
+         */
+        Text.write = function (x, y, label, color, fill) {
 
             if (Text.font)
                 self.context.font = Text.font;
@@ -963,180 +1182,6 @@
         };
 
         self.Text = Text;
-    });
-
-
-
-    /**
-     * Extension of simple graphic shapes
-     */
-    An.Extension(function(self) {
-
-        /**
-         * @type An self
-         * @type CanvasRenderingContext2D self.context
-         */
-
-        if (!(this instanceof An) || !(self instanceof An))
-            return;
-
-        self.graphic = {};
-
-        /**
-         *
-         * @param points
-         * @param color
-         * @param fill
-         * @param closePath
-         * @param lineWidth
-         */
-        self.graphic.shape = function(points, color, fill, closePath, lineWidth){
-            var positions = [];
-            var i, startPosition, temp = {};
-
-            points.map(function(p){
-                if (temp.x === undefined) {temp.x = p}
-                else if (temp.y === undefined) {temp.y = p}
-
-                if (temp.x !== undefined && temp.y !== undefined ) {
-                    positions.push(temp);
-                    temp = {};
-                }
-            });
-
-            self.context.beginPath();
-
-            for (i = 0; i < positions.length; i ++) {
-                self.context.lineTo(positions[i].x, positions[i].y);
-            }
-
-            if (closePath !== false) self.context.closePath();
-            if (lineWidth) self.context.lineWidth = lineWidth;
-
-            if (fill) {
-                //if (typeof fill === 'string') {
-                //    self.context.strokeStyle = fill || '#000';
-                //    self.context.strike();
-                //}
-                self.context.fillStyle = color || '#000';
-                self.context.fill();
-            }
-            else {
-                self.context.strokeStyle = color || '#000';
-                self.context.stroke();
-            }
-
-        };
-
-        /**
-         *
-         * @param x
-         * @param y
-         * @param width
-         * @param height
-         * @param color
-         * @param fill
-         */
-        self.graphic.rect = function(x, y, width, height, color, fill){
-            self.context.beginPath();
-            self.context.rect(x||0, y||0, width||100, height||100);
-
-            if (fill) {
-                self.context.fillStyle = color || '#000';
-                self.context.fill();
-                if (typeof fill === 'string') {
-                    self.context.strokeStyle = fill || '#000';
-                    self.context.strike();
-                }
-            }
-            else {
-                self.context.strokeStyle = color || '#000';
-                self.context.stroke();
-            }
-
-            self.context.closePath();
-        };
-
-        /**
-         *
-         * @param x
-         * @param y
-         * @param width
-         * @param height
-         * @param radius
-         * @param color
-         * @param fill
-         */
-        self.graphic.rectRound = function(x, y, width, height, radius, color, fill) {
-            self.context.rectRound(x, y, width, height, radius);
-
-            if (fill) {
-                self.context.fillStyle = color || '#000';
-                self.context.fill();
-                if (typeof fill === 'string') {
-                    self.context.strokeStyle = fill || '#000';
-                    self.context.strike();
-                }
-            }
-            else {
-                self.context.strokeStyle = color || '#000';
-                self.context.stroke();
-            }
-
-            //self.context.closePath();
-        };
-
-        /**
-         *
-         * @param x
-         * @param y
-         * @param radius
-         * @param color
-         * @param fill
-         */
-        self.graphic.circle = function(x, y, radius, color, fill){
-            self.graphic.rectRound(x - (radius/2), y - (radius/2), radius, radius, radius/2, color, fill);
-        };
-
-        // line.line(10, 10, 100, 2, 'blue');
-
-
-        self.graphic.linePoints = function(point1, point2, lineWidth, color){
-
-            self.context.beginPath();
-            self.context.lineWidth = lineWidth || 1;
-            self.context.strokeStyle = color;
-            self.context.moveTo(point1.x, point1.y);
-            self.context.lineTo(point2.x, point2.y);
-            self.context.stroke();
-
-            self.context.beginPath();
-            self.context.closePath();
-        };
-
-        /**
-         *
-         * @param x
-         * @param y
-         * @param width
-         * @param lineWidth thickness
-         * @param color
-         */
-        self.graphic.lineWidth = function(x, y, width, lineWidth, color){
-            if (width < 0) {
-                x -= Math.abs(width);
-                width = Math.abs(width);
-            }
-            self.graphic.linePoints(self.point(x, y), self.point(x + width, y), lineWidth, color);
-        };
-
-        self.graphic.lineHeight = function(x, y, height, lineWidth, color){
-            if (height < 0) {
-                y -= Math.abs(height);
-                height = Math.abs(height);
-            }
-            self.graphic.linePoints(self.point(x, y), self.point(x, y + height), lineWidth, color);
-        };
     });
 
 

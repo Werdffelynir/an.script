@@ -8,7 +8,7 @@
         selector: "canvas#canvas",
         width: 800,
         height: 600,
-        fps: 30,
+        fps: 60,
         onClick: null,
         onFrame: null,
         loop: 'animation',
@@ -22,7 +22,7 @@
 
     var Dm = {};
     Dm.hero = an.point(an.width/2, an.height/2);
-    Dm.heroSpeed = 8;
+    Dm.heroSpeed = 4;
     Dm.heroMovedTo = Dm.hero;
     Dm.heroDynamic = {x: 1, y: 1};
     Dm.heroMoved = false;
@@ -48,8 +48,8 @@
             if (Math.abs(Dm.heroDynamic.x) < 0.1 && Math.abs(Dm.heroDynamic.y) < 0.1)
                 Dm.heroMoved = false;
 
-            Dm.hero.x += Dm.heroDynamic.x *= 0.98;
-            Dm.hero.y += Dm.heroDynamic.y *= 0.98;
+            Dm.hero.x += Dm.heroDynamic.x *= 0.988;
+            Dm.hero.y += Dm.heroDynamic.y *= 0.988;
 
             var heroMovedToString = parseInt(Dm.heroMovedTo.x) + ' x ' + parseInt(Dm.heroMovedTo.y);
             heroMovedToString += ' Distance: ' + (An.Util.distanceBetween(Dm.hero, Dm.heroMovedTo).toFixed(2));

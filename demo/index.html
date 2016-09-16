@@ -82,6 +82,7 @@
                 <li class="script">move_to_click_2.js</li>
                 <li class="script">images_loader.js</li>
                 <li class="script">image_data.js</li>
+                <li class="script">points_hit.js</li>
             </ul>
        </div>
        <div class="tbl_cell valign_top text_center">
@@ -114,15 +115,9 @@
 
         if (!t.classList.contains('script')) return;
 
-        if (scriptLoader)
-            document.body.removeChild(scriptLoader);
-
         beforeCanvas.textContent = afterCanvas.textContent = '';
         reCreateCanvas();
-
-        scriptLoader = document.createElement('script');
-        scriptLoader.src = display.textContent = t.textContent.trim();
-        document.body.appendChild(scriptLoader);
+        loadScript(t.textContent);
     });
 
     function reCreateCanvas (){
@@ -132,6 +127,18 @@
         canvas.id = 'canvas';
         parentNode.appendChild(canvas);
     }
+
+    function loadScript(src) {
+
+        if (scriptLoader)
+            document.body.removeChild(scriptLoader);
+
+        scriptLoader = document.createElement('script');
+        scriptLoader.src = display.textContent = src.trim();
+        document.body.appendChild(scriptLoader);
+    }
+
+    loadScript("points_hit.js");
 
 
 </script>

@@ -5,18 +5,35 @@
 
 
     var an = new An({
+
         selector: "canvas#canvas",
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 400,
         fps: 30,
+
         onClick: null,
         onFrame: null,
-        loop: 'animation',
+        onFrameBefore: null,
+        onFrameAfter: null,
+        onMousemove: null,
+        onKeydown: null,
+        onKeyup: null,
+
+        loop: An.LOOP_ANIMATE,
         fullScreen: false,
+
         autoStart: true,
         autoClear: true,
+        saveRestore: false,
+
+        sorting: true,
+        filtering: true,
+
+        debugPanelElement: false,
+        debugPanelSettings: false,
+
         enableEventClick: true,
-        enableEventMouseMovie: true,
+        enableEventMouseMovie: false,
         enableEventKeys: false
     });
 
