@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <link rel="stylesheet" href="../grid.css">
+    <script src="../src/an.dev.js"></script>
+    <script src="../extensions/an.extension.keycode.js"></script>
+    <style>
+        *{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+        }
+        html, body{}
+        #page{
+            width: 80%;
+            margin: 10px auto;
+        }
+        #canvas{
+            margin-left: 10px;
+            border: 1px solid #2b2b2b;
+        }
+        #scripts_list{}
+        #scripts_list>li{
+            display: block;
+            padding: 5px 10px;
+            background-color: #2b2b2b;
+            color: #a0a0a0;
+            border-top: 1px solid #515151;
+        }
+        #scripts_list>li:hover{
+            background-color: #121212;
+            color: #92f292;
+        }
+        #display{
+            min-height: 30px;
+            line-height: 30px;
+            padding-left: 10px;
+
+            background-color: #1d1d1d;
+            color: #92f292;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .pm_shape {
+            font-size: 11px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            padding: 2px 20px;
+            word-wrap: break-word;
+            width: 800px;
+        }
+        .pm_shape:hover {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+<div id="page">
+   <div class="tbl">
+       <div class="tbl_cell width_25 valign_top">
+           <div id="display"></div>
+            <ul id="scripts_list">
+                <li class="script_clear">Script Clear</li>
+                <li class="script">demo.js</li>
+            </ul>
+       </div>
+       <div class="tbl_cell valign_top text_center">
+           <div id="before_canvas"></div>
+           <div><canvas id="canvas"></canvas></div>
+           <div id="after_canvas"></div>
+       </div>
+   </div>
+</div>
+
+
+
+<script>
+
+    var body = document.body;
+    var canvas = document.getElementById('canvas');
+    var beforeCanvas = document.getElementById('before_canvas');
+    var afterCanvas = document.getElementById('after_canvas');
+    var display = document.getElementById('display');
+    var scriptClear = document.getElementById('script_clear');
+    var scriptsList = document.getElementById('scripts_list');
+    var scriptLoader = null;
+
+    scriptsList.addEventListener('click', function(event){
+        var t = event.target;
+        if (t.classList.contains('script_clear') && scriptLoader) {
+            reCreateCanvas(canvas);
+            scriptLoader = display.textContent = null;
+        }
+
+        if (!t.classList.contains('script')) return;
+
+        beforeCanvas.textContent = afterCanvas.textContent = '';
+        reCreateCanvas();
+        loadScript(t.textContent);
+    });
+
+    function reCreateCanvas (){
+        var parentNode = canvas.parentNode;
+        parentNode.removeChild(canvas);
+        canvas = document.createElement('canvas');
+        canvas.id = 'canvas';
+        parentNode.appendChild(canvas);
+    }
+
+    function loadScript(src) {
+        if (scriptLoader)
+            document.body.removeChild(scriptLoader);
+        scriptLoader = document.createElement('script');
+        scriptLoader.src = display.textContent = src.trim();
+        document.body.appendChild(scriptLoader);
+    }
+
+
+</script>
+</body>
+</html>
