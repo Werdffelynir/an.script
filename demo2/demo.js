@@ -52,6 +52,11 @@
 
     };
 
+    Dm.onMousemove = function(point){
+
+
+
+    };
 
     an.scene(function(ctx){
 
@@ -62,6 +67,7 @@
 
     an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;
+    an.onMousemove = Dm.onMousemove;
     an.render();
 
 })(window, An);

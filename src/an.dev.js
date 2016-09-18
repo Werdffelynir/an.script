@@ -1168,18 +1168,18 @@
         Event.init = function (ctx, frameCounter) {
             var point, that = this;
 
-            if (self.enableEventClick) {
+            if (self.enableEventClick && (that.clicks || that.rectclicks)) {
                 self.canvas.addEventListener('click', function(event){
                     point = Util.getMouseCanvas(self.canvas, event);
 
-                    if (typeof that.clicks === 'object' && that.clicks.length > 0) {
+                    if (that.clicks && typeof that.clicks === 'object' && that.clicks.length > 0) {
                         that.clicks.map(function(cb){
                             if (typeof cb === 'function')
                                 cb.call(self, point, self.context ,event);
                         });
                     }
 
-                    if (typeof that.rectclicks === 'object') {
+                    if (that.rectclicks && typeof that.rectclicks === 'object') {
                         for (var kc in that.rectclicks) {
                             if (typeof that.rectclicks[kc] === 'object' && self.hitTestPoint(that.rectclicks[kc].rectangle, point)) {
                                 that.rectclicks[kc].callback.call(self, point, self.context ,event);
@@ -1191,7 +1191,8 @@
             }
 
             if (self.enableEventKeys) {
-                if (typeof that.keydowns === 'object') {
+
+                if (that.keydowns && typeof that.keydowns === 'object') {
                     self.canvas.addEventListener('keydown', function (event) {
                         for (var kc in that.keydowns) {
                             if (event.keyCode == kc && typeof that.keydowns[kc] === 'object') {
@@ -1200,8 +1201,9 @@
                         }
                     });
                 }
-                if (typeof that.keyups === 'object') {
-                    self.canvas.addEventListener('keyups', function (event) {
+
+                if (that.keyups && typeof that.keyups === 'object') {
+                    self.canvas.addEventListener('keyup', function (event) {
                         for (var kc in that.keyups) {
                             if (event.keyCode == kc && typeof that.keyups[kc] === 'object') {
                                 that.keyups[kc].callback.call(self, event, self.context);
@@ -1209,6 +1211,7 @@
                         }
                     });
                 }
+
             }
         };
 
