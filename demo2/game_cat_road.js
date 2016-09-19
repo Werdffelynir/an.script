@@ -37,7 +37,7 @@
 
     Dm.heroPoint = {x: an.width/2, y: an.height - 30};
     Dm.heroPointDynamic = {x: 0, y: 0};
-    Dm.heroSpeed = 3;
+    Dm.heroSpeed = 1.5;
     Dm.heroLeft = false;
     Dm.heroRight = false;
     Dm.heroUp = false;
@@ -104,13 +104,18 @@
 
         if (Dm.satus == 'play') {
 
-            Dm.setHero(ctx);
-            Dm.setTracks(ctx);
-
             if (Dm.heroLeft)    Dm.heroPoint.x -= Dm.heroSpeed;
             if (Dm.heroRight)   Dm.heroPoint.x += Dm.heroSpeed;
             if (Dm.heroUp)      Dm.heroPoint.y -= Dm.heroSpeed;
             if (Dm.heroDown)    Dm.heroPoint.y += Dm.heroSpeed;
+
+            ctx.beginPath();
+            an.Graphic.rect(0, 0, an.width, 50, '#767676', true);
+            an.Graphic.rect(0, an.height - 50, an.width, 50, '#767676', true);
+            ctx.closePath();
+
+            Dm.setHero(ctx);
+            Dm.setTracks(ctx);
         }
         else {
 
@@ -131,6 +136,9 @@
 
     an.Event.addKeydown(40, function(){Dm.heroDown = true});
     an.Event.addKeyup(40, function(){Dm.heroDown = false});
+
+
+    an.backgroundColor('#454545');
 
     an.onFrame = Dm.onFrame;
 

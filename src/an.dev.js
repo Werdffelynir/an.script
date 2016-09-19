@@ -591,6 +591,10 @@
         this.canvas.style.backgroundColor = color;
     };
 
+    An.prototype.backgroundImage = function (img) {
+        this.canvas.style.backgroundImage = img;
+    };
+
     /**
      *
      * @param callback
