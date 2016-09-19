@@ -86,7 +86,7 @@
 
 
             if (Dm.tracksList[i]['rect'][0] > an.width) {
-                Dm.tracksList[i]['rect'][0] = An.Util.rand(-200, -50);
+                Dm.tracksList[i]['rect'][0] = An.Util.rand(-200, -100);
                 Dm.tracksList[i]['speed'] = An.Util.rand(3, 8);
             } else
                 Dm.tracksList[i]['rect'][0] += Dm.tracksList[i]['speed'];

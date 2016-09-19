@@ -431,22 +431,29 @@ An.Extension(function(self) {
         filtering: true,
 
         enableEventClick: true,
-        enableEventMouseMovie: false,
+        enableEventMousemove: false,
         enableEventKeys: false
     });
 
     var Dm = {};
+    
+    Dm.clip = function(ctx){
+        ctx.beginPath();
+        // ...
+        ctx.closePath();
+    };
 
-    Dm.onClick = function(point){};
     Dm.onFrame = function(ctx, frameCounter){};
+    Dm.onClick = function(point){};
+    Dm.onMousemove = function(point){};
 
-    an.scene(function(ctx){
-        ctx.fillStyle = '#1A1A52';
-        ctx.fillRect(50, 200, 20, 20);
+    an.scene(function(ctx, frameCounter){
+        Dm.clip(ctx);
     });
 
-    an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;
+    an.onClick = Dm.onClick;
+    an.onMousemove = Dm.onMousemove;
     an.render();
 
 })(window, An);

@@ -163,7 +163,7 @@
 
         if (Bezier.isMove) {
             var htmlOutput = '';
-                htmlOutput += '<pre style="text-align: left; padding: 10px 200px; background-color: #2b2b2b; color: #92f292;">';
+                htmlOutput += '<pre style="text-align: left; padding: 10px 200px; background-color: #f2f4ce; color: #111c11; font-weight: bold; font-family: Consolas, sans-serif;">';
                 htmlOutput += 'ctx.beginPath();\n';
                 htmlOutput += 'ctx.strokeStyle = "#000";\n';
                 htmlOutput += 'ctx.moveTo('+Bezier.sp_x+', '+Bezier.sp_y+');\n';
@@ -176,6 +176,7 @@
 
     });
 
+    beforeCanvas.style.height = '90px';
 
     an.onClick = Bezier.onClick;
     an.onFrame = Bezier.onFrame;

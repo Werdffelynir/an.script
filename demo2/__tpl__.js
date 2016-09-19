@@ -30,7 +30,7 @@
         filtering: true,
 
         enableEventClick: true,
-        enableEventMouseMovie: false,
+        enableEventMousemove: false,
         enableEventKeys: false
     });
 
