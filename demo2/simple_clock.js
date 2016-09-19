@@ -1,8 +1,7 @@
 (function(window, An){
 
     console.clear();
-    console.log("Loaded: Demo");
-
+    console.log("Loaded: Simple clock");
 
     var an = new An({
         selector: "canvas#canvas",
@@ -34,17 +33,11 @@
     });
 
     var Dm = {};
-    Dm.clip = {};
     Dm.dynamicSec = 0;
     Dm.dynamicMin = 0;
     Dm.dynamicHour = 0;
 
-    Dm.onMousemove = function(point){};
-    Dm.onClick = function (point) { };
     Dm.onFrame = function (ctx, frameCounter) {
-
-
-        //console.log(Math.sin( Dm.dynamicRotate ));
 
         // Rotate
         Dm.dynamicSec += 0.10471975511965977;
@@ -73,38 +66,10 @@
         ctx.restore();
 
         an.Graphic.circle(200, 200, 20, '#eee', true);
-
-
-
-
-
-/*
-        an.Graphic.rect(100, 50, 150, 40, '#ddd', true);
-
-        // Rotate
-        ctx.save();
-        ctx.translate(100, 100);
-        //ctx.rotate(An.Util.degreesToRadians(45));
-        ctx.rotate(Dm.dynamicRotate);
-        an.Graphic.rect(0, 0, 150, 3, '#ddd', true);
-        ctx.restore();
-
-        an.Graphic.rect(100, 150, 150, 40, '#ddd', true);
-*/
     };
 
 
-
-
-
-
-
-    //an.scene(function(ctx){});
-
-    an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;
-    an.onMousemove = Dm.onMousemove;
-
     an.render();
 
 })(window, An);

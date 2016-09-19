@@ -150,7 +150,7 @@
             });
         }
 
-        // It catches the mouse clicks on the canvas, and writes changes root.mouseClick
+        // It catches the mouse clicks on the canvas, and writes changes root.eventClick
         if (that.enableEventClick) {
             that.canvas.addEventListener('click', function (event) {
                 that.eventClick = Util.getMouseCanvas(that.canvas, event);
@@ -159,7 +159,7 @@
             });
         }
 
-        // It catches the mouse clicks on the canvas, and writes changes root.mouseClick
+        // It catches the mouse clicks on the canvas, and writes changes root.eventClick
         if (that.enableEventKeys) {
             that.canvas.addEventListener('keydown', function (event) {
                 that.eventKeydown = event;
@@ -168,7 +168,7 @@
             });
             that.canvas.addEventListener('keyup', function (event) {
                 that.eventKeyup = event;
-                if (typeof that.onKeydown === 'function')
+                if (typeof that.onKeyup === 'function')
                     that.onKeyup.call(that, event, that.context);
             });
         }
@@ -522,7 +522,7 @@
      * @param rectangle
      */
     An.prototype.hitTest = function (rectangle) {
-        return this.hitTestPoint(rectangle, this.mouseClick)
+        return this.hitTestPoint(rectangle, this.eventClick)
     };
 
     /**
@@ -536,11 +536,10 @@
             console.error("rectangle - must be Array [x, y, w, h]; point - must be Object { x: , y: }");
             return false;
         }
-        var mouseClick = point;
-        return rectangle[0] < mouseClick.x &&
-            rectangle[1] < mouseClick.y &&
-            rectangle[0] + rectangle[2] > mouseClick.x &&
-            rectangle[1] + rectangle[3] > mouseClick.y;
+        return  rectangle[0]                < point.x &&
+                rectangle[1]                < point.y &&
+                rectangle[0] + rectangle[2] > point.x &&
+                rectangle[1] + rectangle[3] > point.y;
     };
 
     /**
@@ -1105,7 +1104,7 @@
 
 
     /**
-     * Extension of simple Text
+     * Extension of simple Event
      */
     An.Extension(function (self) {
 
@@ -1191,27 +1190,24 @@
             }
 
             if (self.enableEventKeys) {
-
-                if (that.keydowns && typeof that.keydowns === 'object') {
-                    self.canvas.addEventListener('keydown', function (event) {
+                window.document.addEventListener('keydown', function (event) {
+                    if (that.keydowns && typeof that.keydowns === 'object') {
                         for (var kc in that.keydowns) {
                             if (event.keyCode == kc && typeof that.keydowns[kc] === 'object') {
                                 that.keydowns[kc].callback.call(self, event, self.context);
                             }
                         }
-                    });
-                }
-
-                if (that.keyups && typeof that.keyups === 'object') {
-                    self.canvas.addEventListener('keyup', function (event) {
+                    }
+                });
+                window.document.addEventListener('keyup', function (event) {
+                    if (that.keyups && typeof that.keyups === 'object') {
                         for (var kc in that.keyups) {
                             if (event.keyCode == kc && typeof that.keyups[kc] === 'object') {
                                 that.keyups[kc].callback.call(self, event, self.context);
                             }
                         }
-                    });
-                }
-
+                    }
+                });
             }
         };
 
@@ -1226,6 +1222,6 @@
 
     window.An = An;
     window.An.Util = Util;
-    window.An.version = '1.2.0';
+    window.An.version = '1.0.0';
 
 })();
