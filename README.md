@@ -9,8 +9,9 @@ Simplified realization of animation or static graphs, and some event-control mod
 ```
 onClick
 onMousemove
-onKeyup ...
-- --------------------------------------------------
+onKeyup ... other only single instance
+
+- start loop --------------------------------------------------
 
     - onFrameBefore()
     
@@ -24,7 +25,7 @@ onKeyup ...
             
     - onFrameAfter
     
-- --------------------------------------------------
+- end loop ----------------------------------------------------
 ```
 
 

@@ -1,14 +1,14 @@
 (function(window, An){
 
     console.clear();
-    console.log("Loaded: Demo");
+    console.log("Loaded: Demo transform");
 
 
     var an = new An({
         selector: "canvas#canvas",
         width: 600,
         height: 400,
-        fps: 60,
+        fps: 30,
 
         onClick: null,
         onFrame: null,
@@ -28,82 +28,103 @@
         sorting: true,
         filtering: true,
 
-        enableEventClick: true,
+        enableEventClick: false,
         enableEventMousemove: false,
-        enableEventKeys: false
+        enableEventKeys: true
     });
 
     var Dm = {};
-    Dm.clip = {};
-    Dm.dynamicSec = 0;
-    Dm.dynamicMin = 0;
-    Dm.dynamicHour = 0;
 
-    Dm.onMousemove = function(point){};
-    Dm.onClick = function (point) { };
-    Dm.onFrame = function (ctx, frameCounter) {
+    Dm.heroPoint = {x: an.width/2, y: an.height - 30};
+    Dm.heroPointDynamic = {x: 0, y: 0};
+    Dm.heroSpeed = 3;
+    Dm.heroLeft = false;
+    Dm.heroRight = false;
+    Dm.heroUp = false;
+    Dm.heroDown = false;
+    Dm.satus = 'play';
 
+    Dm.tracksList = [
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 50,  100, 50)},
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 100, 100, 50)},
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 150, 100, 50)},
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 200, 100, 50)},
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 250, 100, 50)},
+        {speed: An.Util.rand(2, 8), rect: an.rectangle(An.Util.rand(-100, an.width), 300, 100, 50)}
+    ];
 
-        //console.log(Math.sin( Dm.dynamicRotate ));
+    Dm.setTracks = function (ctx) {
+        var i;
 
-        // Rotate
-        Dm.dynamicSec += 0.10471975511965977;
-        if (Dm.dynamicSec > 6.283185307179586) Dm.dynamicSec = 0;
-        Dm.dynamicMin += 0.0017453292519943294;
-        if (Dm.dynamicMin > 6.283185307179586) Dm.dynamicMin = 0;
-        Dm.dynamicHour += 0.000029088820866572157;
-        if (Dm.dynamicHour > 6.283185307179586) Dm.dynamicHour = 0;
+        for (i = 0; i < Dm.tracksList.length; i ++) {
 
-        ctx.save();
-        ctx.translate(200, 200);
-        ctx.rotate(Dm.dynamicSec);
-        an.Graphic.rect(0, -2, 150, 4, '#ddd', true);
-        ctx.restore();
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = '#D04A2E';
+            ctx.rect.apply(ctx, Dm.tracksList[i]['rect']);
+            ctx.fill();
+            ctx.stroke();
 
-        ctx.save();
-        ctx.translate(200, 200);
-        ctx.rotate(Dm.dynamicMin);
-        an.Graphic.rect(0, -3, 100, 6, '#ddd', true);
-        ctx.restore();
+            if (ctx.isPointInPath(Dm.heroPoint.x, Dm.heroPoint.y)) {
 
-        ctx.save();
-        ctx.translate(200, 200);
-        ctx.rotate(Dm.dynamicHour);
-        an.Graphic.rect(0, -3, 70, 6, '#ddd', true);
-        ctx.restore();
+                Dm.satus = 'end';
+            }
 
-        an.Graphic.circle(200, 200, 20, '#eee', true);
+            ctx.closePath();
 
+            if (Dm.tracksList[i]['rect'][0] > an.width) {
+                Dm.tracksList[i]['rect'][0] = An.Util.rand(-200, -50);
+                Dm.tracksList[i]['speed'] = An.Util.rand(2, 8);
+            } else
+                Dm.tracksList[i]['rect'][0] += Dm.tracksList[i]['speed'];
 
-
-
-
-/*
-        an.Graphic.rect(100, 50, 150, 40, '#ddd', true);
-
-        // Rotate
-        ctx.save();
-        ctx.translate(100, 100);
-        //ctx.rotate(An.Util.degreesToRadians(45));
-        ctx.rotate(Dm.dynamicRotate);
-        an.Graphic.rect(0, 0, 150, 3, '#ddd', true);
-        ctx.restore();
-
-        an.Graphic.rect(100, 150, 150, 40, '#ddd', true);
-*/
+        }
     };
 
 
+    Dm.setHero = function (ctx) {
+        ctx.beginPath();
+        an.Graphic.circle(Dm.heroPoint.x, Dm.heroPoint.y, 25, '#56D130', true);
+    };
 
+    //Dm.onMousemove = function(point) {};
+    //Dm.onClick = function (point) {};
 
+    Dm.onFrame = function (ctx, frameCounter) {
 
+        if (Dm.satus == 'play') {
 
+            Dm.setTracks(ctx);
+            Dm.setHero(ctx);
 
-    //an.scene(function(ctx){});
+            if (Dm.heroLeft)    Dm.heroPoint.x -= Dm.heroSpeed;
+            if (Dm.heroRight)   Dm.heroPoint.x += Dm.heroSpeed;
+            if (Dm.heroUp)      Dm.heroPoint.y -= Dm.heroSpeed;
+            if (Dm.heroDown)    Dm.heroPoint.y += Dm.heroSpeed;
+        }
+        else {
 
-    an.onClick = Dm.onClick;
+            an.Text.write(200, 200, 'Game Over', '#000', true);
+        }
+
+    };
+
+    an.Event.addKeydown(37, function(e){Dm.heroLeft = true});
+    an.Event.addKeyup(37, function(){Dm.heroLeft = false});
+
+    an.Event.addKeydown(39, function(){Dm.heroRight = true});
+    an.Event.addKeyup(39, function(){Dm.heroRight = false});
+
+    an.Event.addKeydown(38, function(){Dm.heroUp = true});
+    an.Event.addKeyup(38, function(){Dm.heroUp = false});
+
+    an.Event.addKeydown(40, function(){Dm.heroDown = true});
+    an.Event.addKeyup(40, function(){Dm.heroDown = false});
+
+    //an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;
-    an.onMousemove = Dm.onMousemove;
+    //an.onMousemove = Dm.onMousemove;
 
     an.render();
 
