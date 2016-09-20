@@ -39,16 +39,46 @@
     Dm.onClick = function(point){};
     Dm.onFrame = function(ctx, frameCounter){};
 
-    an.scene(function(ctx){
+
+
+
+
+    an.stage('welcome', function(ctx){
 
         ctx.beginPath();
-        ctx.fillStyle = '#1A1A52';
-        ctx.fillRect(50, 200, 20, 20);
+        ctx.fillStyle = '#dddddd';
+        ctx.rect(240, 200, 400, 35);
+        ctx.fill();
+        ctx.closePath();
+
+        if (ctx.isPointInPath(an.eventClick.x, an.eventClick.y)) {
+            console.log('Render: game');
+            an.renderStage('begin');
+        }
+
+        an.Text.font = 'bold 18px Arial';
+        an.Text.write(250, 210, "Space 3", '#000');
+    });
+
+    an.stage('begin', function(ctx){
+
+        ctx.beginPath();
+        ctx.fillStyle = '#dddddd';
+        ctx.fillRect(0, 0, 400, 200);
+
+    });
+
+    an.stage('game', function(ctx){
+
+        ctx.beginPath();
+        ctx.fillStyle = '#f02f03';
+        ctx.fillRect(0, 0, 400, 200);
 
     });
 
     an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;
-    an.render();
+
+    an.render('welcome');
 
 })(window, An);

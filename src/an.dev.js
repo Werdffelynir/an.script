@@ -233,7 +233,7 @@
         this.frameCounter++;
         this.scenesFiltering();
 
-        var i, fi, scene,
+        var i, fi, scene, sceneFlag,
             scenes = this.lists.scenes;
 
         if (this.autoClear === true)
@@ -263,7 +263,24 @@
                             this.context.save();
                         if (typeof this.onFrame === 'function')
                             this.onFrame.call(this, this.context, this.frameCounter);
-                        scene.runner.call(scene, this.context, this.frameCounter);
+
+                        sceneFlag = scene.runner.call(scene, this.context, this.frameCounter);
+
+                        // Stages chain
+                        if (sceneFlag === true &&
+                            typeof scene.nextStage === 'string' &&
+                            typeof this.lists.stages[scene.nextStage] === 'object') {
+
+                            this.renderStage(scene.nextStage);
+                            break;
+
+                        } else if (typeof sceneFlag === 'string' &&
+                            typeof this.lists.stages[sceneFlag] === 'object') {
+
+                            this.renderStage(sceneFlag);
+                            break;
+                        }
+
                         if (this.saveRestore)
                             this.context.restore();
 
@@ -426,10 +443,16 @@
     /**
      * scene object uses as frame for animation
      * @param sceneObject
-     * @returns {{index: number, hide: boolean, name: string, runner: null}}
+     * @returns {{index: number, hide: boolean, name: string, runner: null, nextStage: null}}
      */
     An.prototype.createSceneObject = function (sceneObject) {
-        var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
+        var sceneObjectDefault = {
+            index: 100,
+            hide: false,
+            name: 'scene',
+            runner: null,
+            nextStage: null
+        };
         if (typeof sceneObject === 'function') sceneObject = {runner: sceneObject};
         Util.mergeObject(sceneObjectDefault, sceneObject);
         return sceneObjectDefault;
@@ -439,13 +462,15 @@
      * Added stage
      * @param {String} stageName - name of stage, rendering is defined by name
      * @param {{index: number, hide: boolean, name: string, runner: null}|function} sceneObject - Object. is scene object
+     * @param nextStage
      */
-    An.prototype.stage = function (stageName, sceneObject) {
+    An.prototype.stage = function (stageName, sceneObject, nextStage) {
         if (this.lists.stages[stageName] == null)
             this.lists.stages[stageName] = [];
 
         sceneObject = this.createSceneObject(sceneObject);
-
+        if (nextStage)
+            sceneObject.nextStage = nextStage;
         this.lists.stages[stageName].push(sceneObject);
     };
 
@@ -1056,7 +1081,8 @@
             textAlign: 'start',
             textBaseline: "top",
             direction: "inherit",
-            lineWidth: 1
+            lineWidth: 1,
+            color: null
         };
 
         /**
@@ -1084,9 +1110,12 @@
             if (Text.lineWidth)
                 self.context.lineWidth = Text.lineWidth;
 
+            if (Text.color)
+                color = Text.color;
+
             self.context.beginPath();
 
-            if (fill) {
+            if (fill === true || fill === undefined) {
                 self.context.fillStyle = color || '#DDD';
                 self.context.fillText(label, x, y);
 
@@ -1229,7 +1258,7 @@
     //window.An.prototype = An.prototype;
     //window.An.prototype.constructor = An;
     window.An.Util = Util;
-    window.An.version = '1.0.0';
+    window.An.version = '0.2.2';
     window.An.point = An.prototype.point;
     window.An.rectangle = An.prototype.rectangle;
 
