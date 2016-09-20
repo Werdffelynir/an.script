@@ -83,10 +83,10 @@
 
     if (afterCanvas) {
         var html = '<div id="ranges">';
-        html += '<div><input id="trans_a" type="range" min="-1" max="2" step="0.1" value="1"> <span>1</span></div>';
-        html += '<div><input id="trans_b" type="range" min="-1" max="2" step="0.1" value="0"> <span>0</span></div>';
-        html += '<div><input id="trans_c" type="range" min="-1" max="2" step="0.1" value="0"> <span>0</span></div>';
-        html += '<div><input id="trans_d" type="range" min="-1" max="2" step="0.1" value="1"> <span>1</span></div>';
+        html += '<div><input id="trans_a" type="range" min="-1" max="2" step="0.01" value="1"> <span>1</span></div>';
+        html += '<div><input id="trans_b" type="range" min="-1" max="2" step="0.01" value="0"> <span>0</span></div>';
+        html += '<div><input id="trans_c" type="range" min="-1" max="2" step="0.01" value="0"> <span>0</span></div>';
+        html += '<div><input id="trans_d" type="range" min="-1" max="2" step="0.01" value="1"> <span>1</span></div>';
         html += '<div><input id="trans_e" type="range" min="-200" max="200" step="10" value="0"> <span>0</span></div>';
         html += '<div><input id="trans_f" type="range" min="-200" max="200" step="10" value="0"> <span>0</span></div>';
         html += '</div>';

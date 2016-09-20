@@ -1086,7 +1086,7 @@
 
             self.context.beginPath();
 
-            if (fill) {
+            if (fill === true || fill === undefined) {
                 self.context.fillStyle = color || '#DDD';
                 self.context.fillText(label, x, y);
 
