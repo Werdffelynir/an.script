@@ -35,53 +35,17 @@
     });
 
     var Dm = {};
-    var Clip = {};
-
     Dm.list = [];
     Dm.onClick = function(point){};
     Dm.onFrame = function(ctx, frameCounter){};
 
-
-    Clip.box = an.moveClip({
-        x: 100,
-        y: 200,
-        width: 100,
-        height: 50,
-        speed: 2
-    }, function (ctx) {
-        ctx.beginPath();
-        ctx.fillStyle = '#7B5537';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-
-        this.x += this.speed;
-        if (this.x > an.width) this.x = -this.width;
-    });
-
-
-
-    Clip.ball = an.moveClip({
-        x: 100,
-        y: 300,
-        radius: 50,
-        speed: 3
-    }, function (ctx) {
-        ctx.beginPath();
-        ctx.fillStyle = '#726D7B';
-        an.Graphic.circle(this.x, this.y, this.radius);
-
-        this.x += this.speed;
-        if (this.x > an.width + this.radius/2) this.x = -this.radius/2;
-    });
-
-
     an.scene(function(ctx){
 
-        Clip.box(ctx);
-
-        Clip.ball(ctx);
+        ctx.beginPath();
+        ctx.fillStyle = '#1A1A52';
+        ctx.fillRect(50, 200, 20, 20);
 
     });
-
 
     an.onClick = Dm.onClick;
     an.onFrame = Dm.onFrame;

@@ -543,6 +543,39 @@
     };
 
     /**
+     *
+     * @param properties
+     * @param callback
+     * @returns {clip}
+     */
+    An.prototype.moveClip = function (properties, callback) {
+        var key, that = this,
+            props = {x: 0, y: 0, width: null, height: null, radius: null, rotate: 0, id: 'clip_' + this.moveClip.count,};
+
+        if (typeof properties === 'function') {
+            callback = properties;
+            properties = props;
+        } else
+            properties = Util.mergeObject(props, properties);
+
+        var create = function (ctx) {
+            var i, args = [];
+            for (i = 0; i < arguments.length; i ++) {
+                args.push(arguments[i]);
+            }
+            callback.apply(create, args);
+        };
+
+        for (key in properties)
+            if (!create.hasOwnProperty(key)) create[key] = properties[key]
+
+        this.moveClip.count ++;
+        return create;
+    };
+    An.prototype.moveClip.count = 0;
+
+
+    /**
      * Event mouse click hitTest in rectangle
      * @param rectangle
      */
@@ -659,7 +692,7 @@
      * @returns {Object}
      */
     Util.cloneObject = function (object) {
-        if (object === null || typeof object !== 'object') return obj;
+        if (object === null || typeof object !== 'object') return object;
         var temp = object.constructor();
         for (var key in object)
             temp[key] = Util.cloneObject(object[key]);

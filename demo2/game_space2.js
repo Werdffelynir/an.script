@@ -60,19 +60,21 @@
 
     Dm.onClick = function(point){
 
-        if (point.x < 200) {
-            Dm.clip.shuttle.dx = -3;
-        }
-        else if (point.x > 400) {
-            Dm.clip.shuttle.dx = 3;
-        }
-        else if (point.x > 200 && point.x < 400) {
-            Dm.clip.shuttle.dx = 0;
-        }
-
         if (!Dm.clip.shuttle.isMove) {
             Dm.clip.shuttle.isMove = true;
-            Dm.clip.shuttle.dy = -4;
+
+            if (point.x < 200) {
+                Dm.clip.shuttle.dx = -3;
+            }
+            else if (point.x > 400) {
+                Dm.clip.shuttle.dx = 3;
+            }
+            else if (point.x > 200 && point.x < 400) {
+                Dm.clip.shuttle.dy = -4;
+                Dm.clip.shuttle.dx = 0;
+            }
+
+
         }
 
     };
