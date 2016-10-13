@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="grid.css">
+    <script src="src/an.core.loop.js"></script>
+    <style>
+        #canvas{
+            margin: 0 auto;
+            /*border: 3px #515151 solid;*/
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<canvas id="canvas_two"></canvas>
+
+
+
+<script>
+
+
+
+//    var options = {
+//        selector: '#canvas',
+//        width: 700,
+//        height: 400,
+//        fps: 30,
+//        loop: Loop.LOOP_ANIMATE
+//    };
+//    var loop = new Loop(options);
+//
+//    loop.frame('main', function(ctx, frameCounter){
+//        console.log(ctx, frameCounter);
+//        ctx.fillRect(50, 50, 100, 100);
+//    });
+//
+//    loop.render('main');
+
+
+
+
+    var options_two = {
+        selector: '#canvas_two',
+        width: 700,
+        height: 400,
+        fps: 30,
+        loop: Loop.LOOP_ANIMATE
+    };
+    var loop2 = new Loop(options_two);
+    loop2.frame(function(ctx, frameCounter){
+        console.log(ctx, frameCounter);
+        ctx.fillStyle = '#f00';
+        ctx.fillRect(100, 150, 50, 50);
+    });
+    loop2.render();
+
+
+
+</script>
+</body>
+</html>
