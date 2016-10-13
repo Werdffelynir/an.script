@@ -14,6 +14,7 @@
             height: 400,
             fps: 30,
             loop: 'animation',
+            autoClear: true,
             sorting: true,
             filtering: true
         };
@@ -52,6 +53,9 @@
         var frames = this.frameStorageList[this.renderName];
         this.frameCounter++;
 
+        if (this.autoClear === true)
+            this.clear();
+
         if (Array.isArray(frames)) {
             if (!this.isFiltering && frames.length > 0) {
                 if (!!this.sorting)
@@ -73,6 +77,20 @@
         }
     };
 
+
+    /**
+     * Clear canvas area
+     */
+    Loop.prototype.clear = function () {
+        this.context.clearRect(0, 0, this.width, this.height);
+    };
+
+    /**
+     *
+     * @param name
+     * @param sceneObject
+     * @returns {*}
+     */
     Loop.prototype.frame = function (name, sceneObject) {
         if((typeof name === 'object' || typeof name === 'function') && arguments.length === 1){
             sceneObject = name;
@@ -86,6 +104,11 @@
         return sceneObject;
     };
 
+    /**
+     *
+     * @param sceneObject
+     * @returns {{index: number, hide: boolean, name: string, runner: null}}
+     */
     Loop.prototype.createSceneObject = function (sceneObject) {
         var sceneObjectDefault = {index: 100, hide: false, name: 'scene', runner: null};
         if (typeof sceneObject === 'function') sceneObject = {runner: sceneObject};
@@ -93,10 +116,18 @@
         return sceneObjectDefault;
     };
 
+    /**
+     *
+     * @param renderName
+     */
     Loop.prototype.render = function (renderName) {
         this.play(renderName || 'default');
     };
 
+    /**
+     *
+     * @param renderName
+     */
     Loop.prototype.play = function (renderName) {
         if (!this.isPlay) {
             this.renderName = renderName;
@@ -110,6 +141,9 @@
         }
     };
 
+    /**
+     *
+     */
     Loop.prototype.stop = function () {
         if (this.isPlay) {
             if (this.loop === Loop.LOOP_ANIMATE) {
@@ -122,7 +156,9 @@
         }
     };
 
-
+    /**
+     *
+     */
     Loop.prototype.loopTimer = function () {
         var that = this;
         var fps = this.fps || 30;
@@ -135,6 +171,9 @@
         }());
     };
 
+    /**
+     *
+     */
     Loop.prototype.loopAnimationFrame = function () {
         var that = this;
         var then = new Date().getTime();
@@ -152,6 +191,39 @@
         }(0));
     };
 
+    /**
+     *
+     * @param properties
+     * @param callback
+     * @returns {clip}
+     */
+    Loop.prototype.clip = function (properties, callback) {
+        var key, that = this,
+            props = {x: 0, y: 0, width: null, height: null, radius: null, rotate: 0, id: 'clip_' + this.moveClip.count,};
+
+        if (typeof properties === 'function') {
+            callback = properties;
+            properties = props;
+        } else
+            properties = Util.defaultObject(props, properties);
+
+        var create = function (ctx) {
+            var i, args = [];
+            for (i = 0; i < arguments.length; i ++) {
+                args.push(arguments[i]);
+            }
+            callback.apply(create, args);
+        };
+
+        for (key in properties)
+            if (!create.hasOwnProperty(key)) create[key] = properties[key]
+
+        this.clip.count ++;
+        return create;
+    };
+    Loop.prototype.clip.count = 0;
+
+
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Utilities static methods
@@ -159,12 +231,124 @@
 
     var Util = {};
 
+
+    /**
+     *
+     * @param defaultObject
+     * @param object
+     * @returns {*}
+     */
     Util.defaultObject = function (defaultObject, object) {
         for (var key in object) {
             defaultObject[key] = object[key];
         }
         return defaultObject;
     };
+
+
+    /**
+     * Returns the coordinates of the mouse on canvas element
+     * @param {Object} canvas
+     * @param {Object} event
+     * @returns {{x: number, y: number}}
+     */
+    Util.getMouseCanvas = function (canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    };
+
+
+    /**
+     * Returns a random integer between min, max, unless specified from 0 to 100
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
+    Util.random = function (min, max) {
+        min = min || 0;
+        max = max || 100;
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
+    /**
+     * Random color. Returns a string HEX format color.
+     * @returns {string}
+     */
+    Util.randomColor = function () {
+        var letters = '0123456789ABCDEF'.split(''),
+            color = '#';
+        for (var i = 0; i < 6; i++)
+            color += letters[Math.floor(Math.random() * 16)];
+        return color;
+    };
+
+    /**
+     * Converts degrees to radians
+     * @param {number} deg - degrees
+     * @returns {number}
+     */
+    Util.degreesToRadians = function (deg) {
+        return (deg * Math.PI) / 180;
+    };
+
+    /**
+     * Converts radians to degrees
+     * @param {number} rad - radians
+     * @returns {number}
+     */
+    Util.radiansToDegrees = function (rad) {
+        return (rad * 180) / Math.PI;
+    };
+
+    /**
+     * Calculate the number of items in e "obj"
+     * @param {Object} obj
+     * @returns {number}
+     */
+    Util.objectLength = function (obj) {
+        var it = 0;
+        for (var k in obj) it++;
+        return it;
+    };
+
+    /**
+     * Cloned object
+     * @param {Object} object
+     * @returns {Object}
+     */
+    Util.cloneObject = function (object) {
+        if (object === null || typeof object !== 'object') return obj;
+        var temp = object.constructor();
+        for (var key in object)
+            temp[key] = Util.cloneObject(object[key]);
+        return temp;
+    };
+
+
+    /**
+     * Calculate the distance between points
+     * @param {Object} p1
+     * @param {number} p1.x
+     * @param {number} p1.y
+     * @param {Object} p2
+     * @param {number} p2.x
+     * @param {number} p2.y
+     * @returns {number}
+     */
+    Util.distanceBetween = function (p1, p2) {
+        var dx = p2.x - p1.x;
+        var dy = p2.y - p1.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+
+
+
+
+
 
 
     window.Loop = Loop;

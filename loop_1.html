@@ -16,46 +16,123 @@
 
 <canvas id="canvas"></canvas>
 <canvas id="canvas_two"></canvas>
-
-
+<canvas id="canvas_tree"></canvas>
 
 <script>
 
+/*
+
+loop
 
 
-//    var options = {
-//        selector: '#canvas',
-//        width: 700,
-//        height: 400,
-//        fps: 30,
-//        loop: Loop.LOOP_ANIMATE
-//    };
-//    var loop = new Loop(options);
-//
-//    loop.frame('main', function(ctx, frameCounter){
-//        console.log(ctx, frameCounter);
-//        ctx.fillRect(50, 50, 100, 100);
-//    });
-//
-//    loop.render('main');
+frame(name , sceneObject)
+render(name)
+
+clear()
+play(name)
+stop()
+clip(properties, callback)
+
+# Properties
+isPlay                          SYSTEM (Read Only)
+isFiltering                     SYSTEM (Read Only)
+frameCounter                    SYSTEM (Read Only)
+frameStorageList                SYSTEM
+renderName                      SYSTEM (Read Only)
+onFrame                         Принимает функцию, которая будет вызыватся при каждой смене кадров
+canvas
+context
+
+# Constants
+LOOP_TIMER
+LOOP_ANIMATE
+
+# Static object
+Util
+ defaultObject
+ getMouseCanvas
+ random
+ randomColor
+ degreesToRadians
+ radiansToDegrees
+ objectLength
+ cloneObject
+ distanceBetween
+*/
+
+
+
+
+
+    var options = {
+        selector: '#canvas',
+        width: 300,
+        height: 300,
+        fps: 30,
+        loop: Loop.LOOP_ANIMATE
+    };
+    var loop = new Loop(options);
+    loop.frame('main', function(ctx, frameCounter){
+        //console.log(ctx, frameCounter);
+        ctx.fillRect(50, 50, 50, 50);
+    });
+    loop.render('main');
+
+
+
+
+
+
+
 
 
 
 
     var options_two = {
         selector: '#canvas_two',
-        width: 700,
-        height: 400,
+        width: 300,
+        height: 300,
         fps: 30,
         loop: Loop.LOOP_ANIMATE
     };
     var loop2 = new Loop(options_two);
     loop2.frame(function(ctx, frameCounter){
-        console.log(ctx, frameCounter);
+        //console.log(ctx, frameCounter);
         ctx.fillStyle = '#f00';
-        ctx.fillRect(100, 150, 50, 50);
+        ctx.fillRect(100, 100, 50, 50);
     });
     loop2.render();
+
+
+
+
+
+
+
+
+
+
+    var options_tree = {
+        selector: '#canvas_tree',
+        width: 300,
+        height: 300,
+        fps: 30,
+        loop: Loop.LOOP_ANIMATE
+    };
+    var loop3 = new Loop(options_tree);
+    loop3.frame({
+        x: 0,
+        runner: function(ctx, frameCounter){
+            //console.log(ctx, frameCounter);
+            ctx.fillStyle = '#f0f';
+            ctx.fillRect(this.x, 100, 50, 50);
+
+            this.x ++;
+            if (this.x > loop3.width)
+                this.x = 0;
+        }
+    });
+    loop3.render();
 
 
 
