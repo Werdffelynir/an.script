@@ -18,7 +18,7 @@
 
     /**
      * Constructor, create one animation canvas
-     *
+     * 
      * @param props_selector
      * @param width
      * @param height
