@@ -1286,10 +1286,7 @@
     // External out
     //
 
-    //console.log(An.prototype.point);
     window.An = An;
-    //window.An.prototype = An.prototype;
-    //window.An.prototype.constructor = An;
     window.An.Util = Util;
     window.An.version = '0.2.2';
     window.An.point = An.prototype.point;

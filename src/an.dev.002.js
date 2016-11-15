@@ -1191,6 +1191,6 @@
 
     window.An = An;
     window.An.Util = Util;
-    window.An.version = '1.2.0';
+    window.An.version = '0.2.0';
 
 })();
